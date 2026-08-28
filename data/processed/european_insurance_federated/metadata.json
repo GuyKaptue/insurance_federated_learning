@@ -1,0 +1,314 @@
+{
+  "dataset_name": "European Insurance Federated Learning Dataset",
+  "dataset_version": "v1.0",
+  "random_seed": 42,
+  "samples_per_client": 5000,
+  "generation_date": "2026-08-28T22:20:02.152127",
+  "clients": [
+    "germany_allianz",
+    "france_axa",
+    "belgium_ageas",
+    "switzerland_helvetia"
+  ],
+  "countries": [
+    "Germany",
+    "France",
+    "Belgium",
+    "Switzerland"
+  ],
+  "companies": [
+    "Allianz",
+    "AXA",
+    "Ageas",
+    "Helvetia"
+  ],
+  "total_samples_per_client": 5000,
+  "total_samples": 20000,
+  "has_centralized_dataset": true,
+  "feature_types": {
+    "numerical": [
+      "annual_income",
+      "savings_balance",
+      "policy_count",
+      "policy_value",
+      "age",
+      "years_as_customer",
+      "number_of_claims",
+      "total_claim_amount",
+      "claim_frequency",
+      "property_value",
+      "medical_expenses",
+      "life_expectancy",
+      "health_risk_score",
+      "driving_experience",
+      "vehicle_value",
+      "liability_risk",
+      "debt_to_income_ratio",
+      "credit_score",
+      "family_members",
+      "policy_duration",
+      "premium_amount"
+    ],
+    "categorical": [
+      "marital_status",
+      "education_level",
+      "employment_status",
+      "home_ownership",
+      "insurance_package",
+      "risk_category",
+      "policy_type",
+      "vehicle_type",
+      "property_type",
+      "profession",
+      "primary_insurance_type",
+      "policy_status"
+    ]
+  },
+  "targets": {
+    "claim_risk_score": {
+      "type": "regression",
+      "range": [
+        0,
+        100
+      ]
+    },
+    "customer_lifetime_value": {
+      "type": "regression",
+      "range": [
+        1000,
+        250000
+      ]
+    },
+    "will_renew": {
+      "type": "binary",
+      "classes": [
+        "No",
+        "Yes"
+      ]
+    },
+    "is_high_risk": {
+      "type": "binary",
+      "classes": [
+        "No",
+        "Yes"
+      ]
+    },
+    "customer_segment": {
+      "type": "multi_class",
+      "classes": [
+        "Standard",
+        "Premium",
+        "Elite"
+      ]
+    }
+  },
+  "country_statistics": {
+    "Germany": {
+      "company": "Allianz",
+      "income_mean": 50000,
+      "income_std": 15000,
+      "savings_rate": 0.107,
+      "savings_mean": 3568,
+      "claim_frequency": 0.044,
+      "life_expectancy": 81,
+      "avg_age": 46.5,
+      "population": 83200000,
+      "gdp_per_capita": 48000,
+      "car_premium": 800,
+      "health_spending": 6000,
+      "risk_appetite": 0.7,
+      "digital_adoption": 0.85,
+      "market_share": 0.25
+    },
+    "France": {
+      "company": "AXA",
+      "income_mean": 45000,
+      "income_std": 14000,
+      "savings_rate": 0.184,
+      "savings_mean": 2876,
+      "claim_frequency": 0.055,
+      "life_expectancy": 82,
+      "avg_age": 42.3,
+      "population": 67750000,
+      "gdp_per_capita": 43000,
+      "car_premium": 900,
+      "health_spending": 5500,
+      "risk_appetite": 0.8,
+      "digital_adoption": 0.8,
+      "market_share": 0.22
+    },
+    "Belgium": {
+      "company": "Ageas",
+      "income_mean": 42000,
+      "income_std": 13000,
+      "savings_rate": 0.129,
+      "savings_mean": 2778,
+      "claim_frequency": 0.038,
+      "life_expectancy": 81,
+      "avg_age": 41.8,
+      "population": 11590000,
+      "gdp_per_capita": 41000,
+      "car_premium": 750,
+      "health_spending": 5000,
+      "risk_appetite": 0.6,
+      "digital_adoption": 0.82,
+      "market_share": 0.18
+    },
+    "Switzerland": {
+      "company": "Helvetia",
+      "income_mean": 65000,
+      "income_std": 20000,
+      "savings_rate": 0.181,
+      "savings_mean": 5908,
+      "claim_frequency": 0.03,
+      "life_expectancy": 84,
+      "avg_age": 43.2,
+      "population": 8700000,
+      "gdp_per_capita": 65000,
+      "car_premium": 1200,
+      "health_spending": 7000,
+      "risk_appetite": 0.5,
+      "digital_adoption": 0.9,
+      "market_share": 0.2
+    }
+  },
+  "splits": {
+    "train": 0.6,
+    "val": 0.2,
+    "test": 0.2
+  },
+  "client_germany_allianz_metadata": {
+    "country": "Germany",
+    "company": "Allianz",
+    "total_samples": 5000,
+    "train_samples": 3000,
+    "val_samples": 1000,
+    "test_samples": 1000,
+    "feature_count": 41,
+    "target_distribution": {
+      "claim_risk_score": {
+        "mean": 8.436802063168585,
+        "std": 6.5487034108883355
+      },
+      "customer_lifetime_value": {
+        "mean": 3410.2547185748235,
+        "std": 1368.2253138841463
+      },
+      "will_renew": {
+        "1": 4723,
+        "0": 277
+      },
+      "is_high_risk": {
+        "0": 3240,
+        "1": 1760
+      },
+      "customer_segment": {
+        "1": 1761,
+        "2": 1716,
+        "0": 1523
+      }
+    }
+  },
+  "client_france_axa_metadata": {
+    "country": "France",
+    "company": "AXA",
+    "total_samples": 5000,
+    "train_samples": 3000,
+    "val_samples": 1000,
+    "test_samples": 1000,
+    "feature_count": 41,
+    "target_distribution": {
+      "claim_risk_score": {
+        "mean": 10.177282098314029,
+        "std": 8.28438409983824
+      },
+      "customer_lifetime_value": {
+        "mean": 3226.7153344047433,
+        "std": 1316.3671165222236
+      },
+      "will_renew": {
+        "1": 4308,
+        "0": 692
+      },
+      "is_high_risk": {
+        "0": 3275,
+        "1": 1725
+      },
+      "customer_segment": {
+        "0": 1766,
+        "2": 1740,
+        "1": 1494
+      }
+    }
+  },
+  "client_belgium_ageas_metadata": {
+    "country": "Belgium",
+    "company": "Ageas",
+    "total_samples": 5000,
+    "train_samples": 3000,
+    "val_samples": 1000,
+    "test_samples": 1000,
+    "feature_count": 41,
+    "target_distribution": {
+      "claim_risk_score": {
+        "mean": 6.692189583348274,
+        "std": 5.9733300395763385
+      },
+      "customer_lifetime_value": {
+        "mean": 2952.252411335177,
+        "std": 1209.6401771566207
+      },
+      "will_renew": {
+        "1": 4669,
+        "0": 331
+      },
+      "is_high_risk": {
+        "0": 3218,
+        "1": 1782
+      },
+      "customer_segment": {
+        "0": 1930,
+        "1": 1573,
+        "2": 1497
+      }
+    }
+  },
+  "client_switzerland_helvetia_metadata": {
+    "country": "Switzerland",
+    "company": "Helvetia",
+    "total_samples": 5000,
+    "train_samples": 3000,
+    "val_samples": 1000,
+    "test_samples": 1000,
+    "feature_count": 41,
+    "target_distribution": {
+      "claim_risk_score": {
+        "mean": 5.203185675746759,
+        "std": 4.931501287094894
+      },
+      "customer_lifetime_value": {
+        "mean": 4399.616960008689,
+        "std": 1676.2576334053329
+      },
+      "will_renew": {
+        "1": 4736,
+        "0": 264
+      },
+      "is_high_risk": {
+        "0": 3467,
+        "1": 1533
+      },
+      "customer_segment": {
+        "2": 2047,
+        "1": 1751,
+        "0": 1202
+      }
+    }
+  },
+  "centralized": {
+    "train_samples": 12000,
+    "val_samples": 4000,
+    "test_samples": 4000,
+    "total_samples": 20000
+  }
+}

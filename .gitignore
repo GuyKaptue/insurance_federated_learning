@@ -1,0 +1,497 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# ============================================================
+# Virtual Environments
+# ============================================================
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+.env
+.venv
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+# VSCode
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+.idea/dictionaries
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Emacs
+*~
+\#*
+.\#*
+
+# Vim
+*.swp
+*.swo
+*.un~
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# ============================================================
+# Data Files (Only ignore large generated files, keep structure)
+# ============================================================
+# Parquet files (ignore all parquet files)
+*.parquet
+*.parquet/*
+
+# NumPy arrays
+*.npy
+*.npz
+
+# CSV files (except small samples)
+*.csv
+!*.sample.csv
+!*.csv.gz
+
+# HDF5
+*.h5
+*.hdf5
+
+# Feather
+*.feather
+
+# Arrow
+*.arrow
+
+# Pickle files
+*.pkl
+*.pickle
+*.joblib
+
+# ============================================================
+# Logs
+# ============================================================
+logs/
+*.log
+*.log.*
+*.out
+*.err
+
+# Keep log directory structure
+!logs/.gitkeep
+
+# ============================================================
+# MLflow
+# ============================================================
+mlruns/
+mlflow.db
+*.mlflow
+artifacts/
+
+# ============================================================
+# Weights & Biases
+# ============================================================
+wandb/
+wandb/*
+
+# ============================================================
+# DVC
+# ============================================================
+.dvc/
+*.dvc
+*.tmp
+.dvcignore
+.dvc/cache
+
+# ============================================================
+# Model checkpoints
+# ============================================================
+*.h5
+*.keras
+*.pb
+*.onnx
+*.pt
+*.pth
+checkpoints/
+models/
+*.model
+
+# ============================================================
+# Reports and Outputs (Keep structure, ignore generated content)
+# ============================================================
+# Keep directory structure but ignore generated files
+outputs/reports/*.html
+outputs/reports/*.json
+outputs/reports/*.md
+!outputs/reports/*_template.html
+!outputs/reports/*_template.md
+!outputs/reports/.gitkeep
+
+# Generated plots
+outputs/reports/**/plots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+
+# Keep plot directory structure
+!outputs/reports/**/plots/.gitkeep
+
+# ============================================================
+# Data directories (Keep structure visible)
+# ============================================================
+# Ignore generated data files but keep directories visible
+data/processed/**/*.parquet
+data/processed/**/*.npy
+data/processed/**/*.npz
+data/processed/**/*.csv
+data/processed/**/*.json
+!data/processed/**/metadata.json
+!data/processed/**/dataset_info.json
+
+data/synthetic/**/*.parquet
+data/synthetic/**/*.npy
+data/synthetic/**/*.npz
+data/synthetic/**/*.csv
+
+data/raw/**/*.parquet
+data/raw/**/*.npy
+data/raw/**/*.npz
+data/raw/**/*.csv
+
+data/external/**/*.parquet
+data/external/**/*.npy
+data/external/**/*.npz
+data/external/**/*.csv
+
+# But keep all directory structures and metadata files
+!data/processed/.gitkeep
+!data/processed/**/.gitkeep
+!data/processed/**/metadata.json
+!data/processed/**/dataset_info.json
+!data/processed/**/info.json
+!data/raw/.gitkeep
+!data/synthetic/.gitkeep
+!data/external/.gitkeep
+
+# ============================================================
+# OS files
+# ============================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.tmp
+
+# ============================================================
+# Docker
+# ============================================================
+docker-compose.override.yml
+*.dockerignore
+
+# ============================================================
+# Kubernetes
+# ============================================================
+*.secret.yaml
+*.secret.yml
+kubeconfig
+kubeconfig.*
+
+# ============================================================
+# Terraform
+# ============================================================
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+*.tfvars.json
+
+# ============================================================
+# Cloud
+# ============================================================
+# AWS
+.aws/
+aws-credentials.json
+*credentials.json
+
+# GCP
+*.key.json
+*.service-account.json
+
+# Azure
+*.azureauth.json
+
+# ============================================================
+# Environment variables
+# ============================================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# ============================================================
+# Testing
+# ============================================================
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+htmlcov/
+*.cover
+*.py,cover
+.hypothesis/
+pytest-debug.log
+
+# ============================================================
+# MyPy
+# ============================================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================================================
+# Pyre type checker
+# ============================================================
+.pyre/
+
+# ============================================================
+# Pytype
+# ============================================================
+.pytype/
+
+# ============================================================
+# Cython
+# ============================================================
+cython_debug/
+
+# ============================================================
+# Profiling
+# ============================================================
+*.prof
+*.pstats
+
+# ============================================================
+# Pre-commit
+# ============================================================
+.pre-commit-config.yaml.local
+
+# ============================================================
+# Bandit
+# ============================================================
+.bandit
+
+# ============================================================
+# Google Colab
+# ============================================================
+*.ipynb_checkpoints/
+sample_data/
+
+# ============================================================
+# Jupyter extensions
+# ============================================================
+jupyter_notebook_config.py
+
+# ============================================================
+# Experiment tracking
+# ============================================================
+experiments/
+experiments/*/
+!experiments/README.md
+!experiments/.gitkeep
+
+# ============================================================
+# Temporary files
+# ============================================================
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+
+# ============================================================
+# Database files
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# Compiled Python files
+# ============================================================
+*.pyc
+*.pyo
+__pycache__/
+
+# ============================================================
+# Compression files
+# ============================================================
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ============================================================
+# SSH keys
+# ============================================================
+*.pem
+*.key
+*.pub
+
+# ============================================================
+# Certificate files
+# ============================================================
+*.crt
+*.cert
+*.csr
+
+# ============================================================
+# Package manager files
+# ============================================================
+package-lock.json
+yarn.lock
+composer.lock
+
+# ============================================================
+# Node.js (if using for frontend)
+# ============================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================================
+# Frontend build
+# ============================================================
+dist/
+build/
+*.min.js
+*.min.css
+
+# ============================================================
+# Terraform state lock
+# ============================================================
+.terraform.lock.hcl
+
+# ============================================================
+# System files
+# ============================================================
+*.lock
+*.pid
+
+# ============================================================
+# GPG key files
+# ============================================================
+*.asc
+*.gpg
+
+# ============================================================
+# Linting
+# ============================================================
+.flake8
+.pylintrc
+.mypy.ini
+
+# ============================================================
+# Project specific - Keep metadata visible
+# ============================================================
+# Ignore large generated data files but keep metadata
+data/processed/**/metadata.json
+data/processed/**/dataset_info.json
+!data/processed/**/metadata.json
+!data/processed/**/dataset_info.json
+
+# ============================================================
+# Keep structure files
+# ============================================================
+!.gitkeep
+!*/.gitkeep
+!**/.gitkeep
+!*.sample.csv
+!*.sample.parquet

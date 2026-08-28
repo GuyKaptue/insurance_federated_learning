@@ -1,0 +1,116 @@
+[build-system]
+requires = [
+    "setuptools>=68.0.0",
+    "wheel>=0.41.0",
+    "setuptools-scm>=7.1.0"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insurance-federated-learning"
+version = "1.0.0"
+description = "Federated Learning Platform for European Insurance Analytics (PyTorch)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Guy M. Kaptue T", email = "guykaptue24@gmail.com"}
+]
+maintainers = [
+    {name = "Guy M. Kaptue T", email = "guykaptue24@gmail.com"}
+]
+requires-python = ">=3.11,<3.13"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = [
+    "federated-learning",
+    "insurance",
+    "machine-learning",
+    "privacy-preserving",
+    "multi-task-learning",
+    "pytorch",
+]
+dependencies = [
+    # Core Scientific Computing
+    "numpy>=1.24.0,<2.0.0",
+    "pandas>=2.0.0,<2.3.0",
+    "scipy>=1.10.0,<2.0.0",
+
+    # Data Handling & Storage
+    "pyarrow>=12.0.0,<15.0.0",
+    "Faker>=18.0.0,<25.0.0",
+
+    # Machine Learning
+    "scikit-learn>=1.2.0,<1.6.0",
+    "xgboost>=1.7.0,<2.0.0",
+    "lightgbm>=4.0.0,<5.0.0",
+
+    # PyTorch (Replaces TensorFlow)
+    "torch>=2.0.0,<3.0.0",
+    "torchvision>=0.15.0,<0.20.0",
+
+    # Federated Learning Frameworks (PyTorch Compatible)
+    "flwr>=1.4.0,<2.0.0",
+
+    # Visualization
+    "matplotlib>=3.7.0,<4.0.0",
+    "seaborn>=0.12.0,<0.14.0",
+    "plotly>=5.14.0,<6.0.0",
+
+    # API & Web Frameworks
+    "fastapi>=0.95.0,<1.0.0",
+    "uvicorn[standard]>=0.21.0,<0.30.0",
+    "pydantic>=2.0.0,<3.0.0",
+
+    # Experiment Tracking
+    "mlflow>=2.2.0,<3.0.0",
+
+    # Utilities
+    "python-dotenv>=1.0.0,<2.0.0",
+    "click>=8.1.0,<9.0.0",
+    "loguru>=0.7.0,<1.0.0",
+    "tqdm>=4.65.0,<5.0.0",
+    "rich>=13.3.0,<14.0.0",
+    "pyyaml>=6.0.0,<7.0.0",
+    "joblib>=1.2.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.2.0,<9.0.0",
+    "pytest-cov>=4.0.0,<5.0.0",
+    "black>=23.0.0,<25.0.0",
+    "flake8>=6.0.0,<8.0.0",
+    "isort>=5.12.0,<6.0.0",
+    "pre-commit>=3.0.0,<4.0.0",
+    "jupyter>=1.0.0,<2.0.0",
+]
+
+
+[tool.setuptools]
+packages = {find = {where = ["src"]}}
+package-dir = {"" = "src"}
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"

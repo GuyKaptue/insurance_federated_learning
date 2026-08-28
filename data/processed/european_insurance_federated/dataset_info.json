@@ -1,0 +1,40 @@
+{
+  "dataset_version": "v1.0",
+  "output_directory": "data/processed/european_insurance_federated",
+  "save_format": "parquet",
+  "total_clients": 4,
+  "samples_per_client": 5000,
+  "total_samples": 20000,
+  "features_count": 33,
+  "targets_count": 5,
+  "has_centralized_dataset": true,
+  "file_structure": {
+    "federated": {
+      "germany_allianz": {
+        "train": "federated/germany_allianz/train.parquet",
+        "val": "federated/germany_allianz/val.parquet",
+        "test": "federated/germany_allianz/test.parquet"
+      },
+      "france_axa": {
+        "train": "federated/france_axa/train.parquet",
+        "val": "federated/france_axa/val.parquet",
+        "test": "federated/france_axa/test.parquet"
+      },
+      "belgium_ageas": {
+        "train": "federated/belgium_ageas/train.parquet",
+        "val": "federated/belgium_ageas/val.parquet",
+        "test": "federated/belgium_ageas/test.parquet"
+      },
+      "switzerland_helvetia": {
+        "train": "federated/switzerland_helvetia/train.parquet",
+        "val": "federated/switzerland_helvetia/val.parquet",
+        "test": "federated/switzerland_helvetia/test.parquet"
+      }
+    },
+    "centralized": {
+      "train": "centralized/train.parquet",
+      "val": "centralized/val.parquet",
+      "test": "centralized/test.parquet"
+    }
+  }
+}

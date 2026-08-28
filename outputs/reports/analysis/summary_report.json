@@ -1,0 +1,71 @@
+{
+  "analysis_date": "2026-08-28 22:20:16",
+  "clients_analyzed": 4,
+  "centralized_available": true,
+  "client_summaries": {
+    "germany_allianz": {
+      "quality_score": 86.81021428571428,
+      "total_samples": 5000,
+      "features": 46,
+      "missing_values": 2,
+      "duplicates": 0.0,
+      "recommendations": [
+        "Consider imputing missing values in: annual_income, savings_balance",
+        "Review outliers in: number_of_claims, total_claim_amount, claim_frequency and 3 more",
+        "Consider transformation for skewed columns: total_claim_amount, claim_frequency, will_renew and 1 more",
+        "Remove highly correlated features: policy_value-premium_amount, age-driving_experience"
+      ]
+    },
+    "france_axa": {
+      "quality_score": 88.88814285714285,
+      "total_samples": 5000,
+      "features": 46,
+      "missing_values": 1,
+      "duplicates": 0.0,
+      "recommendations": [
+        "Consider imputing missing values in: medical_expenses",
+        "Review outliers in: total_claim_amount, claim_frequency, family_members and 1 more",
+        "Consider transformation for skewed columns: annual_income, total_claim_amount, claim_frequency and 3 more",
+        "Remove highly correlated features: age-driving_experience"
+      ]
+    },
+    "belgium_ageas": {
+      "quality_score": 98.79614285714285,
+      "total_samples": 5000,
+      "features": 46,
+      "missing_values": 0,
+      "duplicates": 0.0,
+      "recommendations": [
+        "Review outliers in: number_of_claims, total_claim_amount, claim_frequency and 3 more",
+        "Consider transformation for skewed columns: number_of_claims, total_claim_amount, claim_frequency and 2 more",
+        "Remove highly correlated features: policy_value-premium_amount, age-driving_experience"
+      ]
+    },
+    "switzerland_helvetia": {
+      "quality_score": 90.09435714285715,
+      "total_samples": 5000,
+      "features": 46,
+      "missing_values": 1,
+      "duplicates": 0.0,
+      "recommendations": [
+        "Consider imputing missing values in: medical_expenses",
+        "Review outliers in: number_of_claims, total_claim_amount, claim_frequency and 2 more",
+        "Consider transformation for skewed columns: number_of_claims, total_claim_amount, claim_frequency and 2 more",
+        "Remove highly correlated features: policy_value-premium_amount, age-driving_experience"
+      ]
+    }
+  },
+  "centralized": {
+    "quality_score": 95.12510119047619,
+    "total_samples": 20000,
+    "features": 47,
+    "missing_values": 3,
+    "duplicates": 0.0,
+    "recommendations": [
+      "Consider imputing missing values in: annual_income, savings_balance, medical_expenses",
+      "Review outliers in: number_of_claims, total_claim_amount, claim_frequency and 3 more",
+      "Consider transformation for skewed columns: annual_income, number_of_claims, total_claim_amount and 4 more",
+      "Remove highly correlated features: age-driving_experience"
+    ]
+  }
+}

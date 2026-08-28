@@ -1,0 +1,600 @@
+{
+  "data_quality_summary": {
+    "total_samples": 5000,
+    "total_features": 46,
+    "missing_value_count": 0,
+    "missing_value_total": 0,
+    "duplicate_percentage": 0.0,
+    "outlier_count": 5618,
+    "overall_quality_score": 98.79614285714285
+  },
+  "missing_values": {
+    "message": "No missing values found"
+  },
+  "outliers": {
+    "columns_with_outliers": 28,
+    "outlier_columns": [
+      [
+        "renewal_probability",
+        1052
+      ],
+      [
+        "number_of_claims",
+        1034
+      ],
+      [
+        "total_claim_amount",
+        1034
+      ],
+      [
+        "claim_frequency",
+        1034
+      ],
+      [
+        "will_renew",
+        331
+      ],
+      [
+        "family_members",
+        302
+      ],
+      [
+        "medical_expenses",
+        149
+      ],
+      [
+        "policy_duration",
+        92
+      ],
+      [
+        "premium_amount",
+        92
+      ],
+      [
+        "claim_risk_score",
+        69
+      ],
+      [
+        "years_as_customer",
+        63
+      ],
+      [
+        "vehicle_value",
+        42
+      ],
+      [
+        "life_expectancy",
+        41
+      ],
+      [
+        "policy_count",
+        40
+      ],
+      [
+        "property_value",
+        38
+      ],
+      [
+        "customer_lifetime_value",
+        32
+      ],
+      [
+        "policy_value",
+        31
+      ],
+      [
+        "savings_balance",
+        30
+      ],
+      [
+        "credit_score",
+        30
+      ],
+      [
+        "risk_probability",
+        30
+      ],
+      [
+        "age",
+        15
+      ],
+      [
+        "annual_income",
+        12
+      ],
+      [
+        "health_risk_score",
+        12
+      ],
+      [
+        "debt_to_income_ratio",
+        11
+      ],
+      [
+        "driving_experience",
+        2
+      ],
+      [
+        "liability_risk",
+        0
+      ],
+      [
+        "is_high_risk",
+        0
+      ],
+      [
+        "customer_segment",
+        0
+      ]
+    ]
+  },
+  "column_statistics": {
+    "numerical_columns": {
+      "annual_income": {
+        "mean": 42082.231138309166,
+        "std": 13873.92714917531,
+        "min": 15000.0,
+        "25%": 32358.35621414689,
+        "50%": 41903.912412536476,
+        "75%": 51600.629207639475,
+        "max": 91530.26675778031,
+        "skew": 0.13901148312740016,
+        "kurtosis": -0.35934219467390793
+      },
+      "savings_balance": {
+        "mean": 2783.3988355695346,
+        "std": 1113.765867679932,
+        "min": -3875.2976768371923,
+        "25%": 2030.1175922689526,
+        "50%": 2791.529183737386,
+        "75%": 3518.8546950006876,
+        "max": 6542.876546323201,
+        "skew": -0.06998005241784087,
+        "kurtosis": 0.43055402519919195
+      },
+      "policy_count": {
+        "mean": 2.9066,
+        "std": 1.6118300280140712,
+        "min": "1",
+        "25%": 2.0,
+        "50%": 3.0,
+        "75%": 4.0,
+        "max": "10",
+        "skew": 0.7906368339056431,
+        "kurtosis": 0.3062532665912223
+      },
+      "policy_value": {
+        "mean": 111062.06294745443,
+        "std": 60159.907454158456,
+        "min": 11772.272076646397,
+        "25%": 61911.01564214075,
+        "50%": 102330.6435639915,
+        "75%": 151264.4427530059,
+        "max": 369881.98951379326,
+        "skew": 0.6944007897244465,
+        "kurtosis": 0.030422474879897354
+      },
+      "age": {
+        "mean": 42.015,
+        "std": 14.454084513099485,
+        "min": "18",
+        "25%": 31.0,
+        "50%": 42.0,
+        "75%": 52.0,
+        "max": "92",
+        "skew": 0.2732355221593757,
+        "kurtosis": -0.37893348790974013
+      },
+      "years_as_customer": {
+        "mean": 11.411,
+        "std": 7.385105751266632,
+        "min": "0",
+        "25%": 6.0,
+        "50%": 11.0,
+        "75%": 16.0,
+        "max": "43",
+        "skew": 0.7285972387242113,
+        "kurtosis": 0.6009672930732295
+      },
+      "number_of_claims": {
+        "mean": 0.2348,
+        "std": 0.49286665895422643,
+        "min": "0",
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 0.0,
+        "max": "4",
+        "skew": 2.199492251732836,
+        "kurtosis": 5.283892004564001
+      },
+      "total_claim_amount": {
+        "mean": 6139.085689453809,
+        "std": 14941.011562396377,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 0.0,
+        "max": 131300.63321308285,
+        "skew": 2.9656203528492084,
+        "kurtosis": 10.51184533354171
+      },
+      "claim_frequency": {
+        "mean": 0.02980447767374137,
+        "std": 0.08177322005929254,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 0.0,
+        "max": 0.5,
+        "skew": 3.979876766353761,
+        "kurtosis": 17.752849552677024
+      },
+      "property_value": {
+        "mean": 255337.2326323136,
+        "std": 127589.25526475038,
+        "min": 100000.0,
+        "25%": 148895.51300893314,
+        "50%": 231121.88083733345,
+        "75%": 337465.3513895811,
+        "max": 904844.0701785939,
+        "skew": 0.8087061028866996,
+        "kurtosis": 0.1334611402097834
+      },
+      "medical_expenses": {
+        "mean": 3327.0775975876504,
+        "std": 2337.8275128452765,
+        "min": 36.550977469845414,
+        "25%": 1583.4147212290952,
+        "50%": 2792.5598388490416,
+        "75%": 4532.9089186287265,
+        "max": 15092.409166111658,
+        "skew": 1.3098921121686418,
+        "kurtosis": 2.1089872391920634
+      },
+      "life_expectancy": {
+        "mean": 81.01394223361763,
+        "std": 4.998943545497511,
+        "min": 63.963048057704626,
+        "25%": 77.5965171545815,
+        "50%": 81.05143544957926,
+        "75%": 84.41215874740229,
+        "max": 95.0,
+        "skew": 0.0052087974504137595,
+        "kurtosis": -0.10161885177022789
+      },
+      "health_risk_score": {
+        "mean": 33.34100642000852,
+        "std": 12.807998731779211,
+        "min": 0.0,
+        "25%": 24.29544010255797,
+        "50%": 33.13798060497515,
+        "75%": 41.981854311278155,
+        "max": 74.97361825784932,
+        "skew": 0.07944217084756702,
+        "kurtosis": -0.2101076003938127
+      },
+      "driving_experience": {
+        "mean": 23.7766,
+        "std": 14.616614571244083,
+        "min": "0",
+        "25%": 13.0,
+        "50%": 23.0,
+        "75%": 34.0,
+        "max": "73",
+        "skew": 0.2667105138007167,
+        "kurtosis": -0.5508972393271336
+      },
+      "vehicle_value": {
+        "mean": 37678.625782059884,
+        "std": 19838.739934994137,
+        "min": 5000.0,
+        "25%": 21728.36162667471,
+        "50%": 34464.57679972673,
+        "75%": 50191.958311522765,
+        "max": 113618.31945228498,
+        "skew": 0.7117828314419941,
+        "kurtosis": 0.03287842527236773
+      },
+      "liability_risk": {
+        "mean": 55.89065140753116,
+        "std": 19.836246881784998,
+        "min": 15.692166327255828,
+        "25%": 40.49714128014109,
+        "50%": 54.73337420021355,
+        "75%": 70.54035661082868,
+        "max": 100.0,
+        "skew": 0.21332980888705105,
+        "kurtosis": -0.7472940838843307
+      },
+      "debt_to_income_ratio": {
+        "mean": 0.4535040839689742,
+        "std": 0.08857882767660238,
+        "min": 0.28831575945082555,
+        "25%": 0.383492465412362,
+        "50%": 0.4433547998673163,
+        "75%": 0.51385598587982,
+        "max": 0.7434480941030053,
+        "skew": 0.4730522537667004,
+        "kurtosis": -0.36014599548653026
+      },
+      "credit_score": {
+        "mean": 670.5644,
+        "std": 54.99400622598937,
+        "min": "476",
+        "25%": 633.0,
+        "50%": 671.0,
+        "75%": 708.0,
+        "max": "850",
+        "skew": -0.02469597854059924,
+        "kurtosis": -0.02830422795142562
+      },
+      "family_members": {
+        "mean": 1.7178,
+        "std": 0.9935595564023446,
+        "min": "1",
+        "25%": 1.0,
+        "50%": 1.0,
+        "75%": 2.0,
+        "max": "8",
+        "skew": 1.5448012911379734,
+        "kurtosis": 2.546047758215334
+      },
+      "policy_duration": {
+        "mean": 5.6736,
+        "std": 4.276110389596228,
+        "min": "1",
+        "25%": 2.0,
+        "50%": 5.0,
+        "75%": 8.0,
+        "max": "30",
+        "skew": 1.3804917887423984,
+        "kurtosis": 2.409712248566178
+      },
+      "premium_amount": {
+        "mean": 2590.235900108152,
+        "std": 1342.419175311572,
+        "min": 200.0,
+        "25%": 1546.3787654104453,
+        "50%": 2338.0187641390003,
+        "75%": 3366.5167602571164,
+        "max": 10978.06818137109,
+        "skew": 1.0302055036029802,
+        "kurtosis": 1.275694333906027
+      }
+    },
+    "categorical_columns": {
+      "marital_status": {
+        "unique_values": 4,
+        "value_counts": {
+          "Married": 2384,
+          "Single": 1411,
+          "Divorced": 705,
+          "Widowed": 500
+        }
+      },
+      "education_level": {
+        "unique_values": 5,
+        "value_counts": {
+          "Bachelor": 1670,
+          "Master": 1405,
+          "Secondary": 873,
+          "PhD": 797,
+          "Professional": 255
+        }
+      },
+      "employment_status": {
+        "unique_values": 4,
+        "value_counts": {
+          "Employed": 3126,
+          "Retired": 797,
+          "Self-Employed": 787,
+          "Unemployed": 290
+        }
+      },
+      "home_ownership": {
+        "unique_values": 4,
+        "value_counts": {
+          "Own": 1955,
+          "Mortgage": 1458,
+          "Rent": 1380,
+          "Other": 207
+        }
+      },
+      "insurance_package": {
+        "unique_values": 4,
+        "value_counts": {
+          "Standard": 1736,
+          "Basic": 1482,
+          "Premium": 1300,
+          "Elite": 482
+        }
+      },
+      "risk_category": {
+        "unique_values": 4,
+        "value_counts": {
+          "High": 1522,
+          "Medium": 1487,
+          "Very High": 1021,
+          "Low": 970
+        }
+      },
+      "policy_type": {
+        "unique_values": 3,
+        "value_counts": {
+          "Individual": 2480,
+          "Family": 1534,
+          "Corporate": 986
+        }
+      },
+      "vehicle_type": {
+        "unique_values": 5,
+        "value_counts": {
+          "SUV": 1726,
+          "Sedan": 1555,
+          "Sports": 643,
+          "Motorcycle": 629,
+          "Truck": 447
+        }
+      },
+      "property_type": {
+        "unique_values": 4,
+        "value_counts": {
+          "House": 1906,
+          "Apartment": 1883,
+          "Villa": 674,
+          "Commercial": 537
+        }
+      },
+      "profession": {
+        "unique_values": 6,
+        "value_counts": {
+          "Business": 1202,
+          "Engineer": 987,
+          "Other": 903,
+          "Doctor": 736,
+          "Lawyer": 601,
+          "Teacher": 571
+        }
+      },
+      "primary_insurance_type": {
+        "unique_values": 7,
+        "value_counts": {
+          "Auto": 1079,
+          "Health": 933,
+          "Property": 921,
+          "Liability": 679,
+          "Life": 623,
+          "Travel": 485,
+          "Accident": 280
+        }
+      },
+      "policy_status": {
+        "unique_values": 4,
+        "value_counts": {
+          "Active": 3786,
+          "Cancelled": 513,
+          "Lapsed": 484,
+          "Pending": 217
+        }
+      }
+    }
+  },
+  "target_analysis": {
+    "claim_risk_score": {
+      "type": "regression",
+      "distribution": {
+        "min": 0.0,
+        "max": 37.00017669664779,
+        "mean": 6.692189583348274,
+        "median": 5.783208428656175,
+        "std": 5.9733300395763385,
+        "percentiles": {
+          "25%": 1.4959565302529243,
+          "50%": 5.783208428656175,
+          "75%": 10.21965506032945,
+          "90%": 14.584382923210692,
+          "95%": 17.60532005722038
+        }
+      },
+      "class_balance": null
+    },
+    "customer_lifetime_value": {
+      "type": "regression",
+      "distribution": {
+        "min": 1000.0,
+        "max": 7681.304119165965,
+        "mean": 2952.2524113351765,
+        "median": 2846.586855052302,
+        "std": 1209.640177156621,
+        "percentiles": {
+          "25%": 2050.485840774977,
+          "50%": 2846.586855052302,
+          "75%": 3746.6684340411457,
+          "90%": 4604.438844213071,
+          "95%": 5066.633013616226
+        }
+      },
+      "class_balance": null
+    },
+    "will_renew": {
+      "type": "binary_classification",
+      "distribution": {
+        "unique_count": 2,
+        "value_counts": {
+          "1": 4669,
+          "0": 331
+        },
+        "mode": "1"
+      },
+      "class_balance": {
+        "1": {
+          "count": 4669,
+          "percentage": 93.38
+        },
+        "0": {
+          "count": 331,
+          "percentage": 6.619999999999999
+        },
+        "imbalance_ratio": 14.105740181268883,
+        "is_balanced": false
+      }
+    },
+    "is_high_risk": {
+      "type": "binary_classification",
+      "distribution": {
+        "unique_count": 2,
+        "value_counts": {
+          "0": 3218,
+          "1": 1782
+        },
+        "mode": "0"
+      },
+      "class_balance": {
+        "0": {
+          "count": 3218,
+          "percentage": 64.36
+        },
+        "1": {
+          "count": 1782,
+          "percentage": 35.64
+        },
+        "imbalance_ratio": 1.8058361391694724,
+        "is_balanced": true
+      }
+    },
+    "customer_segment": {
+      "type": "multi_classification",
+      "distribution": {
+        "unique_count": 3,
+        "value_counts": {
+          "0": 1930,
+          "1": 1573,
+          "2": 1497
+        },
+        "mode": "0"
+      },
+      "class_balance": {
+        "0": {
+          "count": 1930,
+          "percentage": 38.6
+        },
+        "1": {
+          "count": 1573,
+          "percentage": 31.46
+        },
+        "2": {
+          "count": 1497,
+          "percentage": 29.94
+        },
+        "imbalance_ratio": 1.289245156980628,
+        "is_balanced": true
+      }
+    }
+  },
+  "recommendations": [
+    "Review outliers in: number_of_claims, total_claim_amount, claim_frequency and 3 more",
+    "Consider transformation for skewed columns: number_of_claims, total_claim_amount, claim_frequency and 2 more",
+    "Remove highly correlated features: policy_value-premium_amount, age-driving_experience"
+  ],
+  "client_id": "belgium_ageas"
+}
