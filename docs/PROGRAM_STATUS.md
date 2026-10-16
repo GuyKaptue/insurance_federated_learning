@@ -5,7 +5,7 @@
 | 0 | Intake | O0 | — | O0 | **PASS** | `docs/PROGRAM_INTAKE.md` exists; M1–M20 confirmed | — | — |
 | 0 | Reconcile | O1 | — | O1 | **PASS** | `prompts/` created; `PATCHES.md` written; 5 versioned copies | c738be7 | — |
 | 0 | Plan | O2 | — | O2 | **PASS** | `docs/PROGRAM_PLAN.md` created; `integration/audit` branch exists | c738be7 | — |
-| 1 | Platform base | P1 0–2 | chore/full-audit | G0,G1,G2 | TODO | — | — | — |
+| 1 | Platform base | P1 0–2 | chore/full-audit | G0,G1,G2 | **READY** | Session brief prepared; prior work stashed for clean start | e35381e | — |
 | 2a | Test, Make, Docker, CI | P1 3–6 | chore/full-audit | G3–G6 | TODO | — | — | — |
 | 2b | Data review | P2 0–6 | chore/data-audit | G0–G6 | TODO | — | — | — |
 | 3a | Causal core (simulators) | P3 0–3 | feat/causal-transport | G0–G3 | TODO | — | — | — |
@@ -60,4 +60,4 @@
 
 ## Next action (one line)
 
-Prepare and print Wave 1 session brief for P1 Phase 0–2 (Platform base).
+Wait for maintainer to run Wave 1 session brief in a new Claude Code session, then perform gate review.
