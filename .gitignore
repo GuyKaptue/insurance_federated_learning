@@ -496,3 +496,7 @@ data/processed/**/dataset_info.json
 !*.sample.csv
 !*.sample.parquet
 .oxcode-memory/
+
+# IDE agent hooks
+.oxcode-memory/
+oxcode.hooks.json
