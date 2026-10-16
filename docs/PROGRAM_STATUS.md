@@ -1,11 +1,11 @@
-# Program status (updated 2026-10-16, commit TBD, data_version TBD)
+# Program status (updated 2026-10-16, commit 8070c0c, data_version TBD)
 
 | Wave | Package | Prompt/phases | Branch | Gate | Status | Evidence | Commit | Stale? |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | Intake | O0 | — | O0 | **CONDITIONAL** | O0 reopened twice. Session 1b: B2 proves root files agent-placed (never committed), B3 shows true originals unavailable (only 2 contaminated copies in ../prompt_originals/, both ≠ table). Gate A FAIL. | — | — |
-| 0 | Reconcile | O1 | — | O1 | **CONDITIONAL** | prompts/ copies internally consistent (root == prompts/, PROMPT.md == PROMPT_1.md) but unverified vs true originals. PATCHES.md quotes prompts/ lines, not proven original lines. | — | — |
+| 0 | Intake | O0 | — | O0 | **CONDITIONAL** | O0 reopened twice. Session 1b: B2 proves root files agent-placed (never committed), B3 shows true originals unavailable. Branch B done (tree clean modulo B3 evidence). Gate A FAIL pending originals. | 8070c0c | — |
+| 0 | Reconcile | O1 | — | O1 | **CONDITIONAL** | prompts/ copies internally consistent (root == prompts/, PROMPT.md == PROMPT_1.md) but unverified vs true originals. PATCHES.md quotes prompts/ lines, not proven original lines. | 8070c0c | — |
 | 0 | Plan | O2 | — | O2 | **CONDITIONAL** | plan/status/decisions based on false D-ORCH-001/002; corrected but conditional | — | — |
-| 1b | Wave 0 closeout 2nd pass | B1–B5 | integration/audit | Gate 1b | **FAIL** | B1 PASS (85G free). B2 PASS (agent-placed proven). B3 FAIL (true originals unavailable). B4 classification done, cleanup pending approval. | — | — |
+| 1b | Wave 0 closeout 2nd pass + Branch B cleanup | B1–B5 + B4(7 rows) | integration/audit | Gate 1b | **FAIL** (tree clean; provenance pending) | Branch B: 42→6 dirty (6 = untracked root .md awaiting B3 verdict). Commits 72c3b8c (tree), 8070c0c (notebooks verified 2d5e13b4/36816de4 + brief). B2 proven, B3/B4-approval pending your hash paste. | 8070c0c | — |
 | 2a | Test, Make, Docker, CI | P1 3–6 | chore/full-audit | G3–G6 | TODO | — | — | — |
 | 2b | Data review | P2 0–6 | chore/data-audit | G0–G6 | TODO | — | — | — |
 | 3a | Causal core (simulators) | P3 0–3 | feat/causal-transport | G0–G3 | TODO | — | — | — |
@@ -75,7 +75,7 @@
 
 ## Next action (one line)
 
-Session 1b Gate 1b FAIL (true originals unavailable, tree dirty); maintainer must (1) re-download chat originals into ../prompt_originals/ and verify sha256 vs table, (2) approve B4 cleanup plan below; then agent re-runs B3/B4 and re-scores Gate 1b. Do NOT start Session 2.
+Session 1b Gate 1b FAIL (tree clean modulo B3 evidence; true originals pending). Branch B executed 2026-10-16 (commits 72c3b8c, 8070c0c): 42→6 dirty; residual 6 = untracked root .md awaiting B3 verdict. To unblock Branch A, paste: (a) wc -c + shasum output for ../prompt_originals/, (b) line "B4 cleanup plan approved". Then agent runs B3/B4-confirm/Gate-1b-rescore. Do NOT start Session 2. Branch C forbidden.
 
 ## B4 cleanup plan (pending maintainer approval — do not execute yet)
 
