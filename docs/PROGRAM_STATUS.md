@@ -1,7 +1,8 @@
-# Program status (updated 2026-10-16, commit 8070c0c, data_version TBD)
+# Program status (updated 2026-10-16, commit a2e3328, data_version TBD)
 
 | Wave | Package | Prompt/phases | Branch | Gate | Status | Evidence | Commit | Stale? |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Platform base | P1 0–2 | chore/full-audit | G0,G1,G2 | **PASS** | `make ci` green (ruff+black+isort+mypy+80 tests+coverage 94.7%≥85); `import insurance_fl` OK; 5 console scripts `--help` OK; golden baseline reproducible; ClientProtocol+dummy test OK | a2e3328 | — |
 | 0 | Intake | O0 | — | O0 | **CONDITIONAL** | O0 reopened twice. Session 1b: B2 proves root files agent-placed (never committed), B3 shows true originals unavailable. Branch B done (tree clean modulo B3 evidence). Gate A FAIL pending originals. | 8070c0c | — |
 | 0 | Reconcile | O1 | — | O1 | **CONDITIONAL** | prompts/ copies internally consistent (root == prompts/, PROMPT.md == PROMPT_1.md) but unverified vs true originals. PATCHES.md quotes prompts/ lines, not proven original lines. | 8070c0c | — |
 | 0 | Plan | O2 | — | O2 | **CONDITIONAL** | plan/status/decisions based on false D-ORCH-001/002; corrected but conditional | — | — |
