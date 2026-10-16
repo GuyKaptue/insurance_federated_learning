@@ -1,0 +1,126 @@
+{
+  "PYTHONHASHSEED": "0",
+  "files": {
+    "centralized/all_clients.parquet": {
+      "sha256": "7613c54705944ad4f1bb439aa31c307175df4bc77b9f34e3451bd438cc1fdd9d",
+      "shape": [
+        120,
+        44
+      ]
+    },
+    "federated/belgium_ageas/site.parquet": {
+      "sha256": "5b22aa86c3e3f8d31bd85c0cefe145faa9c5c4bb48c1dd165ad2e12a5fb8f1eb",
+      "shape": [
+        10,
+        43
+      ]
+    },
+    "federated/belgium_ageas/test.parquet": {
+      "sha256": "34dd319f496e3f8edf0d89d03a2093169abff03d55441bc382c2d3e215bc798e",
+      "shape": [
+        30,
+        43
+      ]
+    },
+    "federated/belgium_ageas/train.parquet": {
+      "sha256": "ae301488443bbcdcaf5d5fe60b54d98092f853af1faeed4a1d0f77c4c4ddb204",
+      "shape": [
+        120,
+        43
+      ]
+    },
+    "federated/belgium_ageas/val.parquet": {
+      "sha256": "777fd511655e204343099f5dde55aeeffe491be64b56dcc40b220f89a7ba377d",
+      "shape": [
+        40,
+        43
+      ]
+    },
+    "federated/france_axa/site.parquet": {
+      "sha256": "57c856803dc00a93055c9972076a30a48c96bf04aa0004ab6dc9aad28f413742",
+      "shape": [
+        10,
+        43
+      ]
+    },
+    "federated/france_axa/test.parquet": {
+      "sha256": "a4d01666c38c7d4856a7509d0c0e4682cf46dddb711822c7b0de2bdb0d221e96",
+      "shape": [
+        30,
+        43
+      ]
+    },
+    "federated/france_axa/train.parquet": {
+      "sha256": "1ffdec08eeece635eb112ea98459edaa7f1b98c192c50e510a4448b0d53afb68",
+      "shape": [
+        120,
+        43
+      ]
+    },
+    "federated/france_axa/val.parquet": {
+      "sha256": "6403c9d4bdcd10bbeeb180228bbfd0996d9993d9a1bd352bb5c29139f690ef41",
+      "shape": [
+        40,
+        43
+      ]
+    },
+    "federated/germany_allianz/site.parquet": {
+      "sha256": "a2eb58049ddb093abc05e769aeeceb9134c7dc1f4b9a71e28e656f2200ea4822",
+      "shape": [
+        10,
+        43
+      ]
+    },
+    "federated/germany_allianz/test.parquet": {
+      "sha256": "843d74ac5d651cb367bbbb3ef8f42a3a9059b96aabeb3e6852221f676cbc251a",
+      "shape": [
+        30,
+        43
+      ]
+    },
+    "federated/germany_allianz/train.parquet": {
+      "sha256": "198f12538f01665474ab340f5f14dde80d2ddce770170b544ee37ceafe288bc8",
+      "shape": [
+        120,
+        43
+      ]
+    },
+    "federated/germany_allianz/val.parquet": {
+      "sha256": "d591e52c48002a297e0059a8595042b959308246681781c77d247fbe53250f44",
+      "shape": [
+        40,
+        43
+      ]
+    },
+    "federated/switzerland_helvetia/site.parquet": {
+      "sha256": "bd5f8edc8424469b642eb34d8f1c1033b509957eaf7160ba7b528addbd324096",
+      "shape": [
+        10,
+        43
+      ]
+    },
+    "federated/switzerland_helvetia/test.parquet": {
+      "sha256": "5e5c752108141e31c315e850d3c8d03075e3fafd0bdc0318063d09e9378729a1",
+      "shape": [
+        30,
+        43
+      ]
+    },
+    "federated/switzerland_helvetia/train.parquet": {
+      "sha256": "811abd6a7a70aab3b1cb72ec86a143b82eef295db18e2d9dc6f3fdcc3e453374",
+      "shape": [
+        120,
+        43
+      ]
+    },
+    "federated/switzerland_helvetia/val.parquet": {
+      "sha256": "60138e7ceb906a43a8b847e7fcae4a04daa11c67757b8fbbd2c9e4cb51511d7a",
+      "shape": [
+        40,
+        43
+      ]
+    }
+  },
+  "samples_per_client": 200,
+  "seed": 42
+}

@@ -1,0 +1,83 @@
+# Federated configuration for the Insurance FL Platform.
+# Validated by src/insurance_fl/config/loader.py (FullConfig).
+# Tasks mirror TARGET_COLUMNS in src/insurance_fl/data/generator.py:
+# 2 regression + 2 binary classification + 1 multi-class — asserted by
+# tests/unit/config/test_loader.py::test_load_real_config_file.
+dataset:
+  name: european_insurance_federated
+  path: data/processed/european_insurance_federated
+  version: v1.0
+  random_seed: 42
+  base_samples_per_client: 5000
+  client_sizes: {}
+  site_data_size: 0.05
+  splits:
+    train: 0.60
+    val: 0.20
+    test: 0.15
+    site: 0.05
+
+federated:
+  num_rounds: 10
+  num_clients: 4
+  clients_per_round: 4
+  fraction_fit: 1.0
+  fraction_evaluate: 0.5
+  min_fit_clients: 2
+  min_evaluate_clients: 2
+  min_available_clients: 2
+  local_epochs: 5
+  batch_size: 32
+  learning_rate: 0.001
+  strategy_type: fedavg
+  aggregation_type: weighted
+  proximal_mu: 0.1
+  server_learning_rate: 0.01
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 0.00000001
+  early_stopping_patience: 20
+  validation_split: 0.2
+  warmup_strategy: none
+  warmup_rounds: 3
+
+dp:
+  enabled: false
+  dp_type: none
+  epsilon: 2.0
+  delta: 0.00001
+  clipping_norm: 1.0
+  noise_multiplier: 0.1
+
+model:
+  hidden_dims: [128, 64, 32]
+  nn_dropout: 0.3
+  nn_weight_decay: 0.0001
+  nn_learning_rate: 0.001
+  nn_epochs: 100
+  nn_batch_size: 32
+  use_ensemble_features: true
+  use_batch_norm: true
+
+tasks:
+  - name: claim_risk_score
+    type: regression
+  - name: customer_lifetime_value
+    type: regression
+  - name: will_renew
+    type: binary_classification
+  - name: is_high_risk
+    type: binary_classification
+  - name: customer_segment
+    type: multi_classification
+
+explainability:
+  shap_sample_size: 1000
+  shap_background_size: 100
+  enable_shap: true
+  enable_audit: true
+  enable_personas: true
+
+logging:
+  level: INFO
+  log_dir: logs
