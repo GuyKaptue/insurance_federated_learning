@@ -495,3 +495,4 @@ data/processed/**/dataset_info.json
 !**/.gitkeep
 !*.sample.csv
 !*.sample.parquet
+.oxcode-memory/
