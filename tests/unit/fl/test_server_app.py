@@ -9,8 +9,8 @@ import pytest
 pytest.importorskip("torch")
 pytest.importorskip("flwr")
 
-from insurance_fl.fl.server_app import app as server_app  # noqa: E402
-from insurance_fl.fl.server_app import server_fn  # noqa: E402
+from insurance_fl.fl.server_app import app as server_app
+from insurance_fl.fl.server_app import server_fn
 
 
 def test_server_app_is_flower_serverapp() -> None:

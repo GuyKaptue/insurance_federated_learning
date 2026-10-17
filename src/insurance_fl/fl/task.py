@@ -14,8 +14,10 @@ Scope per ``Task_Specification.md`` Task 0 (canonical prompt
   One-hot encoding via ``DataPreprocessor`` needs cross-client column
   alignment (fit on global data) — deferred to P1 phase 7 / Task 11.
 
-* Loss: **equal-weight** sum of the 5 task losses. Kendall uncertainty
-  weighting is Task 1 (Layer 2) — deliberately NOT implemented here.
+* Loss: **Kendall uncertainty-weighted** sum of the 5 task losses
+  (:meth:`MultiTaskNN.get_kendall_total_loss`), implemented per Task 1
+  (Layer 2). Layer 1 equal-weight fallback remains available via
+  :meth:`MultiTaskNN.get_total_loss`.
 """
 
 from __future__ import annotations
@@ -29,10 +31,7 @@ import pandas as pd
 import torch
 from flwr.common import Scalar
 
-from insurance_fl.data.generator import (
-    TARGET_COLUMNS,
-    EuropeanInsuranceFederatedDataset,
-)
+from insurance_fl.data.generator import TARGET_COLUMNS, EuropeanInsuranceFederatedDataset
 from insurance_fl.models.multi_task_nn import DEFAULT_TASK_TYPES, MultiTaskNN
 
 log = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ CLIENT_IDS: list[str] = [
 DEFAULT_DATA_DIR = Path("data/processed/fl_task0_smoke")
 DEFAULT_SAMPLES_PER_CLIENT = 512  # smallest size that satisfies stratified splits
 DEFAULT_SEED = 42
-DEFAULT_HIDDEN_DIMS: list[int] = [128, 64, 32]
+DEFAULT_HIDDEN_DIMS: list[int] = [256, 128, 64]
 
 _EXCLUDED_FEATURES = set(TARGET_COLUMNS) | {"customer_id"}
 
@@ -121,7 +120,7 @@ def train(
     batch_size: int = 32,
     lr: float = 1e-3,
 ) -> float:
-    """Minibatch Adam training with equal task weights; return final loss.
+    """Minibatch Adam training with Kendall uncertainty weights; return final loss.
 
     Singleton batches are skipped: ``BatchNorm1d`` needs >= 2 samples per
     batch in training mode.
@@ -141,7 +140,7 @@ def train(
             opt.zero_grad()
             logits = model.forward(xt[idx])
             losses = model.get_losses(logits, {k: v[idx] for k, v in yt.items()})
-            loss = model.get_total_loss(losses)  # equal weights: Task 1 adds Kendall
+            loss = model.get_kendall_total_loss(losses)
             loss.backward()
             opt.step()
             last = float(loss.detach().item())
@@ -165,7 +164,7 @@ def evaluate(
         yt = {k: torch.as_tensor(v) for k, v in y.items()}
         logits = model.forward(xt)
         losses = model.get_losses(logits, yt)
-        metrics["loss"] = float(model.get_total_loss(losses).item())
+        metrics["loss"] = float(model.get_kendall_total_loss(losses).item())
         for task, task_type in DEFAULT_TASK_TYPES.items():
             out, target = logits[task], yt[task]
             if task_type == "regression":

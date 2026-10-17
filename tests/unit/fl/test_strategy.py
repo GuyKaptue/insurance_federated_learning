@@ -7,7 +7,7 @@ import pytest
 pytest.importorskip("torch")
 pytest.importorskip("flwr")
 
-from insurance_fl.fl.strategy import build_strategy  # noqa: E402
+from insurance_fl.fl.strategy import build_strategy
 
 
 def test_build_strategy_fedavg() -> None:

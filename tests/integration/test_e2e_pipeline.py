@@ -10,10 +10,7 @@ import numpy as np
 import pytest
 import torch
 
-from insurance_fl.data.generator import (
-    TARGET_COLUMNS,
-    EuropeanInsuranceFederatedDataset,
-)
+from insurance_fl.data.generator import TARGET_COLUMNS, EuropeanInsuranceFederatedDataset
 from insurance_fl.data.preprocess import DataPreprocessor, PreprocessorConfig
 from insurance_fl.models.multi_task_nn import MultiTaskNN
 

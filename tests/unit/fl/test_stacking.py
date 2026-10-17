@@ -10,7 +10,7 @@ import pytest
 
 pytest.importorskip("flwr")
 
-from insurance_fl.fl import stacking  # noqa: E402
+from insurance_fl.fl import stacking
 
 
 def test_stacking_is_empty_by_design() -> None:

@@ -10,7 +10,7 @@ import pytest
 
 pytest.importorskip("flwr")
 
-from insurance_fl.fl import privacy  # noqa: E402
+from insurance_fl.fl import privacy
 
 
 def test_privacy_is_empty_by_design() -> None:

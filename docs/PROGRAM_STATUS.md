@@ -1,4 +1,4 @@
-# Program status (updated 2026-10-16, commit a2e3328, data_version TBD)
+# Program status (updated 2026-10-17, commit a0b1a72, data_version TBD)
 
 | Wave | Package | Prompt/phases | Branch | Gate | Status | Evidence | Commit | Stale? |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -98,10 +98,10 @@ Session 1b Gate 1b FAIL (tree clean modulo B3 evidence; true originals pending).
 |---|---|---|
 | L0 intake & alignment | ✅ DONE | specs renamed + versioned (`prompts/30`,`31`), D-ORCH-003…006, order recorded in PROGRAM_PLAN |
 | L1 Task 0 Flower App | ✅ DONE | `make ci` **exit 0** (90/91 tests, 93.47% cov ≥85%, mypy clean); `flwr run` **exit 0**, 2 rounds, loss 19.28M→17.33M; evidence `docs/evidence/layer1_flwr_run_2rounds.log` |
-| L2 Task 1 MTNN (Kendall+FedBN) | ⬜ NEXT | — |
+| L2 Task 1 MTNN (Kendall+FedBN) | ✅ DONE | `make ci` **exit 0** (99/99 tests, 93.05% cov ≥85%, mypy clean on 25 files); `flwr run` **exit 0**, 3 rounds (loss 16.49M/21.41M/10.01M, 3.84 s); evidence `docs/evidence/layer2_flwr_run_3rounds.log` |
 | L3–L7 | ⬜ | per plan |
 
-**Branches:** `feat/task0-baseline-federation` (L0+L1, on top of `chore/full-audit`, which is 2 commits ahead of `integration/audit`). Merge to `integration/audit` still gated on maintainer (rebase merge per O-1) + Gate 1b.
+**Branches:** `feat/task0-baseline-federation` (L0+L1+L2, on top of `chore/full-audit`, which is 2 commits ahead of `integration/audit`). Merge to `integration/audit` still gated on maintainer (rebase merge per O-1) + Gate 1b.
 
 **Open blockers (unchanged):**
 1. **Gate 1b FAIL** — maintainer must paste `wc -c` + `shasum` for `../prompt_originals/` + approval line (Step 0). D-ORCH-005 keeps it open; required before final PR.

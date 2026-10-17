@@ -191,9 +191,8 @@ wandb/*
 *.onnx
 *.pt
 *.pth
-checkpoints/
-models/
 *.model
+checkpoints/
 
 # ============================================================
 # Reports and Outputs (Keep structure, ignore generated content)

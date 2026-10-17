@@ -208,7 +208,7 @@ insurance_fl = ["py.typed"]
 # lint so `make ci` measures only the new package (decision: docs/DECISIONS.md).
 [tool.ruff]
 target-version = "py311"
-line-length = 88
+line-length = 100
 extend-exclude = ["src/core", "src/synthetic", "venv", "data", "outputs"]
 
 [tool.ruff.lint]

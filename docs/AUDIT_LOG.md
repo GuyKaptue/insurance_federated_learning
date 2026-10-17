@@ -386,3 +386,35 @@ $ 3× flakiness check:
 **Incidents resolved (details D-ORCH-006):**
 1. SuperLink crash on start: stale `~/.flwr/local-superlink/state.db` (541 MB) with unknown alembic revision `dfdbe2a8f936` (foreign flwr version) → backed up `state.db.pre-1.29-backup-20261017`, fresh DB, run green.
 2. exFAT volume reached 100% mid-CI (`No space left on device`) → cleared gitignored tool caches (`.mypy_cache` 1.9 G, `.ruff_cache`, `.hypothesis`, `__pycache__` — all regenerable, all listed in `make clean`); volume at **1.9 Gi free**; mypy cache redirected to `/tmp`. **`venv/` = 26 G (broken torch) remains the space lever — maintainer decision pending.** No user data deleted.
+
+## Layer 2 / Task 1 — Multi-task NN: Kendall uncertainty weighting + FedBN local BatchNorm (2026-10-17, branch `feat/task0-baseline-federation`)
+
+**Scope:** Task_Specification Task 1 (build on Task 0 Flower App):
+- Spec-aligned encoder `256→128→64` (`DEFAULT_HIDDEN_DIMS=[256,128,64]` in `fl/task.py`, `config/loader.py`, `config/federated_config.yaml`).
+- Kendall multi-task uncertainty weighting: `MultiTaskNN.get_kendall_total_loss(losses)`, `total = Σ exp(−sᵢ)·Lᵢ + sᵢ`; `log_vars` zero-init ⇒ loss equals equal-weight sum at start; log-vars federated by FedAvg (only BN excluded).
+- FedBN: clients exchange non-BN parameters only (`get_federated_weights`/`set_federated_weights`); local BN state persists in `context.state["bn_local"]` (`ArrayRecord`), restored before `fit`/`evaluate`, saved after `fit`.
+- `train()`/`evaluate()` switched to `model.get_kendall_total_loss(losses)`.
+
+**Build evidence:**
+- `src/insurance_fl/models/multi_task_nn.py`: hidden dims `[256,128,64]`, Kendall loss, FedBN helpers (pre-existing, now tracked after `.gitignore` `models/` line removed).
+- `src/insurance_fl/fl/task.py`: `DEFAULT_HIDDEN_DIMS=[256,128,64]`; `train()`/`evaluate()` use `get_kendall_total_loss`.
+- `src/insurance_fl/config/loader.py` + `config/federated_config.yaml`: `hidden_dims: [256,128,64]`.
+- `src/insurance_fl/fl/client_app.py`: FedBN wire format; BN state save/restore via `context.state["bn_local"]`; `client_fn` passes `state=context.state`; flwr 1.31 imports fixed (`ArrayRecord` from `flwr.common`, `torch` added); BN restore/save log lines for evidence.
+- `.gitignore`: removed over-broad `models/` so `src/insurance_fl/models/multi_task_nn.py` and `tests/unit/models/test_multi_task_nn.py` are trackable.
+- `pyproject.toml`: `[tool.ruff] line-length 88 → 100` to align ruff with black/isort (E501 already ignored).
+- Tests: spec dims, 33→5 output shape, Kendall zero-init / sensitivity / uncertainty weights, FedBN exclude/set/roundtrip, cross-round BN restore (`test_fedbn_state_saved_and_restored_across_rounds`).
+
+**Validation run (all fresh this session):**
+| Check | Command | Result |
+|---|---|---|
+| Lint | `make lint` (ruff+black+isort) | PASS |
+| Types | `mypy --cache-dir=/tmp/mypy_cache_insurance src/insurance_fl` | PASS, 0 issues / 25 files |
+| Tests | `make test` | **99 passed**, 1 deselected |
+| Coverage | `make coverage` | **93.05% ≥ 85% required** |
+| Full CI | `make ci MYPY_OPTS=--cache-dir=/tmp/mypy_cache_insurance` | **exit 0** |
+| Federation | `flwr run . --stream --run-config num-server-rounds=3` | **exit 0** — 3 rounds in 3.84 s, 4/4 clients fit + 2/4 eval per round, loss 16 486 164 → 21 412 640 → 10 007 159 |
+| Evidence file | `docs/evidence/layer2_flwr_run_3rounds.log` | to be committed |
+
+**Note:** BN restore/save log lines (`FedBN: restored local BN state from previous round`) are emitted by client processes (Ray actors) and are not in the server logstream; BN round-2 restore is directly verified by `test_fedbn_state_saved_and_restored_across_rounds`.
+
+**Incidents:** none new. Volume still at ~100% (`venv/` 26 G lever pending maintainer decision).

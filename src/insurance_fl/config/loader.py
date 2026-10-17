@@ -117,7 +117,7 @@ class ModelConfig(BaseModel):
     optimize_alpha: bool = True
     alpha_range: list[float] = [0.01, 0.99]
     alpha_search_steps: int = 11
-    nn_hidden_dims: list[int] = [128, 64, 32]
+    nn_hidden_dims: list[int] = [256, 128, 64]
     nn_dropout: float = 0.3
     nn_weight_decay: float = 1e-4
     nn_learning_rate: float = 0.001
