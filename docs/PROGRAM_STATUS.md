@@ -89,3 +89,22 @@ Session 1b Gate 1b FAIL (tree clean modulo B3 evidence; true originals pending).
 | 5 | Untracked `._*` in `tests/**/__pycache__/`, `.DS_Store` (`./`, `models/`, `data/`, `src/`) | macOS junk, untracked | Delete + add `._*` and `.DS_Store` to `.gitignore` | Never belong in repo |
 | 6 | `src/.___init__.py`, `src/core/.___init__.py` (AppleDouble sidecars, null bytes) | macOS junk | Delete (they shadow nothing; real `src/__init__.py` are tracked 0-byte package markers, HEAD blob size 0 — legitimate) | `compileall` errors come from these |
 | 7 | Untracked root prompt originals (`PROMPT_1.md`, `PROMPT.md`, `DATA_AUDIT_PROMPT.md`, `CLEAN_SNYNTHETIC_PROMPT.md`, `CA_TR_PROMPT.md`, `ORCHESTRATOR_PROMPT.md`) + notebooks + `docs/SESSION_BRIEF_WAVE1_P1.md` + `oxcode.hooks.json` | agent-placed / session artifacts | KEEP root `.md` (B3 replacement pending true originals); KEEP notebooks if maintainer confirms they are chat originals (verify sha vs table); KEEP session brief; maintainer decides on `oxcode.hooks.json` (IDE config — suggest ignore, not commit) | Do not discard evidence before B3 passes |
+
+---
+
+## Layer status (Session 2, 2026-10-17 — see `docs/PROGRAM_PLAN.md` for L0–L7)
+
+| Layer | Status | Evidence / note |
+|---|---|---|
+| L0 intake & alignment | ✅ DONE | specs renamed + versioned (`prompts/30`,`31`), D-ORCH-003…006, order recorded in PROGRAM_PLAN |
+| L1 Task 0 Flower App | ✅ DONE | `make ci` **exit 0** (90/91 tests, 93.47% cov ≥85%, mypy clean); `flwr run` **exit 0**, 2 rounds, loss 19.28M→17.33M; evidence `docs/evidence/layer1_flwr_run_2rounds.log` |
+| L2 Task 1 MTNN (Kendall+FedBN) | ⬜ NEXT | — |
+| L3–L7 | ⬜ | per plan |
+
+**Branches:** `feat/task0-baseline-federation` (L0+L1, on top of `chore/full-audit`, which is 2 commits ahead of `integration/audit`). Merge to `integration/audit` still gated on maintainer (rebase merge per O-1) + Gate 1b.
+
+**Open blockers (unchanged):**
+1. **Gate 1b FAIL** — maintainer must paste `wc -c` + `shasum` for `../prompt_originals/` + approval line (Step 0). D-ORCH-005 keeps it open; required before final PR.
+2. **DEP-ORCH-002 PENDING** — causal ground-truth spec before P3 Phase 0 / L6.
+3. **Disk:** `/Volumes/Intenso` at 100%, only **1.9 Gi free**; `venv/` (26 G, broken torch) deletion/repair is a **maintainer decision** (D-ORCH-006). Run mypy with `MYPY_OPTS=--cache-dir=/tmp/…` until resolved.
+4. Branch B cleanup (42→6), O-2 deferrals, 32 DQ tickets open — unchanged.

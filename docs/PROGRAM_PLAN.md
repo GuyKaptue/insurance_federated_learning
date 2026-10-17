@@ -81,3 +81,25 @@ Merge order into `integration/audit`:
 - **Coverage threshold** is baseline now, 85 at Wave 6 per O-4.
 - **Data lineage** (`make data-manifest`) is implemented in Wave 2a per O-8.
 - **Privacy claims** are unified: formal epsilon/delta only with verified accountant per O-11.
+
+## Layered implementation order (reconciled 2026-10-17, D-ORCH-005)
+
+Audit waves (4-prompt program) and build tasks (`Task_Specification.md` 0–12 +
+Hybrid spec) merged into one dependency-safe sequence. Status: ✅ done /
+🔨 in progress / ⬜ pending.
+
+| Layer | Content | Maps to | Status |
+|---|---|---|---|
+| **L0** | Intake & alignment: rename trailing-space spec, version both specs into `prompts/`, decisions D-ORCH-003…006, layered order recorded | Session 2 intake | ✅ 2026-10-17 |
+| **L1** | Flower App scaffolding + baseline federation: `fl/{task,client_app,server_app,strategy,privacy,stacking}.py`, fixed `[tool.flwr.app.components]`, flwr pin ≥1.29 (D-ORCH-004), `flwr run` 2-round evidence, mirrored tests | **Task 0** (+ suspect #10 fix) | ✅ 2026-10-17 |
+| **L2** | Multi-task NN upgrades: Kendall uncertainty weighting, FedBN-local BatchNorm | **Task 1** | ⬜ |
+| **L3** | Data cleanup B2 (A–E) ∥ per-client boosters + NNLS stacking | B2 fixes, **Tasks 2–3**, P2 review | ⬜ (needs DEP-ORCH-002) |
+| **L4** | `HybridAggregation` (federate NN only, FedProx; QFedAvg/FedProx exclusivity Option B) + β fusion; B2 phase F | **Tasks 4–5**, B2 (F), P3 phase 6 | ⬜ |
+| **L5** | Security & privacy stack: TLS, SecAgg+, LocalDP, RDP accountant, fairness Option B | **Tasks 6–10**, P1 phase 7 | ⬜ |
+| **L6** | Experiments ∥ causal/transport core (quickstarts → `causal/`+`transport/` modules) | P1 phase 7, P3 phases 6–7, **Task 11** | ⬜ |
+| **L7** | Docs, fresh-clone regression, final reports, PR to `main` | **Task 12**, P1 phase 8, wave 6 | ⬜ |
+
+Hard dependencies honored by this order: P1 phase 2 → everything; B2 (C,F) → P3
+phase 6; B2 all → P1 phase 7; `data_version` fixed → any experiment; Tasks 4–5
+depend on Tasks 0–1; Tasks 6–10 depend on Tasks 4–5; Task 11 after all core
+tasks; audit Waves 2–6 interleaved at gates (Wave 2a next after merge).

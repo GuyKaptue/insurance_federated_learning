@@ -221,3 +221,22 @@ A4: Notebooks now present and sha256-verified (P3 finds them). Prior claims re-v
 **B5. Records corrected this session:** `PROGRAM_STATUS.md` Gate 1b row = FAIL, E-ORCH-002 extended with B2/B3 evidence + guard, Next action = maintainer steps. This intake section replaces the "genuine gap" sentence with the B2 result above.
 
 **Gate 1b score:** B1 PASS / B2 PASS (agent-placed proven) / B3 FAIL (true originals unavailable) / B4 classification done, execution pending approval / B5 done. **Overall: FAIL. Do not start Session 2.**
+
+---
+
+## Session 2 — Build-program intake (Layer 0, 2026-10-17)
+
+Two new maintainer-placed specification files appeared in the repo root after the 4-prompt intake:
+
+| File | Size (B) | sha256 | Role |
+|---|---|---|---|
+| `Task_Specification.md` | 14 987 | `3641b3e64b4ad42d46eb5146ca8bd5dccabf4d0d4f03f2eb2b3bbddf49dafeef` | Build tasks 0–12 (canonical build prompt, D-ORCH-003) |
+| `Hybrid_Multi-Task_Federated_Learning.md` | 29 089 | `b1bf4a091c6b168eadf7a63e013f08048e845c7eb4e99df1b012c5690754e40d` | Architecture spec (hybrid MTNN + boosters + stacking + β fusion) |
+
+- **Rename:** the Hybrid file originally carried a **trailing space** in its name (`Hybrid_Multi-Task_Federated_Learning.md `), which breaks shell/CLI tooling (ENOENT). Renamed in place this session; content unchanged (sha256 above computed after rename, `b1bf4a09…`).
+- **Versioned copies** committed under the established prompts/ convention with byte-identical hashes:
+  - `prompts/30_HYBRID_PLATFORM_SPEC.md` = `b1bf4a09…`
+  - `prompts/31_TASK_SPECIFICATION.md` = `3641b3e6…`
+- Root originals remain **untracked** (B3-evidence rule: never commit/overwrite root spec originals until provenance passes).
+- `causal_inference_quickstart.ipynb` and `transportability_quickstart.ipynb` are **standalone demos**, not wired into the package (P3 integration later, Layers 6–7).
+- Reconciliation of the 4-prompt audit program ↔ build tasks is recorded in `docs/PROGRAM_PLAN.md` → "Layered implementation order".
