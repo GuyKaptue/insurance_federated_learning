@@ -358,4 +358,31 @@ $ 3× flakiness check:
 - **Gate 4 (partial):** PASS for `help`, `ci`, `data`, `test*`, `coverage`, `lint`, `typecheck`. Targets `train`/`fl-all`/`evaluate`/`serve` depend on scripts not yet implemented (next phases). Docker targets not yet validated (Docker availability TBD).
 - `docs/TEST_MATRIX.md` created and kept in sync with measured numbers.
 
-| `src/synthetic/data_generator.py` | EuropeanInsuranceFederatedDataset | No | Works |
+---
+
+## Layer 1 / Task 0 — Flower App baseline federation (2026-10-17, branch `feat/task0-baseline-federation`)
+
+**Scope:** Task_Specification Task 0 + suspect #10 (`src.core.federated.*` phantom paths) fix.
+
+**Build evidence:**
+- New modules: `src/insurance_fl/fl/{task,client_app,server_app,strategy,privacy,stacking}.py` (last three **empty-by-design**, guarded by tests until Tasks 3/4/6–9 fill them).
+- `pyproject.toml [tool.flwr.app.components]` → `insurance_fl.fl.{server_app,client_app}:app` (was `src.core.federated.*`, never existed).
+- flwr pin `>=1.29.0,<2.0.0` (D-ORCH-004; spec asked ≥1.30 — deviation recorded).
+- Mirrored tests per `test_structure.py` rule: `tests/unit/fl/test_{task,client_app,server_app,strategy,privacy,stacking}.py` (orphan `test_fl_app.py` removed).
+- Makefile `typecheck` accepts `MYPY_OPTS` (cache-dir override; volume-space incident D-ORCH-006).
+
+**Validation run (all fresh this session):**
+| Check | Command | Result |
+|---|---|---|
+| Lint | `make lint PYTHON=python3` (ruff+black+isort) | PASS |
+| Types | `mypy --cache-dir=/tmp/mypy_layer1_cache src/insurance_fl` | PASS, 0 issues / 25 files |
+| Tests | `make test PYTHON=python3` | **90 passed**, 1 deselected |
+| Coverage | `make coverage PYTHON=python3` | **91 passed, 93.47% ≥ 85% required** |
+| Full CI | `make ci PYTHON=python3 MYPY_OPTS=--cache-dir=/tmp/mypy_layer1_cache` | **exit 0** |
+| Data prep | `python -m insurance_fl.fl.task --prepare` (512/client, seed 42, DQ injection OFF) | 4×512 generated, 307 train rows/client |
+| **Federation** | `flwr run . --stream --run-config 'num-server-rounds=2 local-epochs=1'` | **exit 0** — 2 rounds in 3.30 s, 4/4 clients fit + 2/4 eval per round, **loss 19 275 381 → 17 328 602** |
+| Evidence file | `docs/evidence/layer1_flwr_run_2rounds.log` | committed |
+
+**Incidents resolved (details D-ORCH-006):**
+1. SuperLink crash on start: stale `~/.flwr/local-superlink/state.db` (541 MB) with unknown alembic revision `dfdbe2a8f936` (foreign flwr version) → backed up `state.db.pre-1.29-backup-20261017`, fresh DB, run green.
+2. exFAT volume reached 100% mid-CI (`No space left on device`) → cleared gitignored tool caches (`.mypy_cache` 1.9 G, `.ruff_cache`, `.hypothesis`, `__pycache__` — all regenerable, all listed in `make clean`); volume at **1.9 Gi free**; mypy cache redirected to `/tmp`. **`venv/` = 26 G (broken torch) remains the space lever — maintainer decision pending.** No user data deleted.

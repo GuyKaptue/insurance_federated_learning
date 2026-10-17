@@ -41,7 +41,8 @@ torchvision>=0.15.0,<0.20.0
 # Federated Learning Frameworks (PyTorch Compatible)
 # --------------------------------------------
 # Flower Federated Learning (PyTorch compatible)
-flwr>=1.4.0,<2.0.0
+# D-ORCH-004: pinned to the validated installed baseline (1.29.0); spec's >=1.30 deferred
+flwr>=1.29.0,<2.0.0
 
 # PyTorch Federated Learning (Alternative)
 # pytorch-federated>=0.1.0

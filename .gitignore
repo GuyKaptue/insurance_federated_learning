@@ -500,3 +500,7 @@ data/processed/**/dataset_info.json
 # IDE agent hooks
 .oxcode-memory/
 oxcode.hooks.json
+
+# Layer 1 smoke dataset (regenerable: python -m insurance_fl.fl.task --prepare)
+data/processed/fl_task0_smoke/
+!docs/evidence/*.log

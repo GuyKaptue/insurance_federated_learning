@@ -34,8 +34,8 @@ format: ## Auto-format with black + isort + ruff
 	$(PYTHON) -m isort src/insurance_fl tests
 	$(PYTHON) -m ruff check --fix src/insurance_fl tests
 
-typecheck: ## Run mypy over the new package
-	$(PYTHON) -m mypy src/insurance_fl
+typecheck: ## Run mypy over the new package (MYPY_OPTS for e.g. --cache-dir)
+	$(PYTHON) -m mypy $(MYPY_OPTS) src/insurance_fl
 
 test: ## Run the full test suite (excludes slow)
 	$(PYTEST) -q -m "not slow"
