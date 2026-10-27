@@ -10,6 +10,7 @@ Verifies:
 
 from __future__ import annotations
 
+import pytest
 from flwr.client.mod.localdp_mod import LocalDpMod
 
 from insurance_fl.fl.dp import LocalDPConfig, build_local_dp_mod
@@ -18,7 +19,8 @@ from insurance_fl.fl.dp import LocalDPConfig, build_local_dp_mod
 def test_disabled_returns_none() -> None:
     """When Local DP is disabled, no modifier is produced."""
     cfg = LocalDPConfig(enabled=False)
-    assert build_local_dp_mod(cfg) is None
+    with pytest.warns(UserWarning, match="Local DP"):
+        assert build_local_dp_mod(cfg) is None
 
 
 def test_enabled_returns_local_dp_mod() -> None:
@@ -96,7 +98,8 @@ def test_disabled_config_not_false_claim() -> None:
     """Disabled Local DP means no Local-DP guarantee from this mechanism."""
     cfg = LocalDPConfig(enabled=False)
     assert cfg.enabled is False
-    assert build_local_dp_mod(cfg) is None
+    with pytest.warns(UserWarning, match="Local DP"):
+        assert build_local_dp_mod(cfg) is None
 
 
 def test_default_values() -> None:

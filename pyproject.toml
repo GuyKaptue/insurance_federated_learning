@@ -272,6 +272,5 @@ filterwarnings = [
     "ignore::pydantic.warnings.PydanticDeprecatedSince20",
     "ignore::pydantic.warnings.PydanticDeprecatedSince212",
     "ignore::RuntimeWarning:numpy.*",
-    "ignore::UserWarning",
     "ignore::FutureWarning:lightgbm.*",
 ]

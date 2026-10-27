@@ -12,6 +12,7 @@ loss).
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 
 
@@ -44,6 +45,11 @@ def build_local_dp_mod(config: LocalDPConfig):
     of defaults that would materially alter the privacy policy.
     """
     if not config.enabled:
+        warnings.warn(
+            "Local DP is disabled by default; no Local-DP guarantee is provided.",
+            UserWarning,
+            stacklevel=2,
+        )
         return None
 
     _validate(config)
