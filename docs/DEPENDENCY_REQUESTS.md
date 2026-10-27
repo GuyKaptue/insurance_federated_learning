@@ -7,7 +7,7 @@
 | ID | Date | Requested by | Package | Dependency | Reason | Status |
 |---|---|---|---|---|---|---|
 | DEP-ORCH-001 | Orchestrator | None required | Discovered that the four root prompt files meant for O0.2/O1 (P1, P2, B2, P3) do not exist in this repository, contradicting the orchestrator prompt and the prior agent's `PROGRAM_INTAKE.md`/`DECISIONS.md` records (D-ORCH-001/002). Resolution: execute the three prompts from `prompts/` copies; do not reconstruct originals. | CLOSED — D-ORCH-003 (Session 1: sha256 FAIL for six files; originals not in repo). |
-| DEP-ORCH-002 | Orchestrator | P3 / B2 | Industry data has no known-truth treatment/outcome (clinical tickets out of scope). Draft DQ-I01–I04 (treatment = logistic score of covariates; outcome with known conditional effect; per-country effect-modifier differences labelled "assumption"; truth columns separate from five ML targets) for batch 3b. | PENDING — assigned to P3/B2 Phase 0/3b. |
+| DEP-ORCH-002 | Orchestrator | P3 / B2 | Industry data has no known-truth treatment/outcome. Ground-truth ATE spec (P3 Phase 6): target = claim_risk_score (regression); treatment = has_claims (number_of_claims > 0); countries = Germany, France, Belgium, Switzerland. Truth is semi-synthetic: inject a known additive effect of has_claims on claim_risk_score in the generator, kept as a separate truth column (not one of the five ML targets); per-country effect-modifier differences labelled assumption. Adjustment set = age, annual_income, savings_balance, credit_score, debt_to_income_ratio per docs/causal/dag.yaml. | PENDING - spec drafted; implementation assigned to P3/B2 Phase 0/3b. |
 
 ## Approved / Applied
 

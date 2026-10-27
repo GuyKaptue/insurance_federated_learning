@@ -107,6 +107,8 @@ Session 1b Gate 1b FAIL (tree clean modulo B3 evidence; true originals pending).
 
 **Open blockers (unchanged):**
 1. **Gate 1b FAIL** — maintainer must paste `wc -c` + `shasum` for `../prompt_originals/` + approval line (Step 0). D-ORCH-005 keeps it open; required before final PR.
-2. **DEP-ORCH-002 PENDING** — causal ground-truth spec before P3 Phase 0 / L6.
+2. **DEP-ORCH-002 PENDING** — causal ground-truth ATE spec drafted (target `claim_risk_score`, treatment `has_claims`, all four countries, semi-synthetic truth column); implementation assigned to P3/B2 Phase 0/3b. L6 blocked until resolved.
 3. **Disk:** `/Volumes/Intenso` at 100%, only **1.9 Gi free**; `venv/` (26 G, broken torch) deletion/repair is a **maintainer decision** (D-ORCH-006). Run mypy with `MYPY_OPTS=--cache-dir=/tmp/…` until resolved.
 4. Branch B cleanup (42→6), O-2 deferrals, 32 DQ tickets open — unchanged.
+5. **L5 = ✅ DONE with residuals** (filterwarnings rationale logged as D-CI-002; CI workflow added; coverage plan in PROGRAM_PLAN WAVE6-COVERAGE).
+6. **L6 = ⬜ BLOCKED** on DEP-ORCH-002 + Gate 1b.

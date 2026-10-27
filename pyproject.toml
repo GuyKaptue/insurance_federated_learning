@@ -266,8 +266,12 @@ markers = [
     "integration: end-to-end pipeline tests",
 ]
 filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::RuntimeWarning",
+    "ignore::DeprecationWarning:typer.*",
+    "ignore::DeprecationWarning:click.*",
+    "ignore::DeprecationWarning:mlflow.*",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince212",
+    "ignore::RuntimeWarning:numpy.*",
     "ignore::UserWarning",
-    "ignore::FutureWarning",
+    "ignore::FutureWarning:lightgbm.*",
 ]

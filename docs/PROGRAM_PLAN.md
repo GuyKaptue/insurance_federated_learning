@@ -75,7 +75,13 @@ Merge order into `integration/audit`:
 - Wave 5: `chore/full-audit` (continued) + `feat/causal-transport` (continued)
 - Wave 6: all final regression work
 
-## Notes
+
+## WAVE6-COVERAGE (target 85%)
+
+Three worst-covered L5 modules and one-line test plans:
+- `src/insurance_fl/fl/strategy.py` (14%) → add tests for `StratifiedFedProx` sampling/fairness branches and `build_strategy` factory paths.
+- `src/insurance_fl/fl/client_app.py` (30%) → add tests for FedBN state save/restore, secagg/local-dp modifier pass-through, and evaluate path.
+- `src/insurance_fl/transport/transport.py` (30%) → add tests for covariate shift, outcome transport, and causal-effect transport verdicts.
 
 - **P1 Phase 7 and 8 are deferred** to Waves 5 and 6 per O-3.
 - **Coverage threshold** is baseline now, 85 at Wave 6 per O-4.
