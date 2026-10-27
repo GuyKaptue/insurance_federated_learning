@@ -1,0 +1,242 @@
+# Causal DAG for the Insurance Federated Learning Platform
+# Nodes: 21 numeric features + 5 targets + country parameters.
+# Edges: kind ∈ {feature, country, federated}.
+# country = driven by a country parameter (shifts features/targets across clients).
+# federated = estimable within a client (feature → feature, feature → target).
+# Adjustment sets block every backdoor path from treatment to outcome.
+# Default estimand: has_claims → claim_risk_score
+#   Z = [age, annual_income, savings_balance, credit_score, debt_to_income_ratio]
+
+nodes:
+  - name: annual_income
+    type: feature
+  - name: savings_balance
+    type: feature
+  - name: policy_count
+    type: feature
+  - name: policy_value
+    type: feature
+  - name: age
+    type: feature
+  - name: years_as_customer
+    type: feature
+  - name: number_of_claims
+    type: feature
+  - name: has_claims
+    type: feature
+  - name: total_claim_amount
+    type: feature
+  - name: claim_frequency
+    type: feature
+  - name: property_value
+    type: feature
+  - name: medical_expenses
+    type: feature
+  - name: life_expectancy
+    type: feature
+  - name: health_risk_score
+    type: feature
+  - name: driving_experience
+    type: feature
+  - name: vehicle_value
+    type: feature
+  - name: liability_risk
+    type: feature
+  - name: debt_to_income_ratio
+    type: feature
+  - name: credit_score
+    type: feature
+  - name: family_members
+    type: feature
+  - name: policy_duration
+    type: feature
+  - name: premium_amount
+    type: feature
+  - name: claim_risk_score
+    type: target
+  - name: customer_lifetime_value
+    type: target
+  - name: will_renew
+    type: target
+  - name: is_high_risk
+    type: target
+  - name: customer_segment
+    type: target
+  - name: country
+    type: country
+  - name: country.income_mean
+    type: country_parameter
+  - name: country.income_std
+    type: country_parameter
+  - name: country.savings_rate
+    type: country_parameter
+  - name: country.savings_mean
+    type: country_parameter
+  - name: country.claim_frequency
+    type: country_parameter
+  - name: country.life_expectancy
+    type: country_parameter
+  - name: country.avg_age
+    type: country_parameter
+  - name: country.population
+    type: country_parameter
+  - name: country.gdp_per_capita
+    type: country_parameter
+  - name: country.car_premium
+    type: country_parameter
+  - name: country.health_spending
+    type: country_parameter
+  - name: country.risk_appetite
+    type: country_parameter
+  - name: country.digital_adoption
+    type: country_parameter
+  - name: country.market_share
+    type: country_parameter
+
+edges:
+  - source: country.income_mean
+    target: annual_income
+    kind: country
+  - source: country.income_std
+    target: annual_income
+    kind: country
+  - source: country.savings_rate
+    target: savings_balance
+    kind: country
+  - source: country.claim_frequency
+    target: number_of_claims
+    kind: country
+  - source: country.risk_appetite
+    target: liability_risk
+    kind: country
+  - source: country.health_spending
+    target: health_risk_score
+    kind: country
+  - source: country.avg_age
+    target: age
+    kind: country
+  - source: country.car_premium
+    target: premium_amount
+    kind: country
+  - source: country.life_expectancy
+    target: life_expectancy
+    kind: country
+  - source: age
+    target: annual_income
+    kind: federated
+  - source: age
+    target: years_as_customer
+    kind: federated
+  - source: age
+    target: health_risk_score
+    kind: federated
+  - source: age
+    target: medical_expenses
+    kind: federated
+  - source: age
+    target: driving_experience
+    kind: federated
+  - source: annual_income
+    target: savings_balance
+    kind: federated
+  - source: annual_income
+    target: credit_score
+    kind: federated
+  - source: annual_income
+    target: policy_value
+    kind: federated
+  - source: annual_income
+    target: vehicle_value
+    kind: federated
+  - source: annual_income
+    target: property_value
+    kind: federated
+  - source: annual_income
+    target: debt_to_income_ratio
+    kind: federated
+  - source: annual_income
+    target: premium_amount
+    kind: federated
+  - source: savings_balance
+    target: credit_score
+    kind: federated
+  - source: debt_to_income_ratio
+    target: claim_frequency
+    kind: federated
+  - source: number_of_claims
+    target: has_claims
+    kind: federated
+  - source: has_claims
+    target: claim_risk_score
+    kind: federated
+  - source: health_risk_score
+    target: claim_risk_score
+    kind: federated
+  - source: liability_risk
+    target: claim_risk_score
+    kind: federated
+  - source: credit_score
+    target: claim_risk_score
+    kind: federated
+  - source: debt_to_income_ratio
+    target: claim_risk_score
+    kind: federated
+  - source: annual_income
+    target: customer_lifetime_value
+    kind: federated
+  - source: savings_balance
+    target: customer_lifetime_value
+    kind: federated
+  - source: years_as_customer
+    target: customer_lifetime_value
+    kind: federated
+  - source: number_of_claims
+    target: customer_lifetime_value
+    kind: federated
+  - source: years_as_customer
+    target: will_renew
+    kind: federated
+  - source: claim_frequency
+    target: will_renew
+    kind: federated
+  - source: savings_balance
+    target: will_renew
+    kind: federated
+  - source: number_of_claims
+    target: will_renew
+    kind: federated
+  - source: credit_score
+    target: will_renew
+    kind: federated
+  - source: debt_to_income_ratio
+    target: will_renew
+    kind: federated
+  - source: number_of_claims
+    target: is_high_risk
+    kind: federated
+  - source: debt_to_income_ratio
+    target: is_high_risk
+    kind: federated
+  - source: credit_score
+    target: is_high_risk
+    kind: federated
+  - source: savings_balance
+    target: is_high_risk
+    kind: federated
+  - source: annual_income
+    target: customer_segment
+    kind: federated
+  - source: years_as_customer
+    target: customer_segment
+    kind: federated
+  - source: number_of_claims
+    target: customer_segment
+    kind: federated
+
+adjustment_sets:
+  has_claims__claim_risk_score:
+    - age
+    - annual_income
+    - savings_balance
+    - credit_score
+    - debt_to_income_ratio

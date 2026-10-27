@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
+
 import numpy as np
 import pytest
 import torch
 
+from insurance_fl.fl.task import build_model, train
 from insurance_fl.models.multi_task_nn import DEFAULT_HIDDEN_DIMS, DEFAULT_TASK_TYPES, MultiTaskNN
 
 BATCH = 16
@@ -41,9 +45,7 @@ def test_default_five_tasks(model: MultiTaskNN) -> None:
     assert len(model.heads) == 5
 
 
-def test_forward_returns_raw_logits_shapes(
-    model: MultiTaskNN, inputs: torch.Tensor
-) -> None:
+def test_forward_returns_raw_logits_shapes(model: MultiTaskNN, inputs: torch.Tensor) -> None:
     out = model(inputs)
     assert out["claim_risk_score"].shape == (BATCH,)
     assert out["customer_lifetime_value"].shape == (BATCH,)
@@ -70,9 +72,7 @@ def test_invalid_constructor_args() -> None:
 
 
 # --- losses ---------------------------------------------------------------
-def test_losses_finite_and_backward(
-    model: MultiTaskNN, inputs: torch.Tensor
-) -> None:
+def test_losses_finite_and_backward(model: MultiTaskNN, inputs: torch.Tensor) -> None:
     logits = model(inputs)
     losses = model.get_losses(logits, _targets())
     assert set(losses) == set(DEFAULT_TASK_TYPES)
@@ -87,7 +87,7 @@ def test_losses_finite_and_backward(
 
 def test_total_loss_respects_weights(model: MultiTaskNN) -> None:
     losses = {k: torch.tensor(1.0) for k in model.task_types}
-    total = model.get_total_loss(losses, {k: 2.0 for k in model.task_types})
+    total = model.get_total_loss(losses, dict.fromkeys(model.task_types, 2.0))
     assert float(total) == pytest.approx(2.0 * len(losses))
 
 
@@ -176,9 +176,7 @@ def test_kendall_zero_init_equals_equal_weight_sum(
     assert float(kendall) == pytest.approx(float(equal))
 
 
-def test_kendall_loss_changes_with_log_vars(
-    model: MultiTaskNN, inputs: torch.Tensor
-) -> None:
+def test_kendall_loss_changes_with_log_vars(model: MultiTaskNN, inputs: torch.Tensor) -> None:
     """Non-zero log_vars change the weighted total loss."""
     torch.manual_seed(0)
     logits = model(inputs)
@@ -240,6 +238,60 @@ def test_local_bn_state_roundtrip(model: MultiTaskNN) -> None:
     # Restore
     model.set_local_bn_state(bn_before)
     for key in bn_before:
-        torch.testing.assert_close(
-            model.state_dict()[key], torch.as_tensor(bn_before[key])
-        )
+        torch.testing.assert_close(model.state_dict()[key], torch.as_tensor(bn_before[key]))
+
+
+def test_nn_checkpoint_roundtrip() -> None:
+    net = build_model(input_dim=5)
+    x = np.random.randn(20, 5).astype(np.float32)
+    y = {"claim_risk_score": np.random.randn(20).astype(np.float32)}
+    # Add minimal tasks
+    for t, tt in DEFAULT_TASK_TYPES.items():
+        if t not in y:
+            if tt == "regression":
+                y[t] = np.random.randn(20).astype(np.float32)
+            elif tt == "binary":
+                y[t] = np.random.randint(0, 2, size=20).astype(np.float32)
+            else:
+                y[t] = np.random.randint(0, 3, size=20).astype(np.float32)
+
+    train(net, x, y, epochs=2, batch_size=8, lr=0.001)
+    net.eval()
+
+    with torch.no_grad():
+        pred_before = net.forward(torch.as_tensor(x[:5].astype(np.float32)))
+        pred_before = {k: v.detach().numpy().copy() for k, v in pred_before.items()}  # type: ignore[misc]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path = Path(tmpdir) / "nn_checkpoint"
+        net.save(path)
+
+        # Reload
+        loaded = type(net).load(path)
+        loaded.eval()
+
+        with torch.no_grad():
+            pred_after = loaded.forward(torch.as_tensor(x[:5].astype(np.float32)))
+            pred_after = {k: v.detach().numpy() for k, v in pred_after.items()}  # type: ignore[misc]
+
+        for task in pred_before:
+            np.testing.assert_allclose(pred_before[task], pred_after[task], rtol=1e-5)
+
+
+def test_nn_checkpoint_missing_fails() -> None:
+    from insurance_fl.models.multi_task_nn import MultiTaskNN
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pytest.raises(FileNotFoundError):
+            MultiTaskNN.load(Path(tmpdir) / "nonexistent")
+
+
+def test_nn_checkpoint_metadata() -> None:
+    net = build_model(input_dim=5)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path = Path(tmpdir) / "nn_checkpoint"
+        net.save(path)
+        assert (path / "model.pt").exists()
+        assert (path / "metadata.json").exists()
+        loaded = type(net).load(path)
+        assert loaded.input_dim == 5

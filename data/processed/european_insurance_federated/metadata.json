@@ -3,7 +3,7 @@
   "dataset_version": "v1.0",
   "random_seed": 42,
   "samples_per_client": 5000,
-  "generation_date": "2026-08-28T22:20:02.152127",
+  "generation_date": "2026-10-25T01:52:35.149354",
   "clients": [
     "germany_allianz",
     "france_axa",
@@ -219,7 +219,7 @@
     "feature_count": 41,
     "target_distribution": {
       "claim_risk_score": {
-        "mean": 10.177282098314029,
+        "mean": 10.177282098314027,
         "std": 8.28438409983824
       },
       "customer_lifetime_value": {

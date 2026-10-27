@@ -29,13 +29,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 import torch
 import torch.nn as nn
 
-DEFAULT_TASK_TYPES: Dict[str, str] = {
+DEFAULT_TASK_TYPES: dict[str, str] = {
     "claim_risk_score": "regression",
     "customer_lifetime_value": "regression",
     "will_renew": "binary",
@@ -43,7 +42,7 @@ DEFAULT_TASK_TYPES: Dict[str, str] = {
     "customer_segment": "multi",
 }
 
-DEFAULT_HIDDEN_DIMS: List[int] = [256, 128, 64]
+DEFAULT_HIDDEN_DIMS: list[int] = [256, 128, 64]
 
 
 class MultiTaskNN(nn.Module):
@@ -70,11 +69,11 @@ class MultiTaskNN(nn.Module):
     def __init__(
         self,
         input_dim: int,
-        task_types: Optional[Dict[str, str]] = None,
-        hidden_dims: Optional[List[int]] = None,
+        task_types: dict[str, str] | None = None,
+        hidden_dims: list[int] | None = None,
         dropout_rate: float = 0.3,
         use_batch_norm: bool = True,
-        num_classes: Optional[Dict[str, int]] = None,
+        num_classes: dict[str, int] | None = None,
     ) -> None:
         super().__init__()
         hidden_dims = list(hidden_dims) if hidden_dims else list(DEFAULT_HIDDEN_DIMS)
@@ -91,7 +90,7 @@ class MultiTaskNN(nn.Module):
         self.num_classes = dict(num_classes) if num_classes else {"customer_segment": 3}
 
         # --- Shared trunk ------------------------------------------------
-        layers: List[nn.Module] = []
+        layers: list[nn.Module] = []
         in_dim = input_dim
         for h_dim in hidden_dims:
             layers.append(nn.Linear(in_dim, h_dim))
@@ -124,14 +123,12 @@ class MultiTaskNN(nn.Module):
         # Zero-init: exp(-0)=1 and +0 => the Kendall loss starts out equal
         # to the Layer 1 equal-weight sum (smooth baseline continuity).
         self.log_vars = nn.Parameter(torch.zeros(len(self.task_types)))
-        self._task_index: Dict[str, int] = {
-            name: i for i, name in enumerate(self.task_types)
-        }
+        self._task_index: dict[str, int] = {name: i for i, name in enumerate(self.task_types)}
 
-    def forward(self, x: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
         """Forward pass. Returns RAW logits per task (no activation)."""
         features = self.shared_backbone(x)
-        outputs: Dict[str, torch.Tensor] = {}
+        outputs: dict[str, torch.Tensor] = {}
         for task_name, head in self.heads.items():
             raw = head(features)
             if self.task_types[task_name] == "multi":
@@ -140,7 +137,7 @@ class MultiTaskNN(nn.Module):
                 outputs[task_name] = raw.squeeze(-1)  # (B,) regression/logit
         return outputs
 
-    def predict(self, x: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def predict(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
         """Inference: applies task activation to produce usable outputs.
 
         regression -> raw value; binary -> probability; multi -> probability.
@@ -148,7 +145,7 @@ class MultiTaskNN(nn.Module):
         self.eval()
         with torch.no_grad():
             logits = self.forward(x)
-            preds: Dict[str, torch.Tensor] = {}
+            preds: dict[str, torch.Tensor] = {}
             for task_name, out in logits.items():
                 ttype = self.task_types[task_name]
                 if ttype == "binary":
@@ -161,11 +158,11 @@ class MultiTaskNN(nn.Module):
 
     def get_losses(
         self,
-        logits: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
-    ) -> Dict[str, torch.Tensor]:
+        logits: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
+    ) -> dict[str, torch.Tensor]:
         """Compute per-task losses from raw logits (stable formulations)."""
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         for task_name, task_type in self.task_types.items():
             if task_name not in targets or task_name not in logits:
                 continue
@@ -181,11 +178,11 @@ class MultiTaskNN(nn.Module):
 
     def get_total_loss(
         self,
-        losses: Dict[str, torch.Tensor],
-        loss_weights: Optional[Dict[str, float]] = None,
+        losses: dict[str, torch.Tensor],
+        loss_weights: dict[str, float] | None = None,
     ) -> torch.Tensor:
         """Weighted sum of per-task losses (equal weights by default)."""
-        weights = loss_weights or {k: 1.0 for k in losses}
+        weights = loss_weights or dict.fromkeys(losses, 1.0)
         device = next(self.parameters()).device
         total = torch.zeros((), device=device)
         for task_name, loss_val in losses.items():
@@ -194,7 +191,7 @@ class MultiTaskNN(nn.Module):
 
     def get_kendall_total_loss(
         self,
-        losses: Dict[str, torch.Tensor],
+        losses: dict[str, torch.Tensor],
     ) -> torch.Tensor:
         """Kendall et al. (2018) uncertainty-weighted multi-task loss.
 
@@ -220,7 +217,7 @@ class MultiTaskNN(nn.Module):
             total = total + torch.exp(-log_var) * loss_val + log_var
         return total
 
-    def uncertainty_weights(self) -> Dict[str, float]:
+    def uncertainty_weights(self) -> dict[str, float]:
         """Effective per-task loss weights ``exp(-log_sigma^2)`` (Kendall)."""
         with torch.no_grad():
             return {
@@ -228,11 +225,10 @@ class MultiTaskNN(nn.Module):
                 for name, idx in self._task_index.items()
             }
 
-
     # ------------------------------------------------------------------
     # Federated learning weight interface
     # ------------------------------------------------------------------
-    def get_weights(self) -> List[np.ndarray]:
+    def get_weights(self) -> list[np.ndarray]:
         """Return model parameters as a deterministic list of numpy arrays.
 
         Order is stable (state_dict insertion order), so FedAvg-style
@@ -241,13 +237,11 @@ class MultiTaskNN(nn.Module):
         self.eval()
         return [t.detach().cpu().numpy().copy() for t in self.state_dict().values()]
 
-    def set_weights(self, weights: List[np.ndarray]) -> None:
+    def set_weights(self, weights: list[np.ndarray]) -> None:
         """Load parameters from a list produced by :meth:`get_weights`."""
         state = self.state_dict()
         if len(weights) != len(state):
-            raise ValueError(
-                f"Weight count mismatch: got {len(weights)}, expected {len(state)}"
-            )
+            raise ValueError(f"Weight count mismatch: got {len(weights)}, expected {len(state)}")
         new_state = {}
         for key, value in zip(state.keys(), weights):
             arr = np.asarray(value)
@@ -263,7 +257,7 @@ class MultiTaskNN(nn.Module):
     # ------------------------------------------------------------------
     # FedBN: BatchNorm stays local (Task 1)
     # ------------------------------------------------------------------
-    def local_bn_keys(self) -> List[str]:
+    def local_bn_keys(self) -> list[str]:
         """``state_dict`` keys owned by BatchNorm layers (never leave the client).
 
         Empty when ``use_batch_norm=False`` (then federated == full weights).
@@ -275,12 +269,12 @@ class MultiTaskNN(nn.Module):
         )
         return [key for key in self.state_dict() if key.startswith(prefixes)]
 
-    def federated_keys(self) -> List[str]:
+    def federated_keys(self) -> list[str]:
         """``state_dict`` keys that cross the wire (everything except BN)."""
         bn_keys = set(self.local_bn_keys())
         return [key for key in self.state_dict() if key not in bn_keys]
 
-    def get_federated_weights(self) -> List[np.ndarray]:
+    def get_federated_weights(self) -> list[np.ndarray]:
         """Non-BN parameters in ``state_dict`` order (the FedBN wire format).
 
         Same determinism as :meth:`get_weights`: identical architectures
@@ -291,7 +285,7 @@ class MultiTaskNN(nn.Module):
         state = self.state_dict()
         return [state[key].detach().cpu().numpy().copy() for key in self.federated_keys()]
 
-    def set_federated_weights(self, weights: List[np.ndarray]) -> None:
+    def set_federated_weights(self, weights: list[np.ndarray]) -> None:
         """Load non-BN parameters; local BatchNorm state is left untouched."""
         keys = self.federated_keys()
         if len(weights) != len(keys):
@@ -312,15 +306,12 @@ class MultiTaskNN(nn.Module):
         # strict=False: only the provided (non-BN) keys are updated.
         self.load_state_dict(new_state, strict=False)
 
-    def get_local_bn_state(self) -> Dict[str, np.ndarray]:
+    def get_local_bn_state(self) -> dict[str, np.ndarray]:
         """Snapshot of local BatchNorm tensors (for ``context.state`` storage)."""
         state = self.state_dict()
-        return {
-            key: state[key].detach().cpu().numpy().copy()
-            for key in self.local_bn_keys()
-        }
+        return {key: state[key].detach().cpu().numpy().copy() for key in self.local_bn_keys()}
 
-    def set_local_bn_state(self, bn: Dict[str, np.ndarray]) -> None:
+    def set_local_bn_state(self, bn: dict[str, np.ndarray]) -> None:
         """Restore a snapshot produced by :meth:`get_local_bn_state`.
 
         Keys must match the model's current BN keys exactly (same
@@ -347,7 +338,7 @@ class MultiTaskNN(nn.Module):
     # ------------------------------------------------------------------
     # Persistence
     # ------------------------------------------------------------------
-    def save(self, path: Union[str, Path]) -> None:
+    def save(self, path: str | Path) -> None:
         """Save network state and construction metadata to ``path``."""
         path = Path(path)
         path.mkdir(parents=True, exist_ok=True)
@@ -363,7 +354,7 @@ class MultiTaskNN(nn.Module):
         (path / "metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     @classmethod
-    def load(cls, path: Union[str, Path]) -> "MultiTaskNN":
+    def load(cls, path: str | Path) -> MultiTaskNN:
         """Load a model saved by :meth:`save`."""
         path = Path(path)
         meta = json.loads((path / "metadata.json").read_text(encoding="utf-8"))
@@ -378,4 +369,3 @@ class MultiTaskNN(nn.Module):
         state = torch.load(path / "model.pt", map_location="cpu", weights_only=True)
         model.load_state_dict(state)
         return model
-

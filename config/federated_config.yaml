@@ -81,3 +81,32 @@ explainability:
 logging:
   level: INFO
   log_dir: logs
+
+privacy:
+  secagg:
+    enabled: false
+    reconstruction_threshold: 3
+    num_shares: 4
+    max_weight: 1000.0
+    clipping_range: 8.0
+    quantization_range: 4194304
+  local_dp:
+    enabled: false
+    epsilon: 2.0
+    delta: 0.00001
+    clipping_norm: 1.0
+    sensitivity: 1.0
+  rdp_accounting:
+    enabled: true
+    max_epsilon: 10.0
+    target_delta: 0.00001
+
+fairness:
+  strategy: fedprox_stratified
+  min_clients_per_country: 1
+  disparity_threshold_pct: 0.05
+
+audit:
+  enabled: true
+  retention_days: 180
+  path: logs/audit.jsonl

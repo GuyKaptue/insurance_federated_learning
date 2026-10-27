@@ -49,6 +49,12 @@ TARGET_COLUMNS: List[str] = [
 
 SPLIT_NAMES: Tuple[str, ...] = ("train", "val", "test", "site")
 
+# Maximum pairwise |Pearson-r| allowed between any two targets.  Exceeding
+# this threshold is treated as a leakage signal (one target derived from
+# another).  Targets share common feature drivers, so moderate correlation
+# is expected, but direct derivation produces near-perfect correlation.
+_LEAKAGE_CORR_LIMIT: float = 0.90
+
 
 class EuropeanInsuranceFederatedDataset:
     """European Insurance Dataset Generator.
@@ -258,6 +264,7 @@ class EuropeanInsuranceFederatedDataset:
         )
 
         targets = self._generate_targets(data, stats, rng)
+        self._validate_targets(targets)
         return pd.concat([data, targets], axis=1)
 
     def _client_rng(self, client_id: str) -> np.random.Generator:
@@ -328,15 +335,25 @@ class EuropeanInsuranceFederatedDataset:
         # --- Target 4: Binary - High Risk Customer -----------------------
         # NOTE: does NOT use claim_risk_score (avoids label leakage).
         high_risk_logit = (
-            -1.2
-            + df["number_of_claims"] / 20 * 1.5
-            + df["debt_to_income_ratio"] * 1.5
+            -0.9
+            * (df["number_of_claims"] - df["number_of_claims"].mean())
+            / (df["number_of_claims"].std() + 1e-12)
+            + 1.1
+            * (df["debt_to_income_ratio"] - df["debt_to_income_ratio"].mean())
+            / (df["debt_to_income_ratio"].std() + 1e-12)
             + (df["insurance_package"] == "Basic").astype(float) * 0.5
             + (df["number_of_claims"] > 2).astype(float) * 1.0
-            - df["credit_score"] / 850 * 0.8
-            - df["savings_balance"] / 100000 * 0.5
+            - 1.0
+            * (df["credit_score"] - df["credit_score"].mean())
+            / (df["credit_score"].std() + 1e-12)
+            - 0.6
+            * (df["savings_balance"] - df["savings_balance"].mean())
+            / (df["savings_balance"].std() + 1e-12)
         )
-        high_risk_prob = np.clip(1 / (1 + np.exp(-high_risk_logit)), 0.15, 0.40)
+        high_risk_prob = 1.0 / (1.0 + np.exp(-high_risk_logit))
+        # Wider clip than original (0.05-0.95) to preserve signal while
+        # maintaining class balance for small samples.
+        high_risk_prob = np.clip(high_risk_prob, 0.05, 0.95)
         targets["is_high_risk"] = (rng.random(n) < high_risk_prob).astype(int)
 
         # --- Target 5: Multi-class - Customer Segment --------------------
@@ -371,6 +388,62 @@ class EuropeanInsuranceFederatedDataset:
         targets["customer_segment"] = segment_labels
 
         return targets
+
+    def _validate_targets(self, targets: pd.DataFrame) -> None:
+        """Post-generation leakage gate (Part 2b).
+
+        Verifies that no target is computed from another target by checking
+        that no pair of targets has a correlation whose absolute value exceeds
+        ``_LEAKAGE_CORR_LIMIT``.  Called immediately after ``_generate_targets``
+        inside ``_generate_client_data`` so a leakage regression fails the
+        build immediately rather than silently propagating.
+
+        Raises
+        ------
+        AssertionError
+            If any pairwise |corr| exceeds ``_LEAKAGE_CORR_LIMIT``.
+        """
+        cols = [c for c in TARGET_COLUMNS if c in targets.columns]
+        if len(cols) < 2:
+            return
+        sub = targets[cols].astype(float)
+        corr = sub.corr(method="pearson")
+        for i in range(len(cols)):
+            for j in range(i + 1, len(cols)):
+                c = float(corr.iloc[i, j])
+                if np.isfinite(c) and abs(c) > _LEAKAGE_CORR_LIMIT:
+                    raise AssertionError(
+                        f"Leakage guard: |corr({cols[i]}, {cols[j]})| = {abs(c):.4f} "
+                        f"exceeds {_LEAKAGE_CORR_LIMIT}. "
+                        f"One target may be derived from another."
+                    )
+
+    def _deterministic_hash(self, all_data: Dict[str, Any], centralized: pd.DataFrame) -> str:
+        """Compute a process-stable hash of the generated dataset.
+
+        Uses ``hashlib.sha256`` (not the salted built-in ``hash()``) so the
+        value is identical across separate Python processes for the same seed.
+
+        Part 2d: the hash incorporates BOTH the federated per-client splits
+        AND the centralized pool, so any change to either portion produces a
+        different hash.
+        """
+        import hashlib
+
+        h = hashlib.sha256()
+        h.update(str(self.random_seed).encode("utf-8"))
+        h.update(str(self.samples_per_client).encode("utf-8"))
+        # Federated splits ── sorted for deterministic ordering
+        for client_id in sorted(all_data):
+            if client_id == "metadata":
+                continue
+            for split in SPLIT_NAMES:
+                df = all_data[client_id][split]
+                # to_json with sort_columns for stability
+                h.update(df.sort_index(axis=1).to_json(orient="records").encode("utf-8"))
+        # Centralized pool ── 3-way hash includes centralized (Part 2d)
+        h.update(centralized.sort_index(axis=1).to_json(orient="records").encode("utf-8"))
+        return h.hexdigest()[:24]
 
     def _add_data_quality_issues(self, df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
         """Inject missing values, outliers and inconsistencies for realism.

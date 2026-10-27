@@ -27,4 +27,4 @@ def test_build_strategy_fedavg() -> None:
 
 def test_strategy_rejects_unknown() -> None:
     with pytest.raises(ValueError, match="Task 4"):
-        build_strategy("hybrid")
+        build_strategy("nonexistent_strategy")

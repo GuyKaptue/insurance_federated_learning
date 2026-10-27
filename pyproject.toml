@@ -79,6 +79,10 @@ dependencies = [
     # Experiment Tracking
     "mlflow>=2.2.0,<3.0.0",
 
+    # Privacy / RDP accounting (required by the FL runtime path so Ray workers
+    # installed from this package have the backend; do not rely on system Python)
+    "dp-accounting>=0.6.0,<1.0.0",
+
     # Utilities
     "python-dotenv>=1.0.0,<2.0.0",
     "click>=8.1.0,<9.0.0",
@@ -107,6 +111,18 @@ dev = [
     "jupyter>=1.0.0,<2.0.0",
     "hypothesis>=6.0.0,<9.0.0",
     "ruff>=0.8.0,<1.0.0",
+    "mypy==1.10.0",  # pinned: flwr requires pathspec<0.13; mypy>1.10 fails to start on this dep graph
+    "types-PyYAML>=6.0.0",
+]
+causal = [
+    "statsmodels>=0.14,<0.15",
+    "pgmpy>=0.1.25,<0.2",
+]
+train = [
+    "dp-accounting>=0.6.0,<1.0.0",
+]
+rdp = [
+    "dp-accounting>=0.6.0,<1.0.0",
 ]
 
 [tool.flwr.app]
@@ -223,6 +239,9 @@ ignore = [
 line-length = 100
 target-version = ['py311']
 
+[tool.ruff.isort]
+known-first-party = ["insurance_fl"]
+
 [tool.isort]
 profile = "black"
 line_length = 100
@@ -234,6 +253,7 @@ ignore_missing_imports = true
 mypy_path = "src"
 explicit_package_bases = true
 namespace_packages = true
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -244,4 +264,10 @@ python_functions = "test_*"
 markers = [
     "slow: long-running tests (determinism across processes, full generation)",
     "integration: end-to-end pipeline tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::RuntimeWarning",
+    "ignore::UserWarning",
+    "ignore::FutureWarning",
 ]

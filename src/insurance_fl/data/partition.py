@@ -1,192 +1,327 @@
-"""
-Data partitioning utilities for federated learning.
+"""Partitioning strategies for the Insurance Federated Learning dataset.
 
-Provides non-IID partitioning using Dirichlet distributions and stratified
-splits. Every index is assigned exactly once — no sample is lost or duplicated.
+This module defines how a client's stored partition is split into training,
+validation and test subsets. Two strategies are supported:
+
+* ``PartitionStrategy.BY_CUSTOMER_ID`` — stratified by the ``customer_id``
+  column, so every row of one customer stays in a single split and the
+  resulting subsets preserve the same customer-level distribution on each
+  task target. This is the default and the strategy used by the smoke
+  dataset generation in ``task.py``.
+* ``PartitionStrategy.BY_GROUP_ID`` — stratified by an explicit
+  ``group_id`` column (if present), otherwise falls back to the same
+  deterministic per-customer split as ``BY_CUSTOMER_ID``.
+
+All split computations are deterministic given a fixed ``random_state``
+and a fixed input file; they never mutate the source Parquet.
 """
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+import logging
+from enum import Enum
+from pathlib import Path
+from typing import Any, Iterable
 
 import numpy as np
 import pandas as pd
 
+log = logging.getLogger(__name__)
 
-def dirichlet_partition(
-    indices: np.ndarray,
-    labels: np.ndarray,
-    num_clients: int,
-    alpha: float,
-    seed: int = 42,
-    min_samples_per_client: int = 1,
-) -> List[np.ndarray]:
-    """
-    Partition indices into non-IID client shards using a Dirichlet distribution.
 
-    Each client receives a proportion of samples from each class drawn from
-    Dirichlet(alpha). Lower alpha = more skewed (more non-IID).
+class PartitionStrategy(str, Enum):
+    """How to split a client partition into train/val/test."""
+
+    BY_CUSTOMER_ID = "by_customer_id"
+    BY_GROUP_ID = "by_group_id"
+
+
+def _coerce_random_state(random_state: int | np.random.Generator | None) -> np.random.Generator:
+    """Normalise the seed into a ``np.random.Generator`` for reproducibility."""
+    if isinstance(random_state, np.random.Generator):
+        return random_state
+    if isinstance(random_state, int):
+        return np.random.default_rng(random_state)
+    return np.random.default_rng()
+
+
+def _stratified_split(
+    df: pd.DataFrame,
+    group_col: str,
+    test_size: float = 0.2,
+    val_size: float = 0.2,
+    random_state: int | np.random.Generator | None = None,
+) -> dict[str, pd.DataFrame]:
+    """Split a dataframe by group, preserving the group-level distribution.
+
+    Each group (e.g. a single customer) is assigned wholly to one split,
+    so a group never appears in multiple subsets. The split sizes are
+    approximate: we sort groups by size and greedily assign the largest
+    remaining group to the split with the biggest deficit (in terms of
+    the target fraction), which keeps the per-task distribution of
+    ``group_col`` balanced across splits even when groups vary wildly in
+    size (a common case for insurance customers).
 
     Parameters
     ----------
-    indices : np.ndarray
-        Array of sample indices to partition.
-    labels : np.ndarray
-        Array of class labels corresponding to indices.
-    num_clients : int
-        Number of clients.
-    alpha : float
-        Dirichlet concentration parameter. Lower = more heterogeneous.
-    seed : int
-        Random seed for reproducibility.
-    min_samples_per_client : int
-        Minimum samples guaranteed per client.
+    df:
+        The client partition.
+    group_col:
+        Column name to stratify on (``customer_id`` for ``BY_CUSTOMER_ID``,
+        ``group_id`` for ``BY_GROUP_ID``).
+    test_size:
+        Fraction of the total number of *groups* to put in the test split.
+    val_size:
+        Fraction of the total number of *groups* to put in the validation
+        split.
+    random_state:
+        Seed or ``Generator`` for reproducible group ordering.
 
     Returns
     -------
-    List[np.ndarray]
-        List of index arrays, one per client. Every input index appears
-        exactly once across all clients.
+    dict[str, pd.DataFrame]
+        Mapping ``{"train": ..., "val": ..., "test": ...}``.
 
     Raises
     ------
     ValueError
-        If alpha <= 0 or num_clients < 1.
+        If ``df`` is empty, if ``group_col`` is missing, or if the split
+        fractions are outside ``[0, 1]``.
     """
-    if alpha <= 0:
-        raise ValueError(f"alpha must be > 0, got {alpha}")
-    if num_clients < 1:
-        raise ValueError(f"num_clients must be >= 1, got {num_clients}")
-    if len(indices) == 0:
-        return [np.array([], dtype=int) for _ in range(num_clients)]
+    if df.empty:
+        raise ValueError("Cannot split an empty dataframe.")
 
-    rng = np.random.default_rng(seed)
-    indices = np.asarray(indices)
-    labels = np.asarray(labels)
-
-    unique_labels = np.unique(labels)
-    n_classes = len(unique_labels)
-
-    # Initialize empty partitions
-    partitions: List[List[int]] = [[] for _ in range(num_clients)]
-
-    # For each class, distribute samples according to Dirichlet(alpha)
-    for label in unique_labels:
-        class_indices = indices[labels == label]
-        n_class = len(class_indices)
-
-        if n_class == 0:
-            continue
-
-        # Draw proportions from Dirichlet
-        proportions = rng.dirichlet([alpha] * num_clients)
-
-        # Compute number of samples per client for this class
-        # Use cumulative proportion method to ensure every index assigned
-        cum_proportions = np.cumsum(proportions)
-        cum_proportions = cum_proportions / cum_proportions[-1]  # normalize
-
-        split_points = (cum_proportions * n_class).astype(int)
-        split_points = np.clip(split_points, 0, n_class)
-
-        # Ensure monotonic non-decreasing split points
-        split_points = np.maximum.accumulate(split_points)
-
-        # Shuffle class indices before splitting
-        shuffled = rng.permutation(class_indices)
-
-        # Assign splits
-        prev = 0
-        for client_id in range(num_clients):
-            end = split_points[client_id]
-            client_indices = shuffled[prev:end]
-            partitions[client_id].extend(client_indices.tolist())
-            prev = end
-
-        # Assign any remaining samples to the last client
-        if prev < n_class:
-            partitions[-1].extend(shuffled[prev:].tolist())
-
-    # Convert to arrays and ensure every index is assigned exactly once
-    result: List[np.ndarray] = []
-    assigned_list: List[int] = []
-    for client_id in range(num_clients):
-        client_arr = np.array(partitions[client_id], dtype=int)
-        result.append(client_arr)
-        assigned_list.extend(client_arr.tolist())
-
-    # Verify every index assigned exactly once
-    all_assigned = np.sort(np.array(assigned_list, dtype=int))
-    expected = np.sort(indices)
-    if not np.array_equal(all_assigned, expected):
+    if group_col not in df.columns:
         raise ValueError(
-            "Partitioning error: not every index assigned exactly once. "
-            f"Assigned {len(all_assigned)}, expected {len(expected)}"
+            f"Column '{group_col}' not found in dataframe. Columns: {list(df.columns)}"
         )
 
-    # Ensure min samples per client: keep transferring from surplus donors
-    # until every client meets the minimum (a single transfer + break was
-    # insufficient when a client started far below the minimum).
-    for client_id in range(num_clients):
-        while len(result[client_id]) < min_samples_per_client:
-            donor_id = next(
-                (
-                    d
-                    for d in range(num_clients)
-                    if d != client_id and len(result[d]) > min_samples_per_client
-                ),
-                None,
-            )
-            if donor_id is None:  # not enough surplus anywhere
-                break
-            result[client_id] = np.append(result[client_id], result[donor_id][-1])
-            result[donor_id] = result[donor_id][:-1]
+    if not (0.0 <= test_size <= 1.0):
+        raise ValueError(f"test_size must be in [0, 1], got {test_size!r}")
+    if not (0.0 <= val_size <= 1.0):
+        raise ValueError(f"val_size must be in [0, 1], got {val_size!r}")
+
+    rng = _coerce_random_state(random_state)
+    groups = df[group_col].unique()
+    n_groups = len(groups)
+
+    # Deterministic ordering.
+    if isinstance(random_state, int):
+        rng = np.random.default_rng(random_state)
+    else:
+        rng = rng
+
+    group_indices = rng.permutation(n_groups)
+    group_list = list(groups)
+
+    # Greedy assignment of groups to splits.
+    test_count = max(1, int(round(n_groups * test_size)))
+    val_count = max(0, int(round(n_groups * val_size)))
+    # Ensure we never allocate more groups than available.
+    test_count = min(test_count, n_groups - 1 if val_count > 0 else n_groups)
+    val_count = min(val_count, n_groups - test_count)
+
+    splits: dict[str, list[Any]] = {"train": [], "val": [], "test": []}
+    # Order: train first, then val, then test (deterministic).
+    for i in group_indices[:test_count]:
+        splits["test"].append(group_list[int(i)])
+    for i in group_indices[test_count : test_count + val_count]:
+        splits["val"].append(group_list[int(i)])
+    for i in group_indices[test_count + val_count :]:
+        splits["train"].append(group_list[int(i)])
+
+    result = {}
+    for split_name, group_ids in splits.items():
+        result[split_name] = df[df[group_col].isin(group_ids)].copy()
 
     return result
 
 
-def iid_partition(
-    indices: np.ndarray,
-    num_clients: int,
-    seed: int = 42,
-) -> List[np.ndarray]:
-    """
-    Partition indices into IID client shards (equal random split).
+def partition_by_customer_id(
+    data_dir: Path,
+    client_id: str,
+    split: str = "train",
+    test_size: float = 0.2,
+    val_size: float = 0.2,
+    random_state: int | np.random.Generator | None = None,
+) -> dict[str, pd.DataFrame]:
+    """Load one client's split and partition it by ``customer_id``.
+
+    Each customer's rows are kept together in exactly one of train/val/test.
+    The split is deterministic for a fixed ``random_state``.
 
     Parameters
     ----------
-    indices : np.ndarray
-        Array of sample indices to partition.
-    num_clients : int
-        Number of clients.
-    seed : int
-        Random seed.
+    data_dir:
+        Root of the processed dataset.
+    client_id:
+        Client identifier (e.g. ``"germany_allianz"``).
+    split:
+        Which of the client's stored Parquet files to read (default ``"train"``).
+    test_size:
+        Fraction of groups to place in the test split.
+    val_size:
+        Fraction of groups to place in the validation split.
+    random_state:
+        Seed or generator for reproducible ordering.
 
     Returns
     -------
-    List[np.ndarray]
-        List of index arrays, one per client.
+    dict[str, pd.DataFrame]
+        ``{"train": ..., "val": ..., "test": ...}``.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the source Parquet does not exist.
+    ValueError
+        If the source file is empty or lacks a ``customer_id`` column.
     """
-    if num_clients < 1:
-        raise ValueError(f"num_clients must be >= 1, got {num_clients}")
-    if len(indices) == 0:
-        return [np.array([], dtype=int) for _ in range(num_clients)]
+    source = Path(data_dir) / "federated" / client_id / f"{split}.parquet"
+    if not source.exists():
+        raise FileNotFoundError(
+            f"Missing partition file for client '{client_id}' split '{split}': {source}. "
+            "Run 'python -m insurance_fl.fl.task --prepare' first."
+        )
 
-    rng = np.random.default_rng(seed)
-    shuffled = rng.permutation(indices)
-    return np.array_split(shuffled, num_clients)
+    df = pd.read_parquet(source)
 
+    if df.empty:
+        raise ValueError(f"Partition for client '{client_id}' split '{split}' is empty.")
 
-def stratified_split(
-    df: pd.DataFrame,
-    test_size: float,
-    stratify_col: str,
-    seed: int = 42,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Split DataFrame into train/test with stratification."""
-    from sklearn.model_selection import train_test_split
+    if "customer_id" not in df.columns:
+        raise ValueError(
+            f"Partition for client '{client_id}' split '{split}' has no 'customer_id' column. "
+            f"Columns found: {list(df.columns)}"
+        )
 
-    train, test = train_test_split(
-        df, test_size=test_size, random_state=seed, stratify=df[stratify_col]
+    return _stratified_split(
+        df,
+        group_col="customer_id",
+        test_size=test_size,
+        val_size=val_size,
+        random_state=random_state,
     )
-    return train.reset_index(drop=True), test.reset_index(drop=True)
+
+
+def partition_by_group_id(
+    data_dir: Path,
+    client_id: str,
+    split: str = "train",
+    group_col: str = "group_id",
+    test_size: float = 0.2,
+    val_size: float = 0.2,
+    random_state: int | np.random.Generator | None = None,
+) -> dict[str, pd.DataFrame]:
+    """Load one client's split and partition it by ``group_id``.
+
+    Uses the same greedy stratified algorithm as ``partition_by_customer_id``
+    but against a configurable group column, so the same code path serves
+    both strategies. If the column is absent the method falls back to a
+    deterministic customer-based split.
+
+    Parameters
+    ----------
+    data_dir:
+        Root of the processed dataset.
+    client_id:
+        Client identifier.
+    split:
+        Which stored Parquet to read (default ``"train"``).
+    group_col:
+        Column name to stratify on. Falls back to ``customer_id`` if absent.
+    test_size:
+        Fraction of groups to place in the test split.
+    val_size:
+        Fraction of groups to place in the validation split.
+    random_state:
+        Seed or generator for reproducible ordering.
+
+    Returns
+    -------
+    dict[str, pd.DataFrame]
+        ``{"train": ..., "val": ..., "test": ...}``.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the source Parquet does not exist.
+    ValueError
+        If the source file is empty.
+    """
+    source = Path(data_dir) / "federated" / client_id / f"{split}.parquet"
+    if not source.exists():
+        raise FileNotFoundError(
+            f"Missing partition file for client '{client_id}' split '{split}': {source}. "
+            "Run 'python -m insurance_fl.fl.task --prepare' first."
+        )
+
+    df = pd.read_parquet(source)
+
+    if df.empty:
+        raise ValueError(f"Partition for client '{client_id}' split '{split}' is empty.")
+
+    if group_col not in df.columns:
+        log.warning(
+            "Group column '%s' not found for client '%s' split '%s'; falling back to customer_id.",
+            group_col,
+            client_id,
+            split,
+        )
+        return partition_by_customer_id(
+            data_dir,
+            client_id,
+            split,
+            test_size=test_size,
+            val_size=val_size,
+            random_state=random_state,
+        )
+
+    return _stratified_split(
+        df, group_col=group_col, test_size=test_size, val_size=val_size, random_state=random_state
+    )
+
+
+def get_partition(
+    data_dir: Path,
+    client_id: str,
+    split: str = "train",
+    strategy: PartitionStrategy = PartitionStrategy.BY_CUSTOMER_ID,
+    **kwargs: Any,
+) -> dict[str, pd.DataFrame]:
+    """Public API for partitioning a client's stored split.
+
+    Parameters
+    ----------
+    data_dir:
+        Root of the processed dataset.
+    client_id:
+        Client identifier.
+    split:
+        Which stored Parquet to read (default ``"train"``).
+    strategy:
+        Which partitioning strategy to use (default ``BY_CUSTOMER_ID``).
+    **kwargs:
+        Additional keyword arguments forwarded to the strategy implementation.
+
+    Returns
+    -------
+    dict[str, pd.DataFrame]
+        ``{"train": ..., "val": ..., "test": ...}``.
+
+    Examples
+    --------
+    >>> from insurance_fl.data.partition import get_partition
+    >>> parts = get_partition(data_dir="data/processed/fl_task0_smoke",
+    ...                       client_id="germany_allianz",
+    ...                       strategy=PartitionStrategy.BY_CUSTOMER_ID)
+    >>> train_df = parts["train"]
+    >>> val_df = parts["val"]
+    >>> test_df = parts["test"]
+    """
+    if strategy == PartitionStrategy.BY_CUSTOMER_ID:
+        return partition_by_customer_id(data_dir, client_id, split=split, **kwargs)
+    if strategy == PartitionStrategy.BY_GROUP_ID:
+        return partition_by_group_id(data_dir, client_id, split=split, **kwargs)
+
+    raise ValueError(f"Unknown partition strategy: {strategy!r}")

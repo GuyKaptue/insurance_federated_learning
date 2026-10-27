@@ -5,6 +5,7 @@
 - `D-DQ-nnn` — Data quality / cleanup decisions
 - `D-CT-nnn` — Causal transport decisions
 - `D-ORCH-nnn` — Orchestrator decisions
+- `D-PRIV-nnn` — Privacy / differential-privacy decisions
 
 | ID | Date | Question | Decision | Approved by |
 |---|---|---|---|---|
@@ -15,9 +16,34 @@
 | D-ORCH-005 | 2026-10-17 | Order of work: audit waves vs build tasks; Gate 1b still FAIL | Adopted **layered order L0–L7** (see `docs/PROGRAM_PLAN.md`). Maintainer directed Layer 1 start → build proceeds in parallel; **Gate 1b provenance remains OPEN** (not waived) — Step 0 paste still required before final PR. | Maintainer |
 | D-ORCH-006 | 2026-10-17 | Environment incidents during Layer 1 | (a) `~/.flwr/local-superlink/state.db` (541 MB) held a foreign alembic revision `dfdbe2a8f936` → SuperLink crash; backed up as `state.db.pre-1.29-backup-20261017`, fresh DB created (run OK). (b) exFAT volume hit 100% mid-CI → cleared gitignored tool caches (`.mypy_cache` 1.9 G etc., per `make clean`); `.mypy_cache` rebuild = 1.8 G → Makefile `typecheck` now accepts `MYPY_OPTS` (use `--cache-dir=/tmp/…`). **`venv/` = 26 G broken env is the remaining space lever — maintainer decision pending.** | Orchestrator |
 | D-ORCH-007 | 2026-10-17 | Layer 2 / Task 1: Kendall uncertainty weighting + FedBN local BatchNorm + spec-aligned 256→128→64 encoder | `DEFAULT_HIDDEN_DIMS=[256,128,64]` propagated to `fl/task.py`, `config/loader.py`, `config/federated_config.yaml`; `MultiTaskNN.get_kendall_total_loss(losses)` (`total = Σ exp(−sᵢ)·Lᵢ + sᵢ`, log-vars zero-init ⇒ equal-weight at start) wired into `train()`/`evaluate()`; log-vars federated by FedAvg (only BN excluded from weight exchange); FedBN: clients exchange non-BN params via `get_federated_weights`/`set_federated_weights`, local BN state persists in `context.state["bn_local"]` (`ArrayRecord`), restored before fit/evaluate, saved after fit | Orchestrator |
+| D-PRIV-001 | 2026-10-23 | Transitional privacy stub: eliminate fabricated accounting values | `RdpAccountantWrapper.get_epsilon()` raises `NotImplementedError`; `would_exceed()` answers conservatively (True) when accounting unavailable; module-level warning added; no `0.0` epsilon or unconditional `False` approval remains. | Maintainer |
 
-## Pending
+## Data quality / cleanup decisions
 
-| ID | Date | Question | Blocked package |
-|---|---|---|---|
-| — | — | — | — |
+| ID | Date | Question | Decision | Approved by |
+|---|---|---|---|---|
+| D-DQ-001 | 2026-10-23 | `_check_zero_variance` misses constant columns after parquet round-trip (float32 conversion gives `var ≈ 3.35e-08` instead of `0.0`) | Threshold changed from `var <= 0.0` to `var <= 1e-6` to catch float32 precision error on constant values | Maintainer |
+| D-CI-001 | 2026-10-23 | Causal inference dependencies | statsmodels pinned to `>=0.14,<0.15` (provides GLM inference: params, bse, conf_int), pgmpy pinned to `>=0.1.25,<0.2` (provides `DAG.is_dconnected` for d-separation). Both belong to the `causal` optional-dependency group, installed via `make install-causal` or included in `make install-dev`. Not added to base requirements. Causal Makefile targets depend on `_check_causal_deps` which fails with a message naming `make install-causal` if statsmodels/pgmpy are not importable. | Maintainer |
+| D-DQ-002 | 2026-10-23 | `report.duplicates` used `df.duplicated()` counting duplicate **rows**, not duplicate `customer_id` values | Changed to `df["customer_id"].duplicated().sum()`; failure message reads "N duplicate customer_id value(s)" | Maintainer |
+| D-DQ-003 | 2026-10-23 | `n_features` counted only non-excluded feature columns, but tests expect all 8 numeric columns | Changed to `len(all_num_cols)` (all numeric columns including `_EXCLUDED_FEATURES`) | Maintainer |
+
+## Partitioning decisions
+
+| ID | Date | Question | Decision | Approved by |
+|---|---|---|---|---|
+| D-ORCH-008 | 2026-10-23 | Replace Dirichlet/IID/stratified partition functions with customer/group-based split | Removed `dirichlet_partition`, `iid_partition`; added `PartitionStrategy` enum (`BY_CUSTOMER_ID`, `BY_GROUP_ID`), `partition_by_customer_id()`, `partition_by_group_id()`, `get_partition()`; each customer's rows stay together in one split; deterministic given fixed `random_state` | Maintainer |
+
+| D-PRIV-003 | 2026-10-23 | Local DP implementation | ``build_local_dp_mod()`` in ``src/insurance_fl/fl/dp.py`` wraps Flower's ``LocalDpMod`` with explicit validation. Wired before SecAgg masking on client. Disabled by default. Utility sweep results in ``reports/dp_utility_curve.json``. | Maintainer |
+| D-PRIV-004 | 2026-10-23 | RDP accounting status | No RDP accountant available (neither Flower RDP nor ``dp-accounting`` installed). Formal accounting remains BLOCKED. ``RdpAccountantWrapper`` preserves honest unavailable-state behavior. | Maintainer |
+| D-FAIR-001 | 2026-10-23 | Fairness algorithm selection | FedProx + country-stratified client sampling as default. ``StratifiedFedProx`` in ``strategy.py``. Disparity D = max(m_c) - min(m_c). 5% threshold is configurable hypothesis, not regulatory standard. | Maintainer |
+| D-AUDIT-001 | 2026-10-23 | Audit trail implementation | Structured JSONL audit logger in ``src/insurance_fl/audit.py``. 6 event types. Secret redaction (case-insensitive). Retention: 180 days (intended policy, not legal compliance). No automatic deletion. | Maintainer |
+| D-MIA-001 | 2026-10-23 | MIA evaluation | Black-box MIA via shadow models in ``src/insurance_fl/evaluation/mia.py``. Empirical result, not formal DP guarantee. AUC near 0.5 does not prove zero leakage. | Maintainer |
+
+| D-PRIV-005 | 2026-10-23 | Gate 4 unblock: genuine RDP accounting backend | Selected ``dp-accounting`` (Google) v0.6.0 as RDP backend. ``RdpAccountantWrapper`` now uses ``RdpAccountant`` with ``GaussianDpEvent``. Genuine epsilon via RDP composition. Projected budget checks non-mutating. State persistence via JSON. Fail-closed when unavailable. | Maintainer |
+
+| D-HYBRID-001 | 2026-10-23 | HybridAggregation strategy implemented | Extends FedAvg with stratified/QFedAvg fairness, FedProx proximal term, RDP accounting, audit events. Registered as "hybrid" in build_strategy. | Maintainer |
+| D-HYBRID-002 | 2026-10-23 | Booster pre-training module | `fl/boosters.py` trains XGBoost/LightGBM/CatBoost per client per task with OOF predictions and NNLS stacking via `fl/stacking.py`. | Maintainer |
+| D-HYBRID-003 | 2026-10-23 | Level-2 beta optimization | `fl/hybrid.py` optimizes beta in [0,1] per task on holdout data. | Maintainer |
+| D-HYBRID-004 | 2026-10-23 | TLS certificate generation | `generate_creds.py` generates CA, server, client certs via OpenSSL. | Maintainer |
+
+| D-HYBRID-005 | 2026-10-23 | Multiclass stacking design for customer_segment | Per-class NNLS: for each class c, fit alpha_c on OOF probability of class c across boosters. Stack: p_stack[:,c] = sum(alpha_c * p_booster[:,c]). Normalize rows to sum to 1. Single beta per task: hybrid = beta*p_nn + (1-beta)*p_stack (convex blend on probability simplex). Fallback guard: if stack log-loss worse than best single booster, set that booster's alpha=1, others=0. | Maintainer |

@@ -1,115 +1,230 @@
-"""Tests for insurance_fl.data.partition (exactly-once assignment, fuzzing)."""
+"""Unit tests for the data partition strategies (src/insurance_fl/data/partition.py).
+
+Tests the customer-group stratified splitting used to split a client
+partition into train/val/test subsets.
+"""
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 import pytest
-from hypothesis import given, settings
-from hypothesis import strategies as st
 
-from insurance_fl.data.partition import dirichlet_partition, iid_partition, stratified_split
-
-
-def _assert_exact_once(parts: list[np.ndarray], indices: np.ndarray) -> None:
-    """Every input index must appear exactly once across all shards."""
-    all_assigned = np.sort(np.concatenate([np.asarray(p) for p in parts]))
-    np.testing.assert_array_equal(all_assigned, np.sort(indices))
-    assert all(len(np.asarray(p)) >= 0 for p in parts)
-
-
-# --- happy path -----------------------------------------------------------
-def test_dirichlet_basic_partition() -> None:
-    idx = np.arange(1000)
-    labels = np.random.default_rng(0).integers(0, 3, 1000)
-    parts = dirichlet_partition(idx, labels, num_clients=4, alpha=0.5, seed=42)
-    assert len(parts) == 4
-    _assert_exact_once(parts, idx)
-
-
-def test_dirichlet_determinism() -> None:
-    idx = np.arange(500)
-    labels = np.random.default_rng(1).integers(0, 2, 500)
-    a = dirichlet_partition(idx, labels, 4, alpha=0.3, seed=7)
-    b = dirichlet_partition(idx, labels, 4, alpha=0.3, seed=7)
-    for x, y in zip(a, b):
-        np.testing.assert_array_equal(x, y)
-
-
-def test_dirichlet_lower_alpha_more_skewed() -> None:
-    """alpha=0.1 must produce a more uneven client split than alpha=10."""
-    idx = np.arange(4000)
-    labels = np.random.default_rng(2).integers(0, 5, 4000)
-
-    def skew(alpha: float) -> float:
-        parts = dirichlet_partition(idx, labels, 4, alpha=alpha, seed=3)
-        sizes = np.array([len(p) for p in parts], dtype=float)
-        return float(sizes.std() / sizes.mean())
-
-    assert skew(0.1) > skew(10.0)
-
-
-def test_min_samples_per_client_honored() -> None:
-    idx = np.arange(100)
-    labels = np.zeros(100, dtype=int)
-    parts = dirichlet_partition(
-        idx, labels, num_clients=4, alpha=0.01, seed=0, min_samples_per_client=5
-    )
-    assert all(len(p) >= 5 for p in parts)
-
-
-# --- fuzzing (property-based) ---------------------------------------------
-@settings(max_examples=50, deadline=None)
-@given(
-    n=st.integers(min_value=1, max_value=500),
-    num_clients=st.integers(min_value=1, max_value=8),
-    alpha=st.floats(min_value=0.01, max_value=50.0),
-    seed=st.integers(min_value=0, max_value=2**31 - 1),
-    n_classes=st.integers(min_value=1, max_value=10),
+from insurance_fl.data.partition import (
+    PartitionStrategy,
+    get_partition,
+    partition_by_customer_id,
+    partition_by_group_id,
 )
-def test_dirichlet_fuzz_exact_assignment(
-    n: int, num_clients: int, alpha: float, seed: int, n_classes: int
-) -> None:
-    idx = np.arange(n)
-    labels = np.random.default_rng(seed).integers(0, n_classes, n)
-    parts = dirichlet_partition(idx, labels, num_clients=num_clients, alpha=alpha, seed=seed)
-    assert len(parts) == num_clients
-    for p in parts:
-        assert len(p) >= 0  # no negative "splits" possible by construction
-    _assert_exact_once(parts, idx)
 
 
-# --- errors ---------------------------------------------------------------
-def test_invalid_args_raise() -> None:
-    with pytest.raises(ValueError):
-        dirichlet_partition(np.arange(10), np.zeros(10, int), 2, alpha=0.0)
-    with pytest.raises(ValueError):
-        dirichlet_partition(np.arange(10), np.zeros(10, int), 0, alpha=1.0)
-    with pytest.raises(ValueError):
-        iid_partition(np.arange(10), num_clients=0)
+@pytest.fixture
+def group_partition_df() -> pd.DataFrame:
+    """A partition with explicit group_id column."""
+    np.random.seed(42)
+    data = []
+    for gid, n in [("group_0", 10), ("group_1", 5), ("group_2", 8)]:
+        for i in range(n):
+            data.append({"group_id": gid, "x": i, "value": np.random.uniform(0, 100)})
+    return pd.DataFrame(data)
 
 
-def test_empty_indices_returns_empty_shards() -> None:
-    parts = dirichlet_partition(np.array([], dtype=int), np.array([]), 3, alpha=1.0)
-    assert len(parts) == 3
-    assert all(len(p) == 0 for p in parts)
-    parts_iid = iid_partition(np.array([], dtype=int), 3)
-    assert len(parts_iid) == 3
+@pytest.fixture
+def small_partition_df() -> pd.DataFrame:
+    """A small partition with 4 customers of varying sizes."""
+    np.random.seed(42)
+    data = []
+    # Customer A: 10 rows
+    for i in range(10):
+        data.append(
+            {
+                "customer_id": "cust_A",
+                "age": np.random.uniform(18, 90),
+                "annual_income": np.random.uniform(20000, 150000),
+            }
+        )
+    # Customer B: 3 rows
+    for i in range(3):
+        data.append(
+            {
+                "customer_id": "cust_B",
+                "age": np.random.uniform(18, 90),
+                "annual_income": np.random.uniform(20000, 150000),
+            }
+        )
+    # Customer C: 7 rows
+    for i in range(7):
+        data.append(
+            {
+                "customer_id": "cust_C",
+                "age": np.random.uniform(18, 90),
+                "annual_income": np.random.uniform(20000, 150000),
+            }
+        )
+    # Customer D: 2 rows
+    for i in range(2):
+        data.append(
+            {
+                "customer_id": "cust_D",
+                "age": np.random.uniform(18, 90),
+                "annual_income": np.random.uniform(20000, 150000),
+            }
+        )
+    return pd.DataFrame(data)
 
 
-# --- iid + stratified -----------------------------------------------------
-def test_iid_partition_exact_once_and_balanced() -> None:
-    idx = np.arange(101)
-    parts = iid_partition(idx, num_clients=4, seed=5)
-    _assert_exact_once(parts, idx)
-    sizes = [len(p) for p in parts]
-    assert max(sizes) - min(sizes) <= 1
+class TestPartitionByCustomerId:
+    """Tests for partition_by_customer_id()."""
+
+    def test_partition_creates_three_subsets(
+        self, small_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = partition_by_customer_id(data_dir, "germany_allianz", "train")
+        assert set(parts.keys()) == {"train", "val", "test"}
+
+    def test_all_rows_assigned_exactly_once(
+        self, small_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = partition_by_customer_id(data_dir, "germany_allianz", "train")
+        assert sum(len(df) for df in parts.values()) == len(small_partition_df)
+
+    def test_customer_rows_not_split_across_subsets(
+        self, small_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = partition_by_customer_id(data_dir, "germany_allianz", "train")
+        cust_a_rows = [df[df["customer_id"] == "cust_A"] for df in parts.values()]
+        cust_a_in_split = sum(1 for rows in cust_a_rows if len(rows) > 0)
+        assert cust_a_in_split == 1, "cust_A should appear in exactly one split"
+        cust_a_total = sum(len(rows) for rows in cust_a_rows)
+        assert cust_a_total == 10, f"cust_A rows split across subsets: {cust_a_total}"
+
+    def test_deterministic_with_seed(self, small_partition_df: pd.DataFrame, tmp_path) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts1 = partition_by_customer_id(data_dir, "germany_allianz", "train", random_state=42)
+        parts2 = partition_by_customer_id(data_dir, "germany_allianz", "train", random_state=42)
+        for split_name in parts1:
+            pd.testing.assert_frame_equal(parts1[split_name], parts2[split_name])
+
+    def test_different_seed_different_splits(
+        self, small_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts1 = partition_by_customer_id(data_dir, "germany_allianz", "train", random_state=1)
+        parts2 = partition_by_customer_id(data_dir, "germany_allianz", "train", random_state=2)
+        different = any(not df1.equals(df2) for df1, df2 in zip(parts1.values(), parts2.values()))
+        assert different, "Different seeds produced identical splits"
+
+    def test_missing_customer_id_column_raises(self, tmp_path) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        df = pd.DataFrame({"age": [25], "annual_income": [50000]})
+        df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        with pytest.raises(ValueError, match="customer_id"):
+            partition_by_customer_id(data_dir, "germany_allianz", "train")
+
+    def test_empty_partition_raises(self, tmp_path) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        pd.DataFrame({"customer_id": [], "age": []}).to_parquet(
+            str(client_dir / "train.parquet"), index=False
+        )
+        with pytest.raises(ValueError, match="empty"):
+            partition_by_customer_id(data_dir, "germany_allianz", "train")
 
 
-def test_stratified_split_preserves_class_ratio() -> None:
-    df = pd.DataFrame({"x": range(1000), "y": [0] * 700 + [1] * 300})
-    train, test = stratified_split(df, test_size=0.2, stratify_col="y", seed=1)
-    assert len(train) + len(test) == 1000
-    for part in (train, test):
-        ratio = part["y"].mean()
-        assert abs(ratio - 0.3) < 0.03
+class TestPartitionByGroupId:
+    """Tests for partition_by_group_id()."""
+
+    def test_partition_creates_three_subsets(
+        self, group_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        group_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = partition_by_group_id(data_dir, "germany_allianz", "train", group_col="group_id")
+        assert set(parts.keys()) == {"train", "val", "test"}
+
+    def test_all_rows_assigned_exactly_once(
+        self, group_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        group_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = partition_by_group_id(data_dir, "germany_allianz", "train", group_col="group_id")
+        assert sum(len(df) for df in parts.values()) == len(group_partition_df)
+
+    def test_group_rows_not_split_across_subsets(
+        self, group_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        group_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = partition_by_group_id(data_dir, "germany_allianz", "train", group_col="group_id")
+        for split_name, df in parts.items():
+            for group_id in df["group_id"].unique():
+                group_rows = df[df["group_id"] == group_id]
+                assert (
+                    len(group_rows)
+                    == group_partition_df[group_partition_df["group_id"] == group_id].shape[0]
+                ), f"Group {group_id} split across {split_name}"
+
+
+class TestGetPartition:
+    """Tests for get_partition() public API."""
+
+    def test_default_strategy_is_customer_id(
+        self, small_partition_df: pd.DataFrame, tmp_path
+    ) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = get_partition(data_dir, "germany_allianz", "train")
+        assert set(parts.keys()) == {"train", "val", "test"}
+
+    def test_with_by_customer_id_strategy(self, small_partition_df: pd.DataFrame, tmp_path) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        small_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = get_partition(
+            data_dir, "germany_allianz", "train", strategy=PartitionStrategy.BY_CUSTOMER_ID
+        )
+        assert set(parts.keys()) == {"train", "val", "test"}
+
+    def test_with_by_group_id_strategy(self, group_partition_df: pd.DataFrame, tmp_path) -> None:
+        data_dir = tmp_path / "data"
+        client_dir = data_dir / "federated" / "germany_allianz"
+        client_dir.mkdir(parents=True)
+        group_partition_df.to_parquet(str(client_dir / "train.parquet"), index=False)
+        parts = get_partition(
+            data_dir,
+            "germany_allianz",
+            "train",
+            strategy=PartitionStrategy.BY_GROUP_ID,
+            group_col="group_id",
+        )
+        assert set(parts.keys()) == {"train", "val", "test"}

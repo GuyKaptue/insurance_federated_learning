@@ -12,19 +12,32 @@ exchanges only non-BN parameters via :meth:`MultiTaskNN.get_federated_weights`
 / :meth:`MultiTaskNN.set_federated_weights`. Local BN state is persisted in
 ``context.state`` (a ``RecordDict`` keyed ``"bn_local"``) across rounds:
 saved after :meth:`fit`, restored before :meth:`fit` and :meth:`evaluate`.
+
+Secure Aggregation (Layer 3): when ``secagg-enabled`` is true in
+``run_config``, the ``secaggplus_mod`` client modifier cryptographically
+masks the client update before transmission. Local DP (Layer 4), when
+enabled, is applied before SecAgg masking via the ``LocalDpMod`` modifier.
+Modifier ordering (outermost first): SecAgg → Local DP → client fit, so
+that on the outbound path Local DP noise is added to the raw update and
+SecAgg then masks the protected update. Secure Aggregation alone is NOT a
+differential privacy guarantee.
 """
 
 from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
 from flwr.client import Client, ClientApp, NumPyClient
+from flwr.client.mod.localdp_mod import LocalDpMod
+from flwr.client.mod.secure_aggregation.secaggplus_mod import secaggplus_mod
 from flwr.common import ArrayRecord, Context, Scalar
 
 from insurance_fl.fl import task as fl_task
+from insurance_fl.fl.privacy import build_privacy_config
 from insurance_fl.models.multi_task_nn import MultiTaskNN
 
 log = logging.getLogger(__name__)
@@ -133,4 +146,213 @@ def client_fn(context: Context) -> Client:
     ).to_client()
 
 
-app = ClientApp(client_fn)
+def _is_enabled(context: Context, key: str) -> bool:
+    """Read a boolean flag from ``run_config``."""
+    return str(context.run_config.get(key, "false")).lower() == "true"
+
+
+def _secagg_mod(msg, context, call_next):
+    """Conditionally apply the SecAgg+ client modifier."""
+    if _is_enabled(context, "secagg-enabled"):
+        return secaggplus_mod(msg, context, call_next)
+    return call_next(msg, context)
+
+
+_local_dp_mod_instance: LocalDpMod | None = None
+
+
+def _local_dp_mod(msg, context, call_next):
+    """Conditionally apply Local DP before SecAgg masking."""
+    global _local_dp_mod_instance
+    if not _is_enabled(context, "local-dp-enabled"):
+        return call_next(msg, context)
+    if _local_dp_mod_instance is None:
+        cfg = build_privacy_config(dict(context.run_config))
+        _local_dp_mod_instance = LocalDpMod(
+            clipping_norm=float(context.run_config.get("local-dp-clipping-norm", 1.0)),
+            sensitivity=float(context.run_config.get("local-dp-sensitivity", 1.0)),
+            epsilon=float(cfg.max_epsilon),
+            delta=float(cfg.target_delta),
+        )
+    return _local_dp_mod_instance(msg, context, call_next)
+
+
+# Modifier chain (outermost first): SecAgg → Local DP → client fit.
+# On the outbound (client→server) path, Local DP noise is added to the raw
+# update first, then SecAgg masks the protected update.
+app = ClientApp(
+    client_fn=client_fn,
+    mods=[_secagg_mod, _local_dp_mod],
+)
+
+
+def hybrid_evaluate(
+    net,
+    x: np.ndarray,
+    y: dict[str, np.ndarray],
+    artifact_dir: Path | None = None,
+    beta_weights: dict[str, float] | None = None,
+    task_list: list[str] | None = None,
+    strict: bool = False,
+) -> dict[str, Any]:
+    """Evaluate using NN + booster + stacking + beta fusion.
+
+    Falls back to NN-only if booster artifacts are unavailable (unless strict).
+    In strict mode, missing artifacts raise ValueError.
+    """
+    from pathlib import Path as _Path
+
+    metrics: dict[str, Any] = {}
+    nn_metrics = fl_task.evaluate(net, x, y)
+    for k, v in nn_metrics.items():
+        metrics[f"nn_{k}"] = v
+
+    if task_list is None:
+        task_list = list(nn_metrics.keys()) if nn_metrics else []
+
+    # Determine if hybrid is possible
+    if artifact_dir is None or beta_weights is None:
+        if strict:
+            raise ValueError("Hybrid evaluation requires artifact_dir and beta_weights")
+        for k, v in nn_metrics.items():
+            metrics[k] = v
+        metrics["evaluation_mode"] = "nn_only_fallback"
+        metrics["fallback_reason"] = "no_artifact_dir_or_beta"
+        return metrics
+
+    adir = _Path(artifact_dir)
+    from insurance_fl.fl.boosters import artifacts_available, load_booster_artifacts
+
+    # Try hybrid fusion per task
+    hybrid_preds: dict[str, np.ndarray] = {}
+    fallback_reasons: list[str] = []
+    loaded_components: dict[str, list[str]] = {}
+
+    for task in task_list or []:
+        if not artifacts_available(adir, task):
+            fallback_reasons.append(f"missing_artifacts:{task}")
+            continue
+
+        from insurance_fl.fl.boosters import load_stacking_meta_for_task
+
+        meta = load_stacking_meta_for_task(adir, task)
+        if meta is None:
+            fallback_reasons.append(f"invalid_meta:{task}")
+            continue
+
+        from insurance_fl.fl.stacking import validate_alpha
+
+        alpha = validate_alpha(
+            [
+                meta.get("alpha_xgb", 1.0),
+                meta.get("alpha_lgbm", 0.0),
+                meta.get("alpha_cat", 0.0),
+            ]
+        )
+        from insurance_fl.fl.hybrid import validate_beta
+
+        beta = validate_beta(beta_weights.get(task, 0.5) if beta_weights else 0.5)
+
+        # Load booster models and predict
+        arts = load_booster_artifacts(adir, task)
+        try:
+            import lightgbm as lgb
+            import xgboost as xgb
+            from catboost import CatBoostClassifier, CatBoostRegressor
+
+            task_type = meta.get("task_type", "regression")
+
+            # Load XGBoost
+            if task_type == "regression":
+                xgb_model = xgb.XGBRegressor()
+            else:
+                xgb_model = xgb.XGBClassifier()
+            xgb_model.load_model(str(arts["xgb"]))
+            xgb_pred = np.asarray(xgb_model.predict(x), dtype=float).ravel()
+
+            # Load LightGBM
+            lgb_model = lgb.Booster(model_file=str(arts["lgbm"]))
+            lgb_pred = np.asarray(lgb_model.predict(x), dtype=float).ravel()
+
+            # Load CatBoost
+            if task_type == "regression":
+                cat_model = CatBoostRegressor()
+            else:
+                cat_model = CatBoostClassifier()
+            cat_model.load_model(str(arts["cat"]))
+            cat_pred = np.asarray(cat_model.predict(x), dtype=float).ravel()
+
+            loaded_components[task] = ["xgb", "lgbm", "cat", "stacking", "beta"]
+
+        except Exception as e:
+            fallback_reasons.append(f"load_error:{task}:{e}")
+            continue
+
+        # NN prediction for this task (from trained model)
+        import torch
+
+        net.eval()
+        with torch.no_grad():
+            logits = net.forward(torch.as_tensor(x.astype(np.float32)))
+        if isinstance(logits, dict):
+            nn_out = logits[task].detach().cpu().numpy()
+        else:
+            nn_out = logits.detach().cpu().numpy()
+        nn_pred = np.asarray(nn_out, dtype=float).ravel()
+        if nn_pred.ndim == 0:
+            nn_pred = np.full(len(x), float(nn_pred))
+
+        # Convert raw logits to probabilities for classification tasks
+        from insurance_fl.fl.task import DEFAULT_TASK_TYPES
+
+        task_type = (
+            meta.get("task_type", DEFAULT_TASK_TYPES.get(task, "regression"))
+            if "meta" in dir()
+            else DEFAULT_TASK_TYPES.get(task, "regression")
+        )
+        # Determine task type from DEFAULT_TASK_TYPES
+        raw_type = DEFAULT_TASK_TYPES.get(task, "regression")
+        if "binary" in raw_type:
+            nn_pred = 1.0 / (1.0 + np.exp(-np.clip(nn_pred, -50, 50)))
+        elif "multi" in raw_type:
+            nn_out_2d = np.asarray(nn_out, dtype=float)
+            if nn_out_2d.ndim == 1:
+                nn_out_2d = nn_out_2d.reshape(-1, 1)
+            exp_out = np.exp(nn_out_2d - np.max(nn_out_2d, axis=1, keepdims=True))
+            nn_pred = (exp_out / exp_out.sum(axis=1, keepdims=True)).ravel()
+            if nn_pred.shape[0] > len(x):
+                nn_pred = nn_pred[: len(x)]
+
+        # Row alignment check
+        assert len(x) == len(y.get(task, [])) if task in y else True, f"{task}: x/y length mismatch"
+
+        # Apply stacking
+        from insurance_fl.fl.stacking import predict_stacked
+
+        stacked = predict_stacked([xgb_pred, lgb_pred, cat_pred], np.asarray(alpha, dtype=float))
+
+        # Apply beta fusion
+        from insurance_fl.fl.hybrid import predict_hybrid
+
+        hybrid = predict_hybrid(nn_pred, stacked, beta)
+        hybrid_preds[task] = hybrid
+
+    if strict and (fallback_reasons or not hybrid_preds):
+        raise ValueError(f"Hybrid evaluation failed: {';'.join(fallback_reasons)}")
+
+    if fallback_reasons and not hybrid_preds:
+        hybrid_mode = "nn_only_fallback"
+        for k, v in nn_metrics.items():
+            metrics[k] = v
+        metrics["evaluation_mode"] = hybrid_mode
+        metrics["fallback_reason"] = ";".join(fallback_reasons)
+        return metrics
+
+    # Hybrid succeeded
+    for k, v in nn_metrics.items():
+        metrics[k] = v
+    metrics["evaluation_mode"] = "hybrid"
+    metrics["loaded_components"] = loaded_components
+    if fallback_reasons:
+        metrics["partial_fallback"] = ";".join(fallback_reasons)
+    return metrics
