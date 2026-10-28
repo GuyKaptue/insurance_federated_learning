@@ -418,3 +418,12 @@ $ 3× flakiness check:
 **Note:** BN restore/save log lines (`FedBN: restored local BN state from previous round`) are emitted by client processes (Ray actors) and are not in the server logstream; BN round-2 restore is directly verified by `test_fedbn_state_saved_and_restored_across_rounds`.
 
 **Incidents:** none new. Volume still at ~100% (`venv/` 26 G lever pending maintainer decision).
+## E-RES-001 (2026-10-27) — Residual 1 verification failure
+
+- `git rev-parse HEAD` = 3504e7cc8491fa9e73041b2cebdb23e5a1e991c9
+- `git status --porcelain` is NOT empty: `src/insurance_fl/fl/dp_warning_visible.py` and
+  `tests/unit/fl/test_dp_warning_visible.py` are untracked (not committed).
+- V1 acceptance requires the committed tree to contain the regression test and its shim.
+- No silent patch/amend performed per verification instructions.
+- Next action: maintainer reviews and commits these two files (plus any other pending
+  untracked L5 artifacts) before B2 Phase 0 authorization.
