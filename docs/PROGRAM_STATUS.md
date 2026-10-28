@@ -111,4 +111,4 @@ Session 1b Gate 1b FAIL (tree clean modulo B3 evidence; true originals pending).
 3. **Disk:** `/Volumes/Intenso` at 100%, only **1.9 Gi free**; `venv/` (26 G, broken torch) deletion/repair is a **maintainer decision** (D-ORCH-006). Run mypy with `MYPY_OPTS=--cache-dir=/tmp/…` until resolved.
 4. Branch B cleanup (42→6), O-2 deferrals, 32 DQ tickets open — unchanged.
 5. **L5 = ✅ DONE with residuals** (filterwarnings rationale logged as D-CI-002; CI workflow added; coverage plan in PROGRAM_PLAN WAVE6-COVERAGE).
-6. **L6 = ⬜ BLOCKED** on DEP-ORCH-002 + Gate 1b.
+6. **B2 Phase 0 authorization GRANTED on 2026-10-28** (all four verification gates passed).
