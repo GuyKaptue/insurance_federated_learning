@@ -78,10 +78,20 @@ Merge order into `integration/audit`:
 
 ## WAVE6-COVERAGE (target 85%)
 
-Three worst-covered L5 modules and one-line test plans:
-- `src/insurance_fl/fl/strategy.py` (14%) → add tests for `StratifiedFedProx` sampling/fairness branches and `build_strategy` factory paths.
-- `src/insurance_fl/fl/client_app.py` (30%) → add tests for FedBN state save/restore, secagg/local-dp modifier pass-through, and evaluate path.
-- `src/insurance_fl/transport/transport.py` (30%) → add tests for covariate shift, outcome transport, and causal-effect transport verdicts.
+Current total: 74.08% (2756 statements, 2156 covered, 600 missed, 770 branches, 144 partial).
+Target total: 85%.
+Gap: ~301 covered statements (10.92 percentage points), assuming statement coverage dominates; branch coverage must also improve.
+Per-module targets:
+| module | current % | target % | statements to add |
+|---|---:|---:|---:|
+| `src/insurance_fl/fl/strategy.py` | 14% | 70% | 103 |
+| `src/insurance_fl/fl/client_app.py` | 30% | 70% | 59 |
+| `src/insurance_fl/transport/transport.py` | 30% | 70% | 26 |
+One-line test plans:
+- `strategy.py`: add 6-8 tests covering `StratifiedFedProx` sampling branches (0/1/all eligible countries) and `build_strategy()` factory paths.
+- `client_app.py`: add 5-7 tests for FedBN state save/restore, secagg/local-dp modifier pass-through, and evaluate path.
+- `transport.py`: add 4-6 tests for covariate shift, outcome transport, and causal-effect transport verdicts.
+Feasibility: lifting the three modules to 70% contributes 188 statements, leaving ~113 covered statements to be gained from other modules; 85% is feasible but requires Wave 6 test work. No D-CI-003 revision at this time.
 
 - **P1 Phase 7 and 8 are deferred** to Waves 5 and 6 per O-3.
 - **Coverage threshold** is baseline now, 85 at Wave 6 per O-4.
