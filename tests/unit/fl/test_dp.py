@@ -10,6 +10,8 @@ Verifies:
 
 from __future__ import annotations
 
+import warnings
+
 import pytest
 from flwr.client.mod.localdp_mod import LocalDpMod
 
@@ -100,6 +102,20 @@ def test_disabled_config_not_false_claim() -> None:
     assert cfg.enabled is False
     with pytest.warns(UserWarning, match="Local DP"):
         assert build_local_dp_mod(cfg) is None
+
+
+def test_local_dp_enabled_emits_no_local_dp_warning() -> None:
+    """Regression: enabled Local DP must not emit the disabled-state warning."""
+    cfg = LocalDPConfig(enabled=True)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        build_local_dp_mod(cfg)
+        local_dp_warnings = [
+            w
+            for w in caught
+            if issubclass(w.category, UserWarning) and "Local DP" in str(w.message)
+        ]
+        assert local_dp_warnings == []
 
 
 def test_default_values() -> None:
