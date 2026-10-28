@@ -438,3 +438,5 @@ $ 3× flakiness check:
   status line is "PENDING — spec drafted…", not "SPEC COMPLETE — awaiting B2
   Phase 0 implementation".
 - No silent fixes applied. Residuals 2 and 3 remain open.
+
+## D-CI-004 (2026-10-28) — dp_warning_visible shim retained for mirror rule; test now imports from shim.

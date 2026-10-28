@@ -6,7 +6,7 @@ import warnings
 
 import pytest
 
-from insurance_fl.fl.dp import LocalDPConfig, build_local_dp_mod
+from insurance_fl.fl.dp_warning_visible import LocalDPConfig, build_local_dp_mod
 
 
 def test_local_dp_disabled_emits_warning() -> None:
