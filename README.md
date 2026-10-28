@@ -19,13 +19,26 @@
 
 ## 📌 Overview
 
-A production-ready federated learning platform for insurance analytics across 4 European countries:
+Master entry point. Cross-border federated learning platform for insurance analytics across 4 European countries:
 - 🇩🇪 **Germany** (Allianz)
 - 🇫🇷 **France** (AXA)
 - 🇧🇪 **Belgium** (Ageas)
 - 🇨🇭 **Switzerland** (Helvetia)
 
 All experiments use **synthetic data** (5,000 samples per client) generated with real-world statistics; no real customer data is used. Results below are verified on the current working tree (see `docs/AUDIT_LOG.md`).
+
+## Pipeline
+
+| Stage | What | Why | How to run | Results link |
+|-------|------|-----|------------|--------------|
+| 1. Synthetic Data Generation | 20,000 synthetic records (5,000/client, 33 features, 5 targets) | Realistic, privacy-safe benchmark | `insurance-fl-generate --samples 5000 --output data/processed` | `docs/EIFD.md` |
+| 2. TLS Certificate Generation | CA + server + client certs via OpenSSL | Transport security for local SuperLink/SuperNode | `python generate_creds.py --output-dir certificates` | `tests/integration/test_tls.py` |
+| 3. Security (SecAgg+) | Cryptographic masking of client updates | Gradients never visible in clear | `flwr run . --stream --run-config secagg-enabled=true` | `tests/integration/test_secagg.py` (no committed end-to-end SecAgg run log) |
+| 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `tests/unit/fl/test_fairness.py` (no measured disparity artifact committed) |
+| 5. MIA | Black-box shadow-model MIA on is_high_risk | Empirical leakage check | `python scripts/run_mia.py` | `reports/mia_evaluation.json` (not committed) - AUC 0.6032215647600263, TPR@1%FPR 0.03564102564102564 |
+| 6. Differential Privacy (Local DP) | Optional Gaussian noise + clipping (disabled by default) | Per-client DP when enabled | `python scripts/dp_sweep.py` | `reports/dp_utility_curve.json` (not committed); script at `scripts/dp_sweep.py` |
+| 7. DP-Counting (RDP) | Fail-closed RDP accounting with dp-accounting v0.6.0 | Quantifiable epsilon-delta budget | `pytest tests/integration/test_rdp_accounting.py` | No committed epsilon (per-run only); fail-closed test in `tests/integration/test_rdp_accounting.py` |
+| 8. Federated Learning with Flower | End-to-end multi-task FL (Kendall + FedBN) | Cross-market model without sharing data | `python -m insurance_fl.fl.task --prepare && flwr run . --stream --run-config num-server-rounds=2` | `docs/evidence/layer1_flwr_run_2rounds.log` (loss 19.28M to 17.33M, 3.30 s); `docs/evidence/layer2_flwr_run_3rounds.log` (16.49M / 21.41M / 10.01M, 3.84 s) |
 
 ## 1. The Problem We Are Solving
 
@@ -162,6 +175,7 @@ KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 make flwr-guard
 ### Notes
 - `dp-accounting` is a declared runtime dependency; do not rely on system Python.
 - `mypy==1.10.0` is pinned in the `dev` extra (flwr requires `pathspec<0.13`).
+- Verified tip (last `make ci` green): `fb632494d35e89e532208b3dabb2af03dce6dbc4`.
 - If you hit an OpenMP error (`OMP: Error #179`), keep `KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1`.
 
 ## 📦 Installation (legacy quick reference)
@@ -196,6 +210,22 @@ insurance-fl-serve --host 0.0.0.0 --port 8000
 ```
 
 
+
+## Status and evidence
+
+| Capability | Status | Evidence | Decision |
+|------------|--------|----------|----------|
+| SecAgg+ | Preview | `tests/integration/test_secagg.py` | D-PRIV-003, D-HYBRID-004 |
+| LocalDP | Preview (disabled by default) | `src/insurance_fl/fl/dp.py`, `tests/unit/fl/test_dp.py` | D-PRIV-003 |
+| RDP accounting | Preview (fail-closed) | `src/insurance_fl/fl/privacy.py`, `tests/integration/test_rdp_accounting.py` | D-PRIV-001, D-PRIV-005 |
+| Fairness | Preview | `src/insurance_fl/fl/strategy.py`, `tests/unit/fl/test_fairness.py` | D-FAIR-001 |
+| MIA | Preview (empirical) | `src/insurance_fl/evaluation/mia.py`, `tests/unit/evaluation/test_mia.py` | D-MIA-001 |
+| TLS (local only) | Preview | `generate_creds.py`, `tests/integration/test_tls.py` | D-HYBRID-004 |
+| Causal | Preview | `src/insurance_fl/causal/`, `docs/causal/dag.yaml` | DEP-ORCH-002 |
+| Transport | Preview | `src/insurance_fl/transport/transport.py`, `tests/unit/transport/test_transport.py` | DEP-ORCH-002 |
+| Hybrid boosters | Preview | `src/insurance_fl/fl/boosters.py`, `src/insurance_fl/fl/stacking.py` | D-HYBRID-002, D-HYBRID-003 |
+
+No capability is marked production-ready.
 
 ## Privacy, Fairness, MIA & Audit (Preview)
 
@@ -258,6 +288,15 @@ preview/experimental status unless noted):
 - Outputs: `runs/causal/transport_*.json`
 - Tests: `tests/unit/causal/`, `tests/unit/transport/`, `tests/integration/`
 - Decision records: `D-CT-*` in `docs/DECISIONS.md`; evidence in `docs/AUDIT_LOG.md`; open request `CA_TR` in `docs/DEPENDENCY_REQUESTS.md`
+
+## What is NOT claimed
+
+- No formal differential-privacy guarantee from MIA (empirical only).
+- No SuperGrid TLS claim (TLS is local SuperLink/SuperNode only).
+- No production SLA or production-ready status.
+- The 5% fairness disparity threshold is a configurable hypothesis, not a regulatory standard.
+- No committed epsilon value (epsilon is computed per run).
+- All data is synthetic; no real insurance records are used.
 
 ## 📚 Documentation
 
