@@ -427,3 +427,14 @@ $ 3× flakiness check:
 - No silent patch/amend performed per verification instructions.
 - Next action: maintainer reviews and commits these two files (plus any other pending
   untracked L5 artifacts) before B2 Phase 0 authorization.
+
+## E-RES-002 (2026-10-27) — Residual 2 and 3 verification failure
+
+- V2: `docs/PROGRAM_PLAN.md` WAVE6-COVERAGE subsection lacks required elements:
+  current total, target total, gap, per-module targets, and one-line test plans
+  (only three module bullets present).
+- V3: `docs/DEPENDENCY_REQUESTS.md` DEP-ORCH-002 does not contain the required
+  "Injection location", "DAG re-validation", or "Leakage test" sections, and its
+  status line is "PENDING — spec drafted…", not "SPEC COMPLETE — awaiting B2
+  Phase 0 implementation".
+- No silent fixes applied. Residuals 2 and 3 remain open.
