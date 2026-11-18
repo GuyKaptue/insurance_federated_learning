@@ -15,7 +15,7 @@ FLWR ?= $(dir $(PYTHON))flwr
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-guard \
+.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-guard notebooks \
 	test-integration test-slow coverage data train fl-all evaluate serve \
 	docker-build docker-run docker-test compose-up compose-down ci clean \
 	_check_causal_deps
@@ -64,6 +64,9 @@ test-integration: ## Run integration tests only
 
 test-slow: ## Run slow tests (cross-process determinism, full generation)
 	$(PYTEST) -q -m slow
+
+notebooks: ## Execute all notebooks in notebooks/
+	$(PYTHON) scripts/run_notebooks.py
 
 flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
 	@tmp=$$(mktemp); \
