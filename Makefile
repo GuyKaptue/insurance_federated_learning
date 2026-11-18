@@ -15,7 +15,7 @@ FLWR ?= $(dir $(PYTHON))flwr
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-guard notebooks \
+.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-guard notebooks kernel \
 	test-integration test-slow coverage data train fl-all evaluate serve \
 	docker-build docker-run docker-test compose-up compose-down ci clean \
 	_check_causal_deps
@@ -67,6 +67,9 @@ test-slow: ## Run slow tests (cross-process determinism, full generation)
 
 notebooks: ## Execute all notebooks in notebooks/
 	$(PYTHON) scripts/run_notebooks.py
+
+kernel: ## Register the repo venv as the 'insurance-fl' Jupyter kernel for notebook validation
+	$(PYTHON) -m ipykernel install --user --name insurance-fl --display-name "insurance-fl (venv)"
 
 flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
 	@tmp=$$(mktemp); \

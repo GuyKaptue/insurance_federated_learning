@@ -73,6 +73,7 @@ def optional(module: str) -> Optional[Any]:
 def env_report() -> dict:
     info = {
         "python": sys.version.split()[0],
+        "executable": sys.executable,
         "platform": platform.platform(),
         "mode": MODE,
         "seed": SEED,
@@ -211,4 +212,5 @@ __all__ = [
     "save_fig",
     "read_json_if_exists",
     "Timer",
+    "short_df",
 ]
