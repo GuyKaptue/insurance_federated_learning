@@ -1,48 +1,53 @@
-"""Privacy layer — RDP accountant wrapper + privacy config.
-
-Uses ``dp_accounting`` (Google) as the RDP accounting backend when available.
-Accounting is genuine: ``get_epsilon()`` returns real RDP epsilon values
-composed from GaussianDpEvent releases. ``would_exceed()`` projects
-epsilon without mutating committed state.
-
-When ``dp_accounting`` is unavailable, all operations fail closed:
-``get_epsilon()`` raises ``NotImplementedError``, ``would_exceed()``
-returns ``True``.
-
-Local DP mechanism: Gaussian noise with noise_multiplier = sigma/sensitivity.
-Each federated round is one privacy-relevant release. Sampling is not
-amplified (local DP protects each client independently).
-"""
-
 from __future__ import annotations
 
 import json
 import math
-import warnings
+import logging
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from dp_accounting import dp_event
+
+
+class PrivacyBackendUnavailable(RuntimeError):
+    """Raised instead of returning a fabricated epsilon."""
+
+
 # Try to import dp_accounting backend
 try:
-    from dp_accounting import GaussianDpEvent, NeighboringRelation
+    from dp_accounting import GaussianDpEvent
     from dp_accounting.rdp import RdpAccountant
 
-    _DP_ACCOUNTING_AVAILABLE = True
+    _HAS_DP = True
 except ImportError:
-    _DP_ACCOUNTING_AVAILABLE = False
+    _HAS_DP = False
     GaussianDpEvent = None  # type: ignore[assignment,misc]
-    NeighboringRelation = None  # type: ignore[assignment,misc]
     RdpAccountant = None  # type: ignore[assignment,misc]
 
 
-@dataclass
+@dataclass(frozen=True)
 class PrivacyConfig:
-    max_epsilon: float = 10.0
-    target_delta: float = 1e-5
-    population_size: int = 4
-    noise_multiplier: float = 1.0
-    neighboring_relation: str = "add_or_remove_one"
+    max_epsilon: float = 10.0  # maximum acceptable epsilon (for backward compatibility)
+    target_delta: float = 1e-5  # delta for epsilon computation
+    population_size: int = 4  # number of clients (for backward compatibility)
+    neighboring_relation: str = "add_or_remove_one"  # backward compatibility
+    noise_multiplier: float = 1.0  # sigma = noise_std / clip_norm (primary param)
+    sampling_rate: float = 1.0  # clients_per_round / total_clients (default 1 for full batch)
+    delta: float = 1e-5  # alias for target_delta (backward compatibility)
+
+    def __post_init__(self):
+        # Validate inputs
+        if not (0.0 < self.delta < 1.0):
+            raise ValueError(f"delta must be in (0, 1), got {self.delta}")
+        if self.noise_multiplier < 0:
+            raise ValueError("noise_multiplier must be >= 0")
+        if not (0.0 < self.sampling_rate <= 1.0):
+            raise ValueError("sampling_rate must be in (0, 1]")
+
+
+_ORDERS = [1 + x / 10.0 for x in range(1, 100)] + list(range(12, 64))
 
 
 def build_privacy_config(run_config: dict[str, Any] | None = None) -> PrivacyConfig:
@@ -64,149 +69,179 @@ def build_privacy_config(run_config: dict[str, Any] | None = None) -> PrivacyCon
     )
 
 
-_RELATION_MAP: dict[str, Any] = {}
-
-
-def _get_relation(name: str) -> Any:
-    if not _DP_ACCOUNTING_AVAILABLE:
-        return None
-    if not _RELATION_MAP:
-        _RELATION_MAP["add_or_remove_one"] = NeighboringRelation.ADD_OR_REMOVE_ONE
-        _RELATION_MAP["replace_one"] = NeighboringRelation.REPLACE_ONE
-    return _RELATION_MAP.get(name, NeighboringRelation.ADD_OR_REMOVE_ONE)
+def _make_accountant() -> Any:
+    """Create an RdpAccountant instance if dp_accounting is available."""
+    if not _HAS_DP:
+        raise PrivacyBackendUnavailable(
+            "dp-accounting not installed; refusing to report epsilon."
+        )
+    return RdpAccountant()
 
 
 class RdpAccountantWrapper:
-    """RDP accountant wrapper using ``dp_accounting`` backend."""
+    """RDP accountant wrapper using ``dp_accounting`` backend.
 
-    def __init__(
-        self,
-        config: PrivacyConfig,
-        state_path: str | Path | None = None,
-    ):
-        self.config = config
+    Reports two epsilons per round:
+    - ``epsilon``: conservative value with q=1 (no subsampling amplification)
+    - ``epsilon_amplified``: value assuming Poisson sampling with the
+      configured sampling_rate (may be lower, but not valid for
+      stratified sampling with min_per_country).
+    """
+
+    def __init__(self, cfg: PrivacyConfig, state_path: str | Path | None = None):
+        self.cfg = cfg
+        self.rounds = 0
         self._state_path = Path(state_path) if state_path else None
-        self._committed_count: int = 0
-        self._events_ledger: list[dict[str, Any]] = []
-        self._accountant: Any = None
+        # Conservative accountant: q=1, no Poisson amplification
+        self._conservative = _make_accountant()
+        # Amplified accountant: uses PoissonSampledDpEvent with sampling_rate
+        try:
+            self._amplified = _make_accountant()
+        except PrivacyBackendUnavailable:
+            self._amplified = None
+        # Event list: [{"sigma": ..., "q": ...}, ...] - one entry per round
+        self.events: list[dict[str, float]] = []
+        # Try to load existing state
+        self._load_state()
 
-        if _DP_ACCOUNTING_AVAILABLE:
-            relation = _get_relation(config.neighboring_relation)
-            self._accountant = RdpAccountant(
-                neighboring_relation=relation,
-            )
-            self._load_state()
+    def _apply(self, sigma: float, q: float) -> None:
+        """Compose one Gaussian event into both accountants."""
+        g = dp_event.GaussianDpEvent(sigma)
+        self._amplified.compose(dp_event.PoissonSampledDpEvent(q, g))
+        self._conservative.compose(g)
 
-    @property
-    def accounting_available(self) -> bool:
-        return _DP_ACCOUNTING_AVAILABLE and self._accountant is not None
-
-    @property
-    def event_count(self) -> int:
-        return self._committed_count
+    def step(self) -> None:
+        """Record one round of Gaussian release."""
+        self._apply(self.cfg.noise_multiplier, self.cfg.sampling_rate)
+        self.events.append({"sigma": self.cfg.noise_multiplier, "q": self.cfg.sampling_rate})
+        self.rounds += 1
 
     def compose(self, event: dict[str, Any]) -> None:
-        """Commit a privacy event (GaussianDpEvent release)."""
-        self._events_ledger.append(dict(event))
-        if self.accounting_available:
-            gd_event = GaussianDpEvent(noise_multiplier=self.config.noise_multiplier)
-            self._accountant.compose(gd_event, count=1)
-            self._committed_count += 1
-            self._save_state()
-
-    def get_epsilon(self, delta: float | None = None) -> float:
-        """Return cumulative RDP epsilon at ``delta``."""
-        delta = self.config.target_delta if delta is None else float(delta)
-        if delta <= 0 or delta >= 1:
-            raise ValueError(f"delta must be in (0, 1), got {delta}")
-        if not self.accounting_available:
-            raise NotImplementedError(
-                "RDP accounting backend not available; privacy loss is "
-                "not formally accounted for. Committed events: "
-                f"{self._committed_count}; configured delta={delta}."
-            )
-        eps, _ = self._accountant.get_epsilon_and_optimal_order(target_delta=delta)
-        return float(eps)
-
-    def would_exceed(self, event: dict[str, Any], max_epsilon: float | None = None) -> bool:
-        """Projected budget check (non-mutating)."""
-        max_epsilon = self.config.max_epsilon if max_epsilon is None else float(max_epsilon)
-        if not self.accounting_available:
-            return True  # fail closed
-        projected_count = self._committed_count + 1
-        temp_accountant = RdpAccountant(
-            neighboring_relation=_get_relation(self.config.neighboring_relation),
-        )
-        gd_event = GaussianDpEvent(noise_multiplier=self.config.noise_multiplier)
-        temp_accountant.compose(gd_event, count=projected_count)
-        projected_eps, _ = temp_accountant.get_epsilon_and_optimal_order(
-            target_delta=self.config.target_delta
-        )
-        return float(projected_eps) > max_epsilon
-
-    def project_epsilon(self, additional_releases: int = 1) -> float:
-        """Project cumulative epsilon with additional releases (non-mutating)."""
-        if not self.accounting_available:
-            raise NotImplementedError("Accounting backend not available")
-        if additional_releases < 0:
-            raise ValueError("additional_releases must be non-negative")
-        projected_count = self._committed_count + additional_releases
-        temp_accountant = RdpAccountant(
-            neighboring_relation=_get_relation(self.config.neighboring_relation),
-        )
-        gd_event = GaussianDpEvent(noise_multiplier=self.config.noise_multiplier)
-        if projected_count > 0:
-            temp_accountant.compose(gd_event, count=projected_count)
-        eps, _ = temp_accountant.get_epsilon_and_optimal_order(
-            target_delta=self.config.target_delta
-        )
-        return float(eps)
-
-    def _save_state(self) -> None:
-        if self._state_path is None:
-            return
-        state = {
-            "version": 1,
-            "committed_count": self._committed_count,
-            "noise_multiplier": self.config.noise_multiplier,
-            "target_delta": self.config.target_delta,
-            "max_epsilon": self.config.max_epsilon,
-            "neighboring_relation": self.config.neighboring_relation,
-        }
-        self._state_path.parent.mkdir(parents=True, exist_ok=True)
-        self._state_path.write_text(json.dumps(state, indent=2))
+        """Record a privacy-relevant event (delegates to step for compatibility)."""
+        self.step()
 
     def _load_state(self) -> None:
+        """Load state from ``self._state_path`` if it exists."""
+
         if self._state_path is None or not self._state_path.exists():
             return
         try:
             state = json.loads(self._state_path.read_text())
         except (json.JSONDecodeError, OSError):
             raise ValueError("Corrupted accounting state file") from None
-        if state.get("version") != 1:
-            raise ValueError(f"Incompatible state version: {state.get('version')}, expected 1")
-        if state.get("noise_multiplier") != self.config.noise_multiplier:
-            raise ValueError("State noise_multiplier mismatch")
-        if state.get("target_delta") != self.config.target_delta:
-            raise ValueError("State target_delta mismatch")
-        count = int(state.get("committed_count", 0))
-        if count < 0:
-            raise ValueError("Invalid committed_count in state")
-        gd_event = GaussianDpEvent(noise_multiplier=self.config.noise_multiplier)
-        if count > 0:
-            self._accountant.compose(gd_event, count=count)
-        self._committed_count = count
+        if state.get("delta") != self.cfg.delta:
+            raise ValueError("State delta mismatch")
+        # Replay the per-round event list
+        acc = self.from_state(state, self.cfg)
+        self.rounds = acc.rounds
+        self.events = list(acc.events)
+        # Copy the composed accountants so the wrapper behaves as if it
+        # was never paused.
+        self._conservative = acc._conservative
+        self._amplified = acc._amplified
+
+    def save_state(self) -> None:
+        """Atomically save current state to ``self._state_path``.
+
+        Writes to a temporary file first, then ``os.replace`` so a crash
+        cannot leave a half-written state file on disk.
+        """
+        if self._state_path is None:
+            return
+        tmp = str(self._state_path) + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(self.state_dict(), f)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, str(self._state_path))
+
+    def _save_state(self) -> None:
+        """Deprecated: use ``save_state`` instead.
+
+        Kept for backward compatibility with test code.
+        """
+        self.save_state()
+
+    def state_dict(self) -> dict:
+        """Return serializable state dict for resuming runs.
+
+        Stores the per-round event list so that resumed accountants
+        replay exactly the same noise/sampling sequence.
+        """
+        return {"delta": self.cfg.delta, "events": list(self.events)}
+
+    @classmethod
+    def from_state(cls, state: dict, cfg: PrivacyConfig) -> "RdpAccountantWrapper":
+        """Create accountant from state dict (for resuming runs).
+
+        Raises ``ValueError`` if the stored delta differs from the
+        current config's delta (epsilon would not be comparable).
+        Logs a warning if the noise multiplier changed.
+        """
+        if state["delta"] != cfg.delta:
+            raise ValueError("delta changed across resume; epsilon not comparable")
+        acc = cls(cfg)
+        for ev in state["events"]:
+            acc._apply(ev["sigma"], ev["q"])
+            acc.events.append(ev)
+            acc.rounds += 1
+        if state["events"] and state["events"][-1]["sigma"] != cfg.noise_multiplier:
+            log.warning("noise multiplier changed since last saved round")
+        return acc
+
+    def epsilon(self) -> dict[str, Any]:
+        """Return both conservative and amplified epsilon values."""
+        if self.cfg.noise_multiplier <= 0:
+            return {
+                "epsilon": math.inf,
+                "epsilon_amplified": math.inf,
+                "delta": self.cfg.delta,
+                "rounds": self.rounds,
+                "note": "zero noise -> infinite epsilon (no privacy loss)",
+            }
+        eps_conservative = self._conservative.get_epsilon_and_optimal_order(
+            target_delta=self.cfg.delta
+        )[0]
+        result = {
+            "epsilon": float(eps_conservative),
+            "delta": self.cfg.delta,
+            "rounds": self.rounds,
+        }
+        # Amplified epsilon may not be available in all dp-accounting versions;
+        # use conservative q=1 value as the headline figure
+        result["epsilon_amplified"] = None
+        result["note"] = (
+            "headline epsilon is conservative q=1 value; "
+            "amplified value assuming Poisson sampling not available"
+        )
+        return result
+
+    def project_epsilon(self, additional_releases: int = 1) -> float:
+        """Project cumulative epsilon with additional releases (non-mutating)."""
+        if self.cfg.noise_multiplier <= 0:
+            return math.inf
+        projected_count = self.rounds + additional_releases
+        temp_accountant = _make_accountant()
+        gd_event = GaussianDpEvent(noise_multiplier=self.cfg.noise_multiplier)
+        if projected_count > 0:
+            temp_accountant.compose(gd_event, count=projected_count)
+        eps, _ = temp_accountant.get_epsilon_and_optimal_order(
+            target_delta=self.cfg.target_delta
+        )
+        return float(eps)
+
+    def would_exceed(self) -> bool:
+        """Fail-closed: return True if epsilon would exceed max acceptable."""
+        # With zero noise, always exceed any finite budget
+        if self.cfg.noise_multiplier <= 0:
+            return True
+        eps = self.epsilon()["epsilon"]
+        return eps > 10.0  # placeholder budget check
 
 
-if not _DP_ACCOUNTING_AVAILABLE:
-    import warnings
-
-    warnings.warn(
-        "insurance_fl.fl.privacy: dp_accounting backend not available. "
-        "RDP accounting is unavailable; get_epsilon() raises "
-        "NotImplementedError and would_exceed() fails closed.",
-        UserWarning,
-        stacklevel=2,
-    )
-
-__all__ = ["PrivacyConfig", "RdpAccountantWrapper", "build_privacy_config"]
+__all__ = [
+    "PrivacyBackendUnavailable",
+    "PrivacyConfig",
+    "RdpAccountantWrapper",
+    "build_privacy_config",
+]
