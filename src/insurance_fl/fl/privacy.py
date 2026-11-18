@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import json
 import math
-import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-from dp_accounting import dp_event
 
 
 class PrivacyBackendUnavailable(RuntimeError):
@@ -66,6 +63,8 @@ def build_privacy_config(run_config: dict[str, Any] | None = None) -> PrivacyCon
         population_size=int(rc.get("population-size", 4)),
         noise_multiplier=noise_mult,
         neighboring_relation=str(rc.get("neighboring-relation", "add_or_remove_one")),
+        sampling_rate=float(rc.get("sampling-rate", 1.0)),
+        delta=float(rc.get("target-delta", 1e-5)),
     )
 
 
@@ -88,106 +87,129 @@ class RdpAccountantWrapper:
       stratified sampling with min_per_country).
     """
 
+    STATE_VERSION = 1
+    _REQUIRED = {"version", "delta", "events"}
+
     def __init__(self, cfg: PrivacyConfig, state_path: str | Path | None = None):
         self.cfg = cfg
         self.rounds = 0
-        self._state_path = Path(state_path) if state_path else None
+        self._state_path = Path(state_path) if state_path is not None else None
         # Conservative accountant: q=1, no Poisson amplification
         self._conservative = _make_accountant()
-        # Amplified accountant: uses PoissonSampledDpEvent with sampling_rate
-        try:
-            self._amplified = _make_accountant()
-        except PrivacyBackendUnavailable:
-            self._amplified = None
-        # Event list: [{"sigma": ..., "q": ...}, ...] - one entry per round
-        self.events: list[dict[str, float]] = []
-        # Try to load existing state
-        self._load_state()
+        # Amplified accountant placeholder (not all dp-accounting versions support sampling)
+        self._amplified = None
+        # Track per-round events for round-trip
+        self.events: list[dict[str, Any]] = []
+        # Load state if state_path is provided
+        if self._state_path is not None and self._state_path.exists():
+            self._load_state()
 
-    def _apply(self, sigma: float, q: float) -> None:
-        """Compose one Gaussian event into both accountants."""
-        g = dp_event.GaussianDpEvent(sigma)
-        self._amplified.compose(dp_event.PoissonSampledDpEvent(q, g))
+    def _compose_event(self, ev: dict[str, Any]) -> None:
+        """Compose one recorded event into internal accountants without mutating history."""
+        sigma = float(ev.get("sigma", self.cfg.noise_multiplier))
+        g = GaussianDpEvent(noise_multiplier=sigma)
         self._conservative.compose(g)
-
-    def step(self) -> None:
-        """Record one round of Gaussian release."""
-        self._apply(self.cfg.noise_multiplier, self.cfg.sampling_rate)
-        self.events.append({"sigma": self.cfg.noise_multiplier, "q": self.cfg.sampling_rate})
         self.rounds += 1
 
-    def compose(self, event: dict[str, Any]) -> None:
-        """Record a privacy-relevant event (delegates to step for compatibility)."""
-        self.step()
-
     def _load_state(self) -> None:
-        """Load state from ``self._state_path`` if it exists."""
-
+        """Load state from state_path (called from __init__)."""
         if self._state_path is None or not self._state_path.exists():
             return
         try:
             state = json.loads(self._state_path.read_text())
         except (json.JSONDecodeError, OSError):
             raise ValueError("Corrupted accounting state file") from None
+        self._restore_state(state)
+
+    def _restore_state(self, state: dict[str, Any]) -> None:
+        missing = self._REQUIRED - set(state.keys())
+        if missing:
+            raise ValueError(f"privacy state missing keys: {sorted(missing)}")
+        if state.get("version") != self.STATE_VERSION:
+            raise ValueError(
+                f"Incompatible state version: {state.get('version')}, expected {self.STATE_VERSION}"
+            )
         if state.get("delta") != self.cfg.delta:
-            raise ValueError("State delta mismatch")
-        # Replay the per-round event list
-        acc = self.from_state(state, self.cfg)
-        self.rounds = acc.rounds
-        self.events = list(acc.events)
-        # Copy the composed accountants so the wrapper behaves as if it
-        # was never paused.
-        self._conservative = acc._conservative
-        self._amplified = acc._amplified
+            raise ValueError("delta changed across resume; epsilon not comparable")
+        events = list(state.get("events", []))
+        self.events = events
+        self.rounds = 0
+        self._conservative = _make_accountant()
+        self._amplified = None
+        for ev in self.events:
+            self._compose_event(ev)
 
-    def save_state(self) -> None:
-        """Atomically save current state to ``self._state_path``.
+    @classmethod
+    def from_state(
+        cls, cfg: PrivacyConfig, state: dict[str, Any]
+    ) -> "RdpAccountantWrapper":
+        """Create accountant from state dict (for resuming runs)."""
+        acc = cls.__new__(cls)
+        acc.cfg = cfg
+        acc.rounds = 0
+        acc._state_path = None
+        acc._conservative = _make_accountant()
+        acc._amplified = None
+        acc.events = []
+        acc._restore_state(state)
+        return acc
 
-        Writes to a temporary file first, then ``os.replace`` so a crash
-        cannot leave a half-written state file on disk.
-        """
+    def save_state(self, path: str | Path | None = None) -> None:
+        """Save accountant state to disk (atomic via temp+rename)."""
+        if path is not None:
+            self._state_path = Path(path)
         if self._state_path is None:
             return
+        state = self.state_dict()
+        self._state_path.parent.mkdir(parents=True, exist_ok=True)
         tmp = str(self._state_path) + ".tmp"
-        with open(tmp, "w") as f:
-            json.dump(self.state_dict(), f)
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(state, f)
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp, str(self._state_path))
 
-    def _save_state(self) -> None:
-        """Deprecated: use ``save_state`` instead.
-
-        Kept for backward compatibility with test code.
-        """
-        self.save_state()
-
-    def state_dict(self) -> dict:
-        """Return serializable state dict for resuming runs.
-
-        Stores the per-round event list so that resumed accountants
-        replay exactly the same noise/sampling sequence.
-        """
-        return {"delta": self.cfg.delta, "events": list(self.events)}
-
     @classmethod
-    def from_state(cls, state: dict, cfg: PrivacyConfig) -> "RdpAccountantWrapper":
-        """Create accountant from state dict (for resuming runs).
-
-        Raises ``ValueError`` if the stored delta differs from the
-        current config's delta (epsilon would not be comparable).
-        Logs a warning if the noise multiplier changed.
-        """
-        if state["delta"] != cfg.delta:
-            raise ValueError("delta changed across resume; epsilon not comparable")
-        acc = cls(cfg)
-        for ev in state["events"]:
-            acc._apply(ev["sigma"], ev["q"])
-            acc.events.append(ev)
-            acc.rounds += 1
-        if state["events"] and state["events"][-1]["sigma"] != cfg.noise_multiplier:
-            log.warning("noise multiplier changed since last saved round")
+    def load_state(
+        cls, path: str | Path | None = None, cfg: PrivacyConfig | None = None
+    ) -> "RdpAccountantWrapper":
+        """Load accountant state from disk."""
+        cfg = cfg or PrivacyConfig()
+        if path is None:
+            return cls(cfg)
+        state_path = Path(path)
+        if not state_path.exists():
+            return cls(cfg, state_path=state_path)
+        with open(state_path, encoding="utf-8") as f:
+            state = json.load(f)
+        acc = cls.from_state(cfg, state)
+        acc._state_path = state_path
         return acc
+
+    def state_dict(self) -> dict[str, Any]:
+        """Return serializable state dict for resuming runs."""
+        return {
+            "version": self.STATE_VERSION,
+            "delta": self.cfg.delta,
+            "events": list(self.events),
+        }
+
+    def step(self) -> None:
+        """Record one round of Gaussian release."""
+        ev = {"sigma": self.cfg.noise_multiplier, "q": 1.0}
+        self.events.append(ev)
+        self._compose_event(ev)
+        # Keep events list bounded (max 100 rounds)
+        if len(self.events) > 100:
+            self.events = self.events[-100:]
+
+    def compose(self, event: dict[str, Any]) -> None:
+        """Record a privacy-relevant event (delegates to step for compatibility)."""
+        self.step()
+
+    def get_epsilon(self) -> float:
+        """Return conservative (q=1) epsilon for current state."""
+        return float(self.epsilon()["epsilon"])
 
     def epsilon(self) -> dict[str, Any]:
         """Return both conservative and amplified epsilon values."""
@@ -202,7 +224,7 @@ class RdpAccountantWrapper:
         eps_conservative = self._conservative.get_epsilon_and_optimal_order(
             target_delta=self.cfg.delta
         )[0]
-        result = {
+        result: dict[str, Any] = {
             "epsilon": float(eps_conservative),
             "delta": self.cfg.delta,
             "rounds": self.rounds,
@@ -220,13 +242,13 @@ class RdpAccountantWrapper:
         """Project cumulative epsilon with additional releases (non-mutating)."""
         if self.cfg.noise_multiplier <= 0:
             return math.inf
-        projected_count = self.rounds + additional_releases
+        projected_count = self.rounds + int(additional_releases)
         temp_accountant = _make_accountant()
         gd_event = GaussianDpEvent(noise_multiplier=self.cfg.noise_multiplier)
         if projected_count > 0:
             temp_accountant.compose(gd_event, count=projected_count)
         eps, _ = temp_accountant.get_epsilon_and_optimal_order(
-            target_delta=self.cfg.target_delta
+            target_delta=self.cfg.delta
         )
         return float(eps)
 
@@ -236,7 +258,7 @@ class RdpAccountantWrapper:
         if self.cfg.noise_multiplier <= 0:
             return True
         eps = self.epsilon()["epsilon"]
-        return eps > 10.0  # placeholder budget check
+        return eps > float(self.cfg.max_epsilon)
 
 
 __all__ = [

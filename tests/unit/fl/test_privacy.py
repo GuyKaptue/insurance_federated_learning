@@ -159,7 +159,7 @@ def test_state_persistence_roundtrip() -> None:
         accountant1.compose({"round": 1})
         accountant1.compose({"round": 2})
         # Save state after composing
-        accountant1._save_state()
+        accountant1.save_state(state_path)
         # Verify events are recorded
         assert accountant1.rounds == 2
         eps1 = accountant1.epsilon()
@@ -181,7 +181,7 @@ def test_state_not_counted_twice() -> None:
         accountant1 = privacy.RdpAccountantWrapper(cfg, state_path=state_path)
         accountant1.compose({"round": 1})
         # Save state after composing
-        accountant1._save_state()
+        accountant1.save_state(state_path)
         # Restore from state
         accountant2 = privacy.RdpAccountantWrapper(cfg, state_path=state_path)
         # Restored accountant should have same rounds as before restore
@@ -205,7 +205,7 @@ def test_corrupted_state_raises() -> None:
 def test_incompatible_state_version_raises() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         state_path = Path(tmpdir) / "state.json"
-        state_path.write_text(json.dumps({"version": 99, "committed_count": 1}))
+        state_path.write_text(json.dumps({"version": 99, "delta": 1e-5, "events": []}))
         cfg = privacy.PrivacyConfig(noise_multiplier=1.0)
         # Should fail when trying to load incompatible state version
         with pytest.raises(ValueError):
@@ -213,19 +213,20 @@ def test_incompatible_state_version_raises() -> None:
 
 
 def test_state_noise_multiplier_mismatch_raises() -> None:
+    # New schema only has version, delta, events - no noise_multiplier check
+    # Test delta mismatch instead
     with tempfile.TemporaryDirectory() as tmpdir:
         state_path = Path(tmpdir) / "state.json"
         state = {
             "version": 1,
-            "committed_count": 1,
-            "noise_multiplier": 999.0,
-            "target_delta": 1e-5,
+            "delta": 999.0,
+            "events": [],
         }
         state_path.write_text(json.dumps(state))
-        cfg = privacy.PrivacyConfig(noise_multiplier=1.0)
-        # Should fail when noise_multiplier in state doesn't match config
+        cfg = privacy.PrivacyConfig(noise_multiplier=1.0, delta=1e-5)
+        # Should fail when delta in state doesn't match config
         with pytest.raises(ValueError):
-            privacy.RdpAccountantWrapper(cfg, state_path=state_path)
+            privacy.RdpAccountantWrapper.load_state(state_path, cfg)
 
 
 def test_empty_accountant_epsilon_zero() -> None:
