@@ -18,7 +18,7 @@ authors = [
 maintainers = [
     {name = "Guy M. Kaptue T", email = "guykaptue24@gmail.com"}
 ]
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.13"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Financial and Insurance Industry",
@@ -62,9 +62,8 @@ dependencies = [
     "torchvision>=0.15.0,<0.20.0",
 
     # Federated Learning Frameworks (PyTorch Compatible)
-    # D-ORCH-004: baseline = installed flwr 1.29.0 (ServerAppComponents App API);
-    # the architecture spec's "flwr>=1.30" is deferred until installed+validated.
-    "flwr>=1.29.0,<2.0.0",
+    # D-ORCH-004: tested on flwr 1.31.0 in project venv (2026-11-18); pin to tested range.
+    "flwr>=1.31,<1.32",
 
     # Visualization
     "matplotlib>=3.7.0,<4.0.0",
