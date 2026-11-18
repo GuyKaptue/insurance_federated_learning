@@ -100,6 +100,14 @@ outputs in `runs/causal/transport_*.json`.
 > transportability layer.
 - **Tests**: 263 unit + 1 slow + 2 integration tests passing.
 
+## Development environment
+
+- **Canonical interpreter:** use the project virtual environment at `./venv` (Python 3.11 in this checkout). Run commands as `./venv/bin/python -m ...` and `./venv/bin/pip ...` (or activate the venv). `Makefile` is venv-aware (`PYTHON ?= venv/bin/python` when present).
+- **Do not rely on system/Homebrew Python for project validation:** `python3` on this machine resolves to Homebrew Python 3.13 with a different package set (e.g. Flower version/import paths differ) and can produce misleading test/notebook results.
+- **Notebook execution kernel:** `scripts/validate_notebooks.py` executes notebooks with the `insurance-fl` Jupyter kernel by default (`NB_KERNEL` overrides). Register it with `make kernel` (or `./venv/bin/python -m ipykernel install --user --name insurance-fl`) before validation; `scripts/run_notebooks.py` currently uses `kernel_name="python3"` and may need the same alignment for non-validator runs.
+- **Utility scripts (kept):** `scripts/launch_tls.py` — print/dry-run TLS Flower launch commands (e.g. `./venv/bin/python scripts/launch_tls.py --dry-run --certs-dir certificates`). `scripts/run_e2e.py` — end-to-end hybrid pipeline runner (e.g. `./venv/bin/python scripts/run_e2e.py --rounds 3 --output-dir runs`). `scripts/diagnose_is_high_risk.py` — ad-hoc XGBoost learnability diagnostic for `is_high_risk` (e.g. `./venv/bin/python scripts/diagnose_is_high_risk.py --data-dir data/processed/fl_task0_smoke`).
+
+
 ## ✨ Features
 
 - 🏦 **Realistic Insurance Data**: Synthetic data with real-world statistics
