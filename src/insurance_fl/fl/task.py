@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -49,6 +50,15 @@ DEFAULT_SEED = 42
 DEFAULT_HIDDEN_DIMS: list[int] = [256, 128, 64]
 
 _EXCLUDED_FEATURES = set(TARGET_COLUMNS) | {"customer_id"}
+# Fixed, client-independent missingness indicator columns to ensure constant
+# federated feature width (FedAvg requires identical shapes across clients).
+MISSING_INDICATOR_COLS: tuple[str, ...] = (
+    "annual_income",
+    "savings_balance",
+    "medical_expenses",
+)
+# Cache: (data_dir, client_id) -> (feature_cols, medians)
+_MISSING_POLICY_CACHE: dict[tuple[str, str], tuple[list[str], dict[str, float]]] = {}
 
 
 def prepare_dataset(
@@ -80,6 +90,64 @@ def feature_columns(df: pd.DataFrame) -> list[str]:
     return [c for c in df.select_dtypes(include=["number"]).columns if c not in _EXCLUDED_FEATURES]
 
 
+def _partition_path(data_dir: Path, client_id: str, split: str) -> Path:
+    path = Path(data_dir) / "federated" / client_id / f"{split}.parquet"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing partition {path}. Run first: " "python -m insurance_fl.fl.task --prepare"
+        )
+    return path
+
+
+def _fit_missing_policy(
+    data_dir: Path, client_id: str
+) -> tuple[list[str], dict[str, float]]:
+    """Fit median imputation on the TRAIN split only (per client).
+
+    Returns (feature_cols, medians). Indicator columns are fixed globally
+    via MISSING_INDICATOR_COLS so all clients share the same output width.
+    """
+    cache_key = (str(Path(data_dir).resolve()), client_id)
+    if cache_key in _MISSING_POLICY_CACHE:
+        return _MISSING_POLICY_CACHE[cache_key]
+    train_df = pd.read_parquet(_partition_path(Path(data_dir), client_id, "train"))
+    cols = feature_columns(train_df)
+    med = train_df[cols].median(numeric_only=True)
+    # If a column is entirely NaN in train, fall back to 0.0 deterministically.
+    medians = {c: (0.0 if pd.isna(med[c]) else float(med[c])) for c in cols}
+    _MISSING_POLICY_CACHE[cache_key] = (cols, medians)
+    return cols, medians
+
+
+def clear_missing_policy_cache() -> None:
+    """Clear cached train-fit imputation policies (useful for tests)."""
+    _MISSING_POLICY_CACHE.clear()
+
+
+def _apply_missing_policy(
+    df: pd.DataFrame, feature_cols: list[str], medians: dict[str, float]
+) -> np.ndarray:
+    xdf = df[feature_cols].copy()
+    # Fixed indicators (client-independent width), added in declared order.
+    indicators = {}
+    for col in MISSING_INDICATOR_COLS:
+        if col in xdf.columns:
+            indicators[f"{col}__missing"] = xdf[col].isna().astype(np.float32)
+        else:
+            indicators[f"{col}__missing"] = np.zeros(len(xdf), dtype=np.float32)
+    ind_df = pd.DataFrame(indicators, index=xdf.index)
+    # Median imputation (train-fitted medians)
+    for c in feature_cols:
+        if xdf[c].isna().any():
+            xdf[c] = xdf[c].fillna(medians.get(c, 0.0))
+    xdf = pd.concat([xdf, ind_df], axis=1)
+    arr = xdf.to_numpy(dtype=np.float32, copy=True)
+    if not np.isfinite(arr).all():
+        # Final safety net for any remaining non-finite values.
+        arr = np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0, copy=False)
+    return arr
+
+
 def load_partition(
     data_dir: Path,
     client_id: str,
@@ -87,18 +155,18 @@ def load_partition(
 ) -> tuple[np.ndarray, dict[str, np.ndarray]]:
     """Load one client's partition: (float32 X, {task: y}).
 
+    Median imputation is fit on the client's TRAIN split only and applied to
+    the requested split; fixed missingness indicators (MISSING_INDICATOR_COLS)
+    are appended so all clients share identical feature width.
+
     Raises ``FileNotFoundError`` pointing at ``--prepare`` when data is
     missing — no hidden generation side effect inside clients.
     """
-    path = Path(data_dir) / "federated" / client_id / f"{split}.parquet"
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Missing partition {path}. Run first: " "python -m insurance_fl.fl.task --prepare"
-        )
+    data_dir = Path(data_dir)
+    path = _partition_path(data_dir, client_id, split)
     df = pd.read_parquet(path)
-    # copy=True: parquet/pandas may yield read-only views; torch needs
-    # writable arrays (UserWarning "not writable" otherwise).
-    x = df[feature_columns(df)].to_numpy(dtype=np.float32, copy=True)
+    cols, medians = _fit_missing_policy(data_dir, client_id)
+    x = _apply_missing_policy(df, cols, medians)
     y = {task: df[task].to_numpy(copy=True) for task in DEFAULT_TASK_TYPES}
     return x, y
 
