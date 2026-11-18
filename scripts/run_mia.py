@@ -93,6 +93,39 @@ def _resolve_data_dir(args) -> Path:
         return fed_base
     return prepare_dataset(output_dir=DEFAULT_DATA_DIR, samples_per_client=args.samples_per_client, seed=args.seed)
 
+def _sanitize_xy(x, y):
+    import numpy as np
+    x = np.asarray(x, dtype=np.float32)
+    x = np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
+    y2 = {}
+    for k, v in y.items():
+        arr = np.asarray(v)
+        if arr.dtype.kind == "f":
+            arr = np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0)
+        y2[k] = arr
+    return x, y2
+
+def _load_partition_sanitized(data_dir: Path, client_id: str, split: str = "train"):
+    from insurance_fl.fl.task import load_partition
+    x, y = load_partition(data_dir, client_id, split=split)
+    return _sanitize_xy(x, y)
+
+def _concat_split_sanitized(data_dir: Path, client_id: str, splits: list[str]):
+    import numpy as np
+    xs, ys_list = [], []
+    for split in splits:
+        try:
+            x, y = _load_partition_sanitized(data_dir, client_id, split=split)
+        except FileNotFoundError:
+            continue
+        xs.append(x); ys_list.append(y)
+    if not xs:
+        raise FileNotFoundError(f"No splits found for {client_id} in {data_dir}: {splits}")
+    x = np.vstack(xs)
+    y = {k: np.concatenate([yy[k] for yy in ys_list]) for k in ys_list[0].keys()}
+    return x, y
+
+
 
 def _concat_split(data_dir: Path, client_id: str, splits: list[str]):
     import numpy as np
@@ -165,12 +198,12 @@ def main(argv: list[str] | None = None) -> int:
 
     # Target model: train on target client train split
     target_client = args.target_client
-    x_train, y_train = load_partition(data_dir, target_client, split="train")
+    x_train, y_train = _load_partition_sanitized(data_dir, target_client, split="train")
     # Held-out data for member/non-member evaluation
     try:
-        x_eval, y_eval = _concat_split(data_dir, target_client, ["test", "val"])
+        x_eval, y_eval = _concat_split_sanitized(data_dir, target_client, ["test", "val"])
     except Exception:
-        x_eval, y_eval = load_partition(data_dir, target_client, split="test")
+        x_eval, y_eval = _load_partition_sanitized(data_dir, target_client, split="test")
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -198,11 +231,11 @@ def main(argv: list[str] | None = None) -> int:
     req_snm = args.n_shadow_nonmembers if args.mode == "full" else 50
 
     for cid in shadow_clients:
-        x_tr, y_tr = load_partition(data_dir, cid, split="train")
+        x_tr, y_tr = _load_partition_sanitized(data_dir, cid, split="train")
         try:
-            x_te, y_te = _concat_split(data_dir, cid, ["test", "val"])
+            x_te, y_te = _concat_split_sanitized(data_dir, cid, ["test", "val"])
         except Exception:
-            x_te, y_te = load_partition(data_dir, cid, split="test")
+            x_te, y_te = _load_partition_sanitized(data_dir, cid, split="test")
 
         sm_seed = args.seed + (abs(hash(cid)) % 10000)
         torch.manual_seed(sm_seed)
@@ -257,23 +290,47 @@ def main(argv: list[str] | None = None) -> int:
     y_target = np.concatenate([np.ones(len(f_target_member)), np.zeros(len(f_target_nonmember))])
     y_scores = attack_clf.predict_proba(X_target)[:, 1]
 
+    # Diagnostics (requested)
+    unique_scores = int(np.unique(np.round(np.nan_to_num(y_scores, nan=-999.0), 12)).size)
+    target_balance = float(np.mean(np.concatenate([y_member_task, y_nonmember_task]))) if (len(y_member_task)+len(y_nonmember_task)) else None
+    # target-model distinct predictions on eval split
+    with torch.no_grad():
+        t_in = torch.tensor(np.vstack([x_member, x_nonmember]), dtype=torch.float32)
+        outp = target_model(t_in)[task_name]
+        if outp.ndim > 1 and outp.shape[1] == 1:
+            outp = outp.squeeze(1)
+        pred_has_nan = bool(torch.isnan(outp).any().item())
+        distinct_target_predictions = int(torch.unique(torch.nan_to_num(outp, nan=-999.0)).numel())
+    # plain loss-threshold attack AUC (uses loss feature column 2)
+    loss_scores = -X_target[:, 2]
     try:
-        auc = float(roc_auc_score(y_target, y_scores))
+        loss_threshold_auc = float(roc_auc_score(y_target, np.nan_to_num(loss_scores, nan=0.0, posinf=0.0, neginf=0.0)))
+    except Exception:
+        loss_threshold_auc = None
+
+    try:
+        auc = float(roc_auc_score(y_target, np.nan_to_num(y_scores, nan=0.5, posinf=1.0, neginf=0.0)))
     except Exception:
         auc = None
-    tpr_1 = float(tpr_at_fpr(y_target, y_scores, 0.01))
-    ci = _auc_ci(y_target, y_scores, seed=args.seed, n_boot=args.bootstrap)
+    tpr_1 = float(tpr_at_fpr(y_target, np.nan_to_num(y_scores, nan=0.5, posinf=1.0, neginf=0.0), 0.01))
+    ci = _auc_ci(y_target, np.nan_to_num(y_scores, nan=0.5, posinf=1.0, neginf=0.0), seed=args.seed, n_boot=args.bootstrap)
 
     n_mem = int(len(x_member))
     n_non = int(len(x_nonmember))
     min_resolvable_fpr = (1.0 / n_non) if n_non > 0 else None
     git = _git_state()
 
+    ci_width = (ci[1] - ci[0]) if ci is not None else None
+    degenerate = bool(unique_scores < 10 or pred_has_nan or (ci_width is not None and ci_width == 0.0 and auc is not None and abs(auc - 0.5) < 1e-12))
+    status = "degenerate" if degenerate else "ok"
+
     result: dict[str, Any] = {
+        "status": status,
         "task": task_name,
         "client": target_client,
         "roc_auc": auc,
         "roc_auc_ci95": ci,
+        "roc_auc_ci95_width": ci_width,
         "tpr_at_1pct_fpr": tpr_1,
         "min_resolvable_fpr": min_resolvable_fpr,
         "member_count": n_mem,
@@ -297,6 +354,17 @@ def main(argv: list[str] | None = None) -> int:
         "data_dir": str(data_dir),
         "git_sha": git["git_sha"],
         "git_dirty": git["dirty"],
+        "diagnostics": {
+            "unique_scores": unique_scores,
+            "target_label_balance": target_balance,
+            "member_label_mean": float(np.mean(y_member_task)),
+            "nonmember_label_mean": float(np.mean(y_nonmember_task)),
+            "distinct_target_predictions": distinct_target_predictions,
+            "pred_has_nan": pred_has_nan,
+            "loss_threshold_auc": loss_threshold_auc,
+            "feature_nans": bool(np.isnan(X_target).any()),
+            "feature_infs": bool(np.isinf(X_target).any()),
+        },
         "note": "Empirical attack result, not a privacy guarantee (D-MIA-001).",
         "limitations": [
             "Empirical attack result, not a formal privacy guarantee.",
@@ -313,6 +381,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.quiet:
         print(f"MIA evaluation complete. Results: {out_path}")
+        print(f"  Status: {status}")
         print(f"  ROC AUC: {result.get('roc_auc')}")
         print(f"  ROC AUC CI95: {result.get('roc_auc_ci95')}")
         print(f"  TPR@1%FPR: {result.get('tpr_at_1pct_fpr')}")
@@ -320,8 +389,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  Min resolvable FPR: {min_resolvable_fpr}")
         print(f"  Shadow models: {len(shadow_models)}")
         print(f"  Bootstrap: {args.bootstrap}")
+        print(f"  unique_scores={unique_scores} distinct_target_predictions={distinct_target_predictions} pred_has_nan={pred_has_nan} loss_threshold_auc={loss_threshold_auc}")
         print(f"  Mode: {args.mode}, data_dir: {data_dir}")
         print(f"  git_dirty: {git['dirty']}")
+    if status == "degenerate":
+        print("MIA scores are degenerate; fix the target model or the data before using this artifact", file=sys.stderr)
+        return 2
     return 0
 
 
