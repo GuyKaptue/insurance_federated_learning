@@ -9,7 +9,9 @@ This is an empirical attack evaluation, not a formal privacy guarantee.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import random
 import subprocess
 import sys
 from pathlib import Path
@@ -75,6 +77,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--n-shadow-models", type=int, default=3)
     p.add_argument("--bootstrap", type=int, default=1000, help="Bootstrap samples for ROC-AUC CI over fixed scores")
     p.add_argument("--samples-per-client", type=int, default=512, help="Smoke dataset generation size if needed")
+    p.add_argument(
+        "--control",
+        choices=["none", "overfit"],
+        default="none",
+        help="Optional control run: 'overfit' trains an intentionally memorizing target to sanity-check MIA pipeline",
+    )
     p.add_argument("--quiet", action="store_true")
     return p.parse_args(argv)
 
@@ -116,6 +124,25 @@ def _concat_split(data_dir: Path, client_id: str, splits: list[str]):
     x = np.vstack(xs)
     y = {k: np.concatenate([yy[k] for yy in ys_list]) for k in ys_list[0].keys()}
     return x, y
+
+def _stable_seed(base: int, token: str) -> int:
+    h = hashlib.sha256(token.encode("utf-8")).digest()
+    return int(base + int.from_bytes(h[:4], "little") % 100000)
+
+
+def _set_global_seeds(seed: int) -> None:
+    import numpy as np
+    import torch
+
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    try:
+        torch.use_deterministic_algorithms(False)
+    except Exception:
+        pass
 
 
 def _slice_xy(x, y, start: int, end: int):
@@ -177,10 +204,20 @@ def main(argv: list[str] | None = None) -> int:
     except Exception:
         x_eval, y_eval = load_partition(data_dir, target_client, split="test")
 
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-    target_model = build_model(input_dim=int(x_train.shape[1]))
-    train(target_model, x_train, y_train, epochs=args.epochs, batch_size=args.batch_size, lr=args.lr)
+    target_epochs = args.epochs
+    target_lr = args.lr
+    if args.control == "overfit":
+        # Intentionally memorize small train subset to sanity-check that MIA can detect leakage.
+        n_over = min(128, len(x_train))
+        x_train_t, y_train_t = _slice_xy(x_train, y_train, 0, n_over)
+        target_epochs = max(args.epochs, 200)
+        target_lr = max(args.lr, 0.01)
+    else:
+        x_train_t, y_train_t = x_train, y_train
+
+    _set_global_seeds(args.seed)
+    target_model = build_model(input_dim=int(x_train_t.shape[1]))
+    train(target_model, x_train_t, y_train_t, epochs=target_epochs, batch_size=args.batch_size, lr=target_lr)
 
     # Member/non-member split for target
     requested_m = args.n_members if args.mode == "full" else 100
@@ -209,9 +246,8 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             x_te, y_te = load_partition(data_dir, cid, split="test")
 
-        sm_seed = args.seed + (abs(hash(cid)) % 10000)
-        torch.manual_seed(sm_seed)
-        np.random.seed(sm_seed)
+        sm_seed = _stable_seed(args.seed, cid)
+        _set_global_seeds(sm_seed)
         sm = build_model(input_dim=int(x_tr.shape[1]))
         train(sm, x_tr, y_tr, epochs=args.shadow_epochs, batch_size=args.batch_size, lr=args.lr)
         shadow_models.append(sm)
@@ -240,7 +276,7 @@ def main(argv: list[str] | None = None) -> int:
     y_shadow_nonmember_task = y_shadow_nonmember[task_name]
 
     # Train attack model from shadow features
-    np.random.seed(args.seed)
+    _set_global_seeds(args.seed)
     shadow_features_list = []
     shadow_labels_list = []
     for sm in shadow_models:
@@ -265,14 +301,32 @@ def main(argv: list[str] | None = None) -> int:
     # Diagnostics (requested)
     unique_scores = int(np.unique(np.round(y_scores, 12)).size)
     target_balance = float(np.mean(np.concatenate([y_member_task, y_nonmember_task]))) if (len(y_member_task)+len(y_nonmember_task)) else None
-    # target-model distinct predictions on eval split
+    # target-model distinct predictions and task skill on eval split
     with torch.no_grad():
         t_in = torch.tensor(np.vstack([x_member, x_nonmember]), dtype=torch.float32)
-        outp = target_model(t_in)[task_name]
+        outputs = target_model(t_in)
+        outp = outputs[task_name]
         if outp.ndim > 1 and outp.shape[1] == 1:
             outp = outp.squeeze(1)
         pred_has_nan = bool(torch.isnan(outp).any().item())
         distinct_target_predictions = int(torch.unique(outp).numel())
+        if task_type == "classification":
+            if outp.ndim == 1 or (outp.ndim == 2 and outp.shape[1] == 1):
+                probs = torch.sigmoid(outp.reshape(-1)).cpu().numpy()
+            else:
+                probs = torch.softmax(outp, dim=-1)[:, 1].cpu().numpy()
+        else:
+            probs = outp.reshape(-1).cpu().numpy()
+    target_labels = np.concatenate([y_member_task, y_nonmember_task]).astype(np.float32)
+    majority_baseline_accuracy = float(max(np.mean(target_labels), 1.0 - np.mean(target_labels))) if len(target_labels) else None
+    try:
+        if task_type == "classification" and len(np.unique(target_labels)) > 1:
+            target_auc = float(roc_auc_score(target_labels, probs))
+        else:
+            target_auc = None
+    except Exception:
+        target_auc = None
+    target_has_skill = bool(target_auc is not None and majority_baseline_accuracy is not None and target_auc > majority_baseline_accuracy + 1e-6)
     # plain loss-threshold attack AUC (uses loss feature column 2)
     loss_scores = -X_target[:, 2]
     try:
@@ -326,6 +380,11 @@ def main(argv: list[str] | None = None) -> int:
         "data_dir": str(data_dir),
         "git_sha": git["git_sha"],
         "git_dirty": git["dirty"],
+        "control": args.control,
+        "target_epochs": int(target_epochs),
+        "target_auc": target_auc,
+        "majority_baseline_accuracy": majority_baseline_accuracy,
+        "target_has_skill": target_has_skill,
         "diagnostics": {
             "unique_scores": unique_scores,
             "target_label_balance": target_balance,
@@ -336,6 +395,9 @@ def main(argv: list[str] | None = None) -> int:
             "loss_threshold_auc": loss_threshold_auc,
             "feature_nans": bool(np.isnan(X_target).any()),
             "feature_infs": bool(np.isinf(X_target).any()),
+            "majority_baseline_accuracy": majority_baseline_accuracy,
+            "target_auc": target_auc,
+            "target_has_skill": target_has_skill,
         },
         "note": "Empirical attack result, not a privacy guarantee (D-MIA-001).",
         "limitations": [
@@ -362,6 +424,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  Shadow models: {len(shadow_models)}")
         print(f"  Bootstrap: {args.bootstrap}")
         print(f"  unique_scores={unique_scores} distinct_target_predictions={distinct_target_predictions} pred_has_nan={pred_has_nan} loss_threshold_auc={loss_threshold_auc}")
+        print(f"  target_auc={target_auc} majority_baseline_accuracy={majority_baseline_accuracy} target_has_skill={target_has_skill}")
+        print(f"  control={args.control} target_epochs={target_epochs}")
         print(f"  Mode: {args.mode}, data_dir: {data_dir}")
         print(f"  git_dirty: {git['dirty']}")
     if status == "degenerate":
