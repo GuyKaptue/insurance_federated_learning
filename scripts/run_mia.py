@@ -26,7 +26,11 @@ def _git_state() -> dict[str, Any]:
     except Exception:
         return state
     try:
-        dirty = subprocess.check_output(["git", "status", "--porcelain"], text=True, stderr=subprocess.DEVNULL)
+        dirty = subprocess.check_output(
+            ["git", "status", "--porcelain", "-uno", "--", ".", ":(exclude)reports"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
         state["dirty"] = bool(dirty.strip())
     except Exception:
         state["dirty"] = None
@@ -92,38 +96,6 @@ def _resolve_data_dir(args) -> Path:
     ]):
         return fed_base
     return prepare_dataset(output_dir=DEFAULT_DATA_DIR, samples_per_client=args.samples_per_client, seed=args.seed)
-
-def _sanitize_xy(x, y):
-    import numpy as np
-    x = np.asarray(x, dtype=np.float32)
-    x = np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
-    y2 = {}
-    for k, v in y.items():
-        arr = np.asarray(v)
-        if arr.dtype.kind == "f":
-            arr = np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0)
-        y2[k] = arr
-    return x, y2
-
-def _load_partition_sanitized(data_dir: Path, client_id: str, split: str = "train"):
-    from insurance_fl.fl.task import load_partition
-    x, y = load_partition(data_dir, client_id, split=split)
-    return _sanitize_xy(x, y)
-
-def _concat_split_sanitized(data_dir: Path, client_id: str, splits: list[str]):
-    import numpy as np
-    xs, ys_list = [], []
-    for split in splits:
-        try:
-            x, y = _load_partition_sanitized(data_dir, client_id, split=split)
-        except FileNotFoundError:
-            continue
-        xs.append(x); ys_list.append(y)
-    if not xs:
-        raise FileNotFoundError(f"No splits found for {client_id} in {data_dir}: {splits}")
-    x = np.vstack(xs)
-    y = {k: np.concatenate([yy[k] for yy in ys_list]) for k in ys_list[0].keys()}
-    return x, y
 
 
 
@@ -198,12 +170,12 @@ def main(argv: list[str] | None = None) -> int:
 
     # Target model: train on target client train split
     target_client = args.target_client
-    x_train, y_train = _load_partition_sanitized(data_dir, target_client, split="train")
+    x_train, y_train = load_partition(data_dir, target_client, split="train")
     # Held-out data for member/non-member evaluation
     try:
-        x_eval, y_eval = _concat_split_sanitized(data_dir, target_client, ["test", "val"])
+        x_eval, y_eval = _concat_split(data_dir, target_client, ["test", "val"])
     except Exception:
-        x_eval, y_eval = _load_partition_sanitized(data_dir, target_client, split="test")
+        x_eval, y_eval = load_partition(data_dir, target_client, split="test")
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -231,11 +203,11 @@ def main(argv: list[str] | None = None) -> int:
     req_snm = args.n_shadow_nonmembers if args.mode == "full" else 50
 
     for cid in shadow_clients:
-        x_tr, y_tr = _load_partition_sanitized(data_dir, cid, split="train")
+        x_tr, y_tr = load_partition(data_dir, cid, split="train")
         try:
-            x_te, y_te = _concat_split_sanitized(data_dir, cid, ["test", "val"])
+            x_te, y_te = _concat_split(data_dir, cid, ["test", "val"])
         except Exception:
-            x_te, y_te = _load_partition_sanitized(data_dir, cid, split="test")
+            x_te, y_te = load_partition(data_dir, cid, split="test")
 
         sm_seed = args.seed + (abs(hash(cid)) % 10000)
         torch.manual_seed(sm_seed)
@@ -291,7 +263,7 @@ def main(argv: list[str] | None = None) -> int:
     y_scores = attack_clf.predict_proba(X_target)[:, 1]
 
     # Diagnostics (requested)
-    unique_scores = int(np.unique(np.round(np.nan_to_num(y_scores, nan=-999.0), 12)).size)
+    unique_scores = int(np.unique(np.round(y_scores, 12)).size)
     target_balance = float(np.mean(np.concatenate([y_member_task, y_nonmember_task]))) if (len(y_member_task)+len(y_nonmember_task)) else None
     # target-model distinct predictions on eval split
     with torch.no_grad():
@@ -300,20 +272,20 @@ def main(argv: list[str] | None = None) -> int:
         if outp.ndim > 1 and outp.shape[1] == 1:
             outp = outp.squeeze(1)
         pred_has_nan = bool(torch.isnan(outp).any().item())
-        distinct_target_predictions = int(torch.unique(torch.nan_to_num(outp, nan=-999.0)).numel())
+        distinct_target_predictions = int(torch.unique(outp).numel())
     # plain loss-threshold attack AUC (uses loss feature column 2)
     loss_scores = -X_target[:, 2]
     try:
-        loss_threshold_auc = float(roc_auc_score(y_target, np.nan_to_num(loss_scores, nan=0.0, posinf=0.0, neginf=0.0)))
+        loss_threshold_auc = float(roc_auc_score(y_target, loss_scores))
     except Exception:
         loss_threshold_auc = None
 
     try:
-        auc = float(roc_auc_score(y_target, np.nan_to_num(y_scores, nan=0.5, posinf=1.0, neginf=0.0)))
+        auc = float(roc_auc_score(y_target, y_scores))
     except Exception:
         auc = None
-    tpr_1 = float(tpr_at_fpr(y_target, np.nan_to_num(y_scores, nan=0.5, posinf=1.0, neginf=0.0), 0.01))
-    ci = _auc_ci(y_target, np.nan_to_num(y_scores, nan=0.5, posinf=1.0, neginf=0.0), seed=args.seed, n_boot=args.bootstrap)
+    tpr_1 = float(tpr_at_fpr(y_target, y_scores, 0.01))
+    ci = _auc_ci(y_target, y_scores, seed=args.seed, n_boot=args.bootstrap)
 
     n_mem = int(len(x_member))
     n_non = int(len(x_nonmember))
