@@ -507,6 +507,5 @@ data/processed/fl_task0_smoke/
 # Local/generated artifacts
 catboost_info/
 runs/
-.flwrignore
 reports/figures/
 .ipynb_checkpoints/
