@@ -100,6 +100,11 @@ def env_report() -> dict:
             info[m] = importlib.import_module(m).__version__
         except Exception:
             info[m] = None
+    # Machine-readable marker for validators (notebook cells may also display return value)
+    try:
+        print("NB_ENV_JSON:" + json.dumps(info, sort_keys=True))
+    except Exception:
+        pass
     return info
 
 

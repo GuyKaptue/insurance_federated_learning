@@ -1,79 +1,150 @@
-[
-  {
-    "notebook": "causal_inference_quickstart.ipynb",
-    "structure": "ok",
-    "execution": "passed (5s)",
-    "notes": "",
-    "seconds": 5.1
+{
+  "validator_env": {
+    "validator_python": "3.11.16",
+    "validator_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+    "kernel_name": "insurance-fl",
+    "kernel_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+    "nb_mode": "light",
+    "validator_flwr": "1.31.0"
   },
-  {
-    "notebook": "dp_accounting_rdp.ipynb",
-    "structure": "ok",
-    "execution": "passed (4s)",
-    "notes": "",
-    "seconds": 4.0
+  "env_errors": [],
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
   },
-  {
-    "notebook": "fairness_evaluation.ipynb",
-    "structure": "ok",
-    "execution": "passed (4s)",
-    "notes": "",
-    "seconds": 3.9
-  },
-  {
-    "notebook": "flower_federated_learning.ipynb",
-    "structure": "ok",
-    "execution": "passed (4s)",
-    "notes": "",
-    "seconds": 3.8
-  },
-  {
-    "notebook": "hybrid_boosters_stacking.ipynb",
-    "structure": "ok",
-    "execution": "passed (11s)",
-    "notes": "",
-    "seconds": 10.9
-  },
-  {
-    "notebook": "local_dp.ipynb",
-    "structure": "ok",
-    "execution": "passed (5s)",
-    "notes": "",
-    "seconds": 4.5
-  },
-  {
-    "notebook": "membership_inference.ipynb",
-    "structure": "ok",
-    "execution": "passed (5s)",
-    "notes": "",
-    "seconds": 4.9
-  },
-  {
-    "notebook": "security_secagg.ipynb",
-    "structure": "ok",
-    "execution": "passed (4s)",
-    "notes": "",
-    "seconds": 3.5
-  },
-  {
-    "notebook": "synthetic_data_generation.ipynb",
-    "structure": "ok",
-    "execution": "passed (6s)",
-    "notes": "",
-    "seconds": 6.3
-  },
-  {
-    "notebook": "tls_credentials.ipynb",
-    "structure": "ok",
-    "execution": "passed (4s)",
-    "notes": "",
-    "seconds": 3.6
-  },
-  {
-    "notebook": "transportability_quickstart.ipynb",
-    "structure": "ok",
-    "execution": "passed (7s)",
-    "notes": "",
-    "seconds": 7.1
-  }
-]
+  "results": [
+    {
+      "notebook": "causal_inference_quickstart.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (6s)",
+      "notes": "",
+      "seconds": 5.6,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "dp_accounting_rdp.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (4s)",
+      "notes": "",
+      "seconds": 4.3,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "fairness_evaluation.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (4s)",
+      "notes": "",
+      "seconds": 4.2,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "flower_federated_learning.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (4s)",
+      "notes": "",
+      "seconds": 4.1,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "hybrid_boosters_stacking.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (14s)",
+      "notes": "",
+      "seconds": 14.0,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "local_dp.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (5s)",
+      "notes": "",
+      "seconds": 4.8,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "membership_inference.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (5s)",
+      "notes": "",
+      "seconds": 4.7,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "security_secagg.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (4s)",
+      "notes": "",
+      "seconds": 3.8,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "synthetic_data_generation.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (7s)",
+      "notes": "",
+      "seconds": 7.0,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "tls_credentials.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (4s)",
+      "notes": "",
+      "seconds": 3.9,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    },
+    {
+      "notebook": "transportability_quickstart.ipynb",
+      "status": "passed",
+      "structure": "ok",
+      "execution": "passed (9s)",
+      "notes": "",
+      "seconds": 8.7,
+      "kernel_name": "insurance-fl",
+      "notebook_executable": "/Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python",
+      "notebook_flwr": "1.31.0",
+      "nb_env_captured": true
+    }
+  ]
+}

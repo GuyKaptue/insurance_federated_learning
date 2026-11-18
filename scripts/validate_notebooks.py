@@ -1,4 +1,13 @@
-"""Structural + execution validation. Exit code != 0 on any failure."""
+"""Structural + execution validation for notebooks.
+
+Executes notebooks in-memory with nbclient (no in-place writes) using a
+venv-registered Jupyter kernel and captures notebook runtime environment via
+the NB_ENV_JSON marker printed by notebooks/_nb_common.env_report().
+Exit code != 0 on any structural/execution/environment failure.
+"""
+
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -53,62 +62,89 @@ def _validator_env() -> dict:
     }
     try:
         import flwr
+
         info["validator_flwr"] = flwr.__version__
     except Exception:
         info["validator_flwr"] = None
     return info
 
 
+def _in_repo_venv(exe: str | None) -> bool:
+    if not exe:
+        return False
+    exe = str(exe)
+    venv_bin = str((ROOT / "venv" / "bin").resolve())
+    venv_root = str((ROOT / "venv").resolve())
+    return exe.startswith(venv_bin + "/") or exe.startswith(venv_root + "/")
+
+
 def _assert_venv_env(info: dict) -> list[str]:
     errs = []
-    venv_marker = str((ROOT / "venv").resolve())
-    vexe = info.get("validator_executable") or ""
+    vexe = info.get("validator_executable")
     kexe = info.get("kernel_executable")
-    # Require validator and kernel to use repo venv python
-    if "/venv/" not in vexe.replace(venv_marker, "/venv/") and not vexe.startswith(venv_marker):
+    if not _in_repo_venv(vexe):
         errs.append(f"validator executable not in repo venv: {vexe}")
     if not kexe:
         errs.append(
             f"Jupyter kernel '{KERNEL_NAME}' not found. Register it with: "
             f"make kernel (or ./venv/bin/python -m ipykernel install --user --name {KERNEL_NAME})"
         )
-    elif "/venv/" not in kexe.replace(venv_marker, "/venv/") and not kexe.startswith(venv_marker):
+    elif not _in_repo_venv(kexe):
         errs.append(f"kernel executable not in repo venv: {kexe}")
     return errs
 
 
 def _extract_notebook_exec(nb) -> dict | None:
-    # best-effort: find printed env_report dict in outputs
+    """Extract NB_ENV_JSON marker from executed notebook outputs (best-effort)."""
+    candidates: list[dict] = []
     for cell in nb.cells:
         for out in cell.get("outputs", []) or []:
-            text = ""
-            if out.get("output_type") == "stream":
+            texts: list[str] = []
+            ot = out.get("output_type")
+            if ot == "stream":
                 src = out.get("text", "")
-                text = "".join(src) if isinstance(src, list) else str(src)
-            elif out.get("output_type") in {"execute_result", "display_data"}:
+                texts.append("".join(src) if isinstance(src, list) else str(src))
+            elif ot in {"execute_result", "display_data"}:
                 data = out.get("data", {}) or {}
                 if "text/plain" in data:
                     src = data["text/plain"]
-                    text = "".join(src) if isinstance(src, list) else str(src)
-            if '"executable"' in text and '"flwr"' in text:
-                # try to parse JSON object from text
-                s = text.strip()
-                try:
-                    obj = json.loads(s)
-                    if isinstance(obj, dict) and "executable" in obj:
-                        return obj
-                except Exception:
-                    # try to locate first {...}
-                    i = s.find("{")
-                    j = s.rfind("}")
-                    if i != -1 and j > i:
+                    texts.append("".join(src) if isinstance(src, list) else str(src))
+                if "application/json" in data and isinstance(data["application/json"], dict):
+                    obj = data["application/json"]
+                    if "executable" in obj:
+                        candidates.append(obj)
+            elif ot == "error":
+                # ignore
+                pass
+            for text in texts:
+                for line in text.splitlines():
+                    line = line.strip()
+                    if line.startswith("NB_ENV_JSON:"):
+                        payload = line[len("NB_ENV_JSON:") :].strip()
                         try:
-                            obj = json.loads(s[i:j+1])
-                            if isinstance(obj, dict) and "executable" in obj:
-                                return obj
+                            obj = json.loads(payload)
+                            if isinstance(obj, dict):
+                                candidates.append(obj)
                         except Exception:
                             pass
-    return None
+                # fallback: parse any JSON object containing executable/flwr
+                if '"executable"' in text and not any(line.strip().startswith("NB_ENV_JSON:") for line in text.splitlines()):
+                    s = text.strip()
+                    try:
+                        obj = json.loads(s)
+                        if isinstance(obj, dict) and "executable" in obj:
+                            candidates.append(obj)
+                    except Exception:
+                        i = s.find("{")
+                        j = s.rfind("}")
+                        if i != -1 and j > i:
+                            try:
+                                obj = json.loads(s[i : j + 1])
+                                if isinstance(obj, dict) and "executable" in obj:
+                                    candidates.append(obj)
+                            except Exception:
+                                pass
+    return candidates[-1] if candidates else None
 
 
 def main() -> int:
@@ -119,9 +155,11 @@ def main() -> int:
     if not notebooks:
         print("No notebooks found")
         return 1
+
     for p in notebooks:
         row = {
             "notebook": p.name,
+            "status": "failed",
             "structure": "ok",
             "execution": "not executed",
             "notes": "",
@@ -129,18 +167,21 @@ def main() -> int:
             "kernel_name": KERNEL_NAME,
             "notebook_executable": None,
             "notebook_flwr": None,
+            "nb_env_captured": False,
         }
         try:
             nb = nbformat.read(p, as_version=4)
         except Exception as e:
             row["structure"] = f"invalid: {e}"
             row["execution"] = "FAILED"
+            row["notes"] = f"invalid notebook: {e}"
             results.append(row)
             continue
         try:
             nbformat.validate(nb)
         except Exception as e:
             row["structure"] = f"invalid: {e}"
+
         text = "\n".join("".join(c.get("source", [])) for c in nb.cells)
         bad_hits = BAD.findall(text)
         if bad_hits:
@@ -150,7 +191,9 @@ def main() -> int:
         if "_nb_common" not in text:
             row["structure"] += " | missing _nb_common"
 
+        structure_ok = row["structure"] == "ok"
         t0 = time.time()
+        exec_ok = False
         try:
             if env_errs:
                 raise RuntimeError("; ".join(env_errs))
@@ -165,31 +208,59 @@ def main() -> int:
             dt = time.time() - t0
             row["seconds"] = round(dt, 1)
             row["execution"] = f"passed ({dt:.0f}s)"
+            exec_ok = True
+
             nb_env = _extract_notebook_exec(nb)
             if nb_env:
+                row["nb_env_captured"] = True
                 row["notebook_executable"] = nb_env.get("executable")
+                # support both old 'flwr' and direct version keys
                 row["notebook_flwr"] = nb_env.get("flwr")
                 exe = str(nb_env.get("executable") or "")
-                if "/venv/" not in exe and not exe.startswith(str((ROOT / "venv").resolve())):
+                if not _in_repo_venv(exe):
+                    exec_ok = False
                     row["execution"] = "FAILED"
                     row["notes"] = f"wrong interpreter: {exe}"
+            else:
+                # env_report is expected in modernized notebooks; treat missing capture as failure for honesty
+                exec_ok = False
+                row["execution"] = "FAILED"
+                row["notes"] = "missing NB_ENV_JSON notebook environment capture"
         except Exception as e:
             dt = time.time() - t0
             row["seconds"] = round(dt, 1)
             row["execution"] = "FAILED"
-            row["notes"] = str(e).splitlines()[-1][:400]
+            if not row["notes"]:
+                row["notes"] = str(e).splitlines()[-1][:400]
+
+        row["status"] = "passed" if (structure_ok and exec_ok) else "failed"
         results.append(row)
 
-    # Wrap results with env metadata (do not change legacy schema consumers silently? keep top-level list for now)
+    payload = {
+        "validator_env": env,
+        "env_errors": env_errs,
+        "summary": {
+            "total": len(results),
+            "passed": sum(1 for r in results if r.get("status") == "passed"),
+            "failed": sum(1 for r in results if r.get("status") != "passed"),
+        },
+        "results": results,
+    }
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(json.dumps(results, indent=2))
-    for r in results:
-        print(json.dumps(r, ensure_ascii=False))
+    OUTPUT_PATH.write_text(json.dumps(payload, indent=2))
 
-    failed = bool(env_errs) or any(
-        r["execution"] == "FAILED" or str(r.get("structure", "")).startswith("invalid")
-        for r in results
-    )
+    # human-readable summary
+    for r in results:
+        print(
+            f"{r['status'].upper():6s} {r['notebook']}  exec={r['execution']}  "
+            f"exe={r.get('notebook_executable')}  flwr={r.get('notebook_flwr')}  {r.get('notes','')}"
+        )
+    print(json.dumps(payload["summary"]))
+    if env_errs:
+        for e in env_errs:
+            print(f"ENV_ERROR: {e}", file=sys.stderr)
+
+    failed = bool(env_errs) or payload["summary"]["failed"] > 0
     return 1 if failed else 0
 
 
