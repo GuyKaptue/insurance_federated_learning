@@ -1,0 +1,25 @@
+{
+  "task": "fairness_disparity",
+  "metric": "disparity",
+  "threshold_rule": "passes",
+  "smoke": true,
+  "metrics": {
+    "Germany": 7.487331423533775,
+    "France": 10.869517583531124,
+    "Belgium": 9.543418189318732,
+    "Switzerland": 7.226098206379219
+  },
+  "disparity": 3.643419377151905,
+  "max_country": "France",
+  "min_country": "Switzerland",
+  "mean": 8.781591350690713,
+  "threshold": 0.43907956753453564,
+  "passes": false,
+  "missing_countries": [],
+  "sampling": "stratified, min_per_country=1",
+  "git_sha": "6eece8c08fa8e0d555b340ef56b50e1b4c85d8f0",
+  "seed": 42,
+  "rounds": 1,
+  "samples_per_client": 512,
+  "note": "Smoke run disparity; not a benchmark. Use with realistic rounds for production."
+}
