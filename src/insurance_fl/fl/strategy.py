@@ -191,43 +191,40 @@ class HybridAggregation(FedAvg):
         # Privacy accounting (advisory)
         if self.accountant is not None:
             try:
-                # Check budget before committing
-                would_exceed = self.accountant.would_exceed({"round": server_round})
-                if would_exceed:
-                    # Budget would be exceeded — log and skip accounting
-                    if self.audit_logger is not None and self.run_id is not None:
-                        try:
-                            self.audit_logger.log_privacy_event(
-                                round=server_round,
-                                mechanism="local_dp",
-                                accounting_status="budget_exceeded",
-                            )
-                        except Exception:
-                            pass
-                else:
-                    self.accountant.compose({"round": server_round})
-                    if self.audit_logger is not None and self.run_id is not None:
-                        try:
-                            eps = self.accountant.get_epsilon()
-                            self.audit_logger.log_privacy_event(
-                                round=server_round,
-                                mechanism="local_dp",
-                                epsilon=eps,
-                                accounting_status="accounted",
-                            )
-                        except Exception:
-                            pass
-            except Exception:
-                pass
+                # Record this round in the accountant
+                self.accountant.step()
+                eps_data = self.accountant.epsilon()
+                epsilon_conservative = eps_data["epsilon"]
+                epsilon_amplified = eps_data.get("epsilon_amplified")
 
-        # MLflow: log round metrics
-        if self.mlflow_enabled:
-            try:
-                mlflow.log_metric("round", server_round, step=server_round)
-                if self.accountant is not None:
+                # Log both conservative and amplified epsilons
+                if self.audit_logger is not None and self.run_id is not None:
                     try:
-                        eps = self.accountant.get_epsilon()
-                        mlflow.log_metric("privacy/epsilon_cumulative", eps, step=server_round)
+                        self.audit_logger.log_privacy_event(
+                            round=server_round,
+                            mechanism="local_dp",
+                            epsilon=epsilon_conservative,
+                            accounting_status="accounted",
+                            epsilon_amplified=epsilon_amplified,
+                        )
+                    except Exception:
+                        pass
+
+                # MLflow: log privacy metrics
+                if self.mlflow_enabled:
+                    try:
+                        mlflow.log_metric("round", server_round, step=server_round)
+                        mlflow.log_metric(
+                            "privacy/epsilon_conservative",
+                            epsilon_conservative,
+                            step=server_round,
+                        )
+                        if epsilon_amplified is not None:
+                            mlflow.log_metric(
+                                "privacy/epsilon_amplified",
+                                epsilon_amplified,
+                                step=server_round,
+                            )
                     except Exception:
                         pass
             except Exception:
@@ -236,7 +233,17 @@ class HybridAggregation(FedAvg):
         # Delegate to parent for actual aggregation
         aggregated = super().aggregate_fit(server_round, results, failures)
 
-        # Audit: round end (will be completed in aggregate_evaluate or here)
+        # Attach epsilon info to the aggregated fit result if present
+        if aggregated is not None and self.accountant is not None:
+            try:
+                eps = self.accountant.epsilon()
+                if aggregated[1] is not None:
+                    aggregated[1]["epsilon"] = eps["epsilon"]
+                    if eps.get("epsilon_amplified") is not None:
+                        aggregated[1]["epsilon_amplified"] = eps["epsilon_amplified"]
+            except Exception:
+                pass
+
         return aggregated
 
     def aggregate_evaluate(self, server_round, results, failures):
@@ -286,9 +293,6 @@ class HybridAggregation(FedAvg):
 
     def get_per_country_metrics(self) -> dict[str, dict[str, float]]:
         return dict(self._per_country_metrics)
-
-
-__all__ = ["HybridAggregation"]
 
 
 _ALLOWED = {"fedavg", "fedprox", "hybrid", "qfedavg"}
