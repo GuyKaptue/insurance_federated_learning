@@ -59,3 +59,27 @@ def test_empty_dataframe_no_division_error() -> None:
     assert m.total_rows == 0
     assert m.missing_values == {"a": 0.0}
     assert m.duplicate_percentage == 0.0
+
+def test_analyze_handles_unhashable_numpy_array_cells():
+    import numpy as np
+    from insurance_fl.data.quality import DataQualityAnalyzer
+
+    df = pd.DataFrame(
+        {
+            "num": [1.0, 2.0, 1.0, 3.0],
+            "arr": [
+                np.array([1, 2]),
+                np.array([1, 2]),
+                np.array([1, 2]),
+                np.array([3, 4]),
+            ],
+        }
+    )
+    analyzer = DataQualityAnalyzer()
+    metrics = analyzer.analyze(df)
+
+    assert metrics.total_rows == 4
+    assert metrics.duplicate_rows == 1
+    assert metrics.duplicate_percentage == 0.25
+    assert metrics.unique_values["arr"] == 2
+    assert analyzer.overall_quality_score() >= 0.0

@@ -46,8 +46,21 @@ class DataQualityAnalyzer:
             missing_count = df[col].isnull().sum()
             missing_values[col] = float(missing_count) / total_rows if total_rows > 0 else 0.0
 
-        # Duplicates
-        duplicate_rows = int(df.duplicated().sum())
+        # Duplicates (robust to unhashable/object values such as numpy arrays)
+        try:
+            dup_mask = df.duplicated()
+        except TypeError:
+            # Fallback: hash stable string representations per cell/row
+            safe = df.map(
+                lambda x: x.tobytes()
+                if isinstance(x, np.ndarray)
+                else (tuple(x) if isinstance(x, list) else x)
+            )
+            try:
+                dup_mask = safe.duplicated()
+            except TypeError:
+                dup_mask = safe.astype(str).duplicated()
+        duplicate_rows = int(dup_mask.sum())
         duplicate_percentage = float(duplicate_rows) / total_rows if total_rows > 0 else 0.0
 
         # Outliers (IQR method for numerical columns)
@@ -68,10 +81,23 @@ class DataQualityAnalyzer:
                     float(outliers) / len(col_data) if len(col_data) > 0 else 0.0
                 )
 
-        # Unique values
+        # Unique values (robust to unhashable values)
         unique_values = {}
         for col in df.columns:
-            unique_values[col] = int(df[col].nunique())
+            try:
+                unique_values[col] = int(df[col].nunique(dropna=True))
+            except TypeError:
+                s = df[col].dropna()
+                try:
+                    unique_values[col] = int(
+                        s.map(
+                            lambda x: x.tobytes()
+                            if isinstance(x, np.ndarray)
+                            else (tuple(x) if isinstance(x, list) else x)
+                        ).nunique()
+                    )
+                except Exception:
+                    unique_values[col] = int(s.astype(str).nunique())
 
         # Column types
         column_types = {col: str(dtype) for col, dtype in df.dtypes.items()}
