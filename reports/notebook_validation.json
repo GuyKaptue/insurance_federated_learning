@@ -1,0 +1,79 @@
+[
+  {
+    "notebook": "causal_inference_quickstart.ipynb",
+    "structure": "ok",
+    "execution": "passed (5s)",
+    "notes": "",
+    "seconds": 5.1
+  },
+  {
+    "notebook": "dp_accounting_rdp.ipynb",
+    "structure": "ok",
+    "execution": "passed (4s)",
+    "notes": "",
+    "seconds": 4.0
+  },
+  {
+    "notebook": "fairness_evaluation.ipynb",
+    "structure": "ok",
+    "execution": "passed (4s)",
+    "notes": "",
+    "seconds": 3.9
+  },
+  {
+    "notebook": "flower_federated_learning.ipynb",
+    "structure": "ok",
+    "execution": "passed (4s)",
+    "notes": "",
+    "seconds": 3.8
+  },
+  {
+    "notebook": "hybrid_boosters_stacking.ipynb",
+    "structure": "ok",
+    "execution": "passed (11s)",
+    "notes": "",
+    "seconds": 10.9
+  },
+  {
+    "notebook": "local_dp.ipynb",
+    "structure": "ok",
+    "execution": "passed (5s)",
+    "notes": "",
+    "seconds": 4.5
+  },
+  {
+    "notebook": "membership_inference.ipynb",
+    "structure": "ok",
+    "execution": "passed (5s)",
+    "notes": "",
+    "seconds": 4.9
+  },
+  {
+    "notebook": "security_secagg.ipynb",
+    "structure": "ok",
+    "execution": "passed (4s)",
+    "notes": "",
+    "seconds": 3.5
+  },
+  {
+    "notebook": "synthetic_data_generation.ipynb",
+    "structure": "ok",
+    "execution": "passed (6s)",
+    "notes": "",
+    "seconds": 6.3
+  },
+  {
+    "notebook": "tls_credentials.ipynb",
+    "structure": "ok",
+    "execution": "passed (4s)",
+    "notes": "",
+    "seconds": 3.6
+  },
+  {
+    "notebook": "transportability_quickstart.ipynb",
+    "structure": "ok",
+    "execution": "passed (7s)",
+    "notes": "",
+    "seconds": 7.1
+  }
+]
