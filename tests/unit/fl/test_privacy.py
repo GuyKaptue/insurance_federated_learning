@@ -87,6 +87,7 @@ def test_get_epsilon_uses_delta() -> None:
         for _ in range(3):
             a.step()
         return a.epsilon()["epsilon"]
+
     # delta=1e-7 is stricter than delta=1e-5, so should give larger epsilon
     assert eps_for_delta(1e-7) > eps_for_delta(1e-5)
 
@@ -172,6 +173,7 @@ def test_state_persistence_roundtrip() -> None:
         eps2 = accountant2.epsilon()
         assert eps2["epsilon"] >= 0
         assert math.isfinite(eps2["epsilon"])
+        assert math.isfinite(eps1["epsilon"])
 
 
 def test_state_not_counted_twice() -> None:
@@ -239,8 +241,9 @@ def test_empty_accountant_epsilon_zero() -> None:
 
 def test_backend_unavailable_simulation() -> None:
     # Verify that PrivacyBackendUnavailable is raised when dp-accounting is unavailable
-    import insurance_fl.fl.privacy as p
     import pytest
+
+    import insurance_fl.fl.privacy as p
 
     # Save original state
     original_has_dp = p._HAS_DP
@@ -272,20 +275,23 @@ def test_zero_noise_returns_inf() -> None:
     acc = privacy.RdpAccountantWrapper(privacy.PrivacyConfig(noise_multiplier=0.0))
     eps_data = acc.epsilon()
     assert math.isinf(eps_data["epsilon"]), "Zero noise should give infinite epsilon"
-    assert math.isinf(eps_data.get("epsilon_amplified", None)), "Zero noise should give infinite amplified epsilon"
+    assert math.isinf(
+        eps_data.get("epsilon_amplified", None)
+    ), "Zero noise should give infinite amplified epsilon"
 
 
 def test_unavailable_backend_raises() -> None:
     # Verify that PrivacyBackendUnavailable is raised when dp-accounting is unavailable
-    import insurance_fl.fl.privacy as p
     import pytest
-    
+
+    import insurance_fl.fl.privacy as p
+
     # Save original state
     original_has_dp = p._HAS_DP
-    
+
     # Temporarily pretend dp-accounting is unavailable
     p._HAS_DP = False
-    
+
     try:
         with pytest.raises(p.PrivacyBackendUnavailable):
             p.RdpAccountantWrapper(p.PrivacyConfig(noise_multiplier=1.0))
@@ -296,7 +302,9 @@ def test_unavailable_backend_raises() -> None:
 
 def test_amplified_not_larger_than_conservative() -> None:
     # Verify that the amplified epsilon is not larger than the conservative (q=1) epsilon
-    acc = privacy.RdpAccountantWrapper(privacy.PrivacyConfig(noise_multiplier=1.0, sampling_rate=0.5))
+    acc = privacy.RdpAccountantWrapper(
+        privacy.PrivacyConfig(noise_multiplier=1.0, sampling_rate=0.5)
+    )
     for _ in range(3):
         acc.step()
     eps = acc.epsilon()

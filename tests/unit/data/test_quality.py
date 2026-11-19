@@ -60,8 +60,10 @@ def test_empty_dataframe_no_division_error() -> None:
     assert m.missing_values == {"a": 0.0}
     assert m.duplicate_percentage == 0.0
 
+
 def test_analyze_handles_unhashable_numpy_array_cells():
     import numpy as np
+
     from insurance_fl.data.quality import DataQualityAnalyzer
 
     df = pd.DataFrame(
