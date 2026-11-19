@@ -468,15 +468,213 @@ def run_a2(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
     return report
 
 
+
+def fedavg_fedbn_reference(
+    data: dict[str, dict], *, rounds: int, local_epochs: int, lr: float, seed: int,
+    hidden_dims, dropout: float, single_task: bool, batch_size: int = 64,
+) -> tuple[dict[str, MultiTaskNN], dict[str, Any]]:
+    set_seeds(seed)
+    # initialize per-client models with same federated params, local BN kept per client
+    models: dict[str, MultiTaskNN] = {}
+    for cid in CLIENT_IDS:
+        input_dim = int(data[cid]["x_tr"].shape[1])
+        task_types = {TASK: "binary"} if single_task else dict(DEFAULT_TASK_TYPES)
+        models[cid] = MultiTaskNN(
+            input_dim=input_dim, task_types=task_types, hidden_dims=list(hidden_dims), dropout_rate=float(dropout)
+        )
+    global_w = [np.array(w, copy=True) for w in models[CLIENT_IDS[0]].get_federated_weights()]
+    for cid in CLIENT_IDS:
+        models[cid].set_federated_weights(global_w)
+
+    curve = []
+    for r in range(1, rounds + 1):
+        updates, sizes = [], []
+        for cid in CLIENT_IDS:
+            d = data[cid]
+            m = models[cid]
+            m.set_federated_weights(global_w)  # local BN untouched
+            # local train (few epochs) - simple SGD/Adam step loop
+            y_use = {TASK: d["y_trd"][TASK]} if single_task else d["y_trd"]
+            _train_nn_epochs_inplace(
+                m, d["x_tr"], y_use, epochs=local_epochs, lr=lr, batch_size=batch_size,
+                single_task=single_task, seed=seed * 1000 + r * 10 + CLIENT_IDS.index(cid),
+            )
+            updates.append([np.array(w, copy=True) for w in m.get_federated_weights()])
+            sizes.append(int(len(d["x_tr"])))
+        total = float(sum(sizes))
+        weights = [s / total for s in sizes]
+        new_global = []
+        for k in range(len(global_w)):
+            acc = np.zeros_like(updates[0][k], dtype=np.float64)
+            for wi, u in zip(weights, updates):
+                acc += wi * u[k].astype(np.float64)
+            new_global.append(acc.astype(updates[0][k].dtype))
+        global_w = new_global
+        # set global to all for evaluation; each keeps own BN
+        per_val = {}
+        for cid in CLIENT_IDS:
+            models[cid].set_federated_weights(global_w)
+            va = nn_val_auc(models[cid], data[cid]["x_va"], data[cid]["y_vad"][TASK])
+            per_val[cid] = float(va) if np.isfinite(va) else None
+        mean_val = float(np.nanmean([v for v in per_val.values() if v is not None]))
+        curve.append({"round": r, "mean_val_auc": mean_val, "per_client_val_auc": per_val})
+        if r == 1 or r % 5 == 0 or r == rounds:
+            print(f"  fed round {r}/{rounds} mean_val_auc={mean_val:.4f}", flush=True)
+    for cid in CLIENT_IDS:
+        models[cid].set_federated_weights(global_w)
+    info = {
+        "rounds": rounds,
+        "local_epochs": local_epochs,
+        "lr": lr,
+        "batch_size": batch_size,
+        "hidden_dims": list(hidden_dims),
+        "dropout": float(dropout),
+        "single_task": single_task,
+        "seed": seed,
+        "validation_curve": curve,
+        "final_mean_val_auc": curve[-1]["mean_val_auc"] if curve else None,
+    }
+    return models, info
+
+
+def _train_nn_epochs_inplace(model, x_tr, y_tr_dict, *, epochs: int, lr: float, batch_size: int, single_task: bool, seed: int):
+    set_seeds(seed)
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    xt = torch.as_tensor(x_tr, dtype=torch.float32)
+    yt = {k: torch.as_tensor(v) for k, v in y_tr_dict.items()}
+    n = int(xt.shape[0])
+    for _ in range(max(1, int(epochs))):
+        model.train()
+        perm = torch.randperm(n)
+        for start in range(0, n, batch_size):
+            idx = perm[start : start + batch_size]
+            if idx.numel() < 2:
+                continue
+            opt.zero_grad(set_to_none=True)
+            logits = model(xt[idx])
+            losses = model.get_losses(logits, {k: v[idx] for k, v in yt.items()})
+            loss = model.get_total_loss(losses) if single_task else model.get_kendall_total_loss(losses)
+            loss.backward()
+            opt.step()
+
+
+def run_a3(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
+    report = load_report(out_path)
+    report.update({**provenance(), **git_state()})
+    report.setdefault("clients", {})
+    report.setdefault("notes", [])
+
+    seeds = [42, 43, 44]
+    rounds = 20
+    # Config chosen on validation: small grid on seed 42 using pooled-best architecture family
+    # (single-task head performed best in A2; [128,64], dropout 0.3). Tune local_epochs/lr on mean val AUC.
+    base_hidden = [128, 64]
+    base_dropout = 0.3
+    single_task = True
+    fed_grid = [
+        {"local_epochs": 1, "lr": 1e-3},
+        {"local_epochs": 2, "lr": 1e-3},
+        {"local_epochs": 1, "lr": 5e-4},
+        {"local_epochs": 2, "lr": 5e-4},
+    ]
+
+    data = {}
+    for cid in CLIENT_IDS:
+        (x_tr, y_trd), (x_va, y_vad), (x_te, y_ted) = load_client_splits(cid)
+        mu, sd = standardize_fit(x_tr)
+        data[cid] = {
+            "x_tr": standardize_apply(x_tr, mu, sd),
+            "y_trd": y_trd,
+            "x_va": standardize_apply(x_va, mu, sd),
+            "y_vad": y_vad,
+            "x_te": standardize_apply(x_te, mu, sd),
+            "y_ted": y_ted,
+        }
+
+    fed_grid_log = []
+    best_fed = None
+    best_fed_val = -1.0
+    for i, cfg in enumerate(fed_grid):
+        print(f"A3 fed grid {i+1}/{len(fed_grid)} cfg={cfg}", flush=True)
+        _, info = fedavg_fedbn_reference(
+            data, rounds=rounds, local_epochs=cfg["local_epochs"], lr=cfg["lr"], seed=42,
+            hidden_dims=base_hidden, dropout=base_dropout, single_task=single_task,
+        )
+        val = float(info["final_mean_val_auc"] or float("nan"))
+        entry = {"cfg_id": i, **cfg, "rounds": rounds, "hidden_dims": base_hidden, "dropout": base_dropout, "single_task": single_task, "selection_seed": 42, "final_mean_val_auc": val}
+        fed_grid_log.append(entry)
+        if np.isfinite(val) and val > best_fed_val:
+            best_fed_val = val
+            best_fed = cfg
+    print(f"A3 best fed cfg={best_fed} final_mean_val_auc={best_fed_val:.4f}", flush=True)
+
+    for cid in CLIENT_IDS:
+        client = report["clients"].setdefault(cid, {})
+        client.setdefault("neural", {})
+        client["neural"].setdefault("federated_reference", {})
+
+    # run best config for 3 seeds and collect per-client results
+    per_seed_models = {}
+    per_seed_info = {}
+    for s in seeds:
+        print(f"A3 federated run seed={s}", flush=True)
+        models, info = fedavg_fedbn_reference(
+            data, rounds=rounds, local_epochs=best_fed["local_epochs"], lr=best_fed["lr"], seed=s,
+            hidden_dims=base_hidden, dropout=base_dropout, single_task=single_task,
+        )
+        per_seed_models[s] = models
+        per_seed_info[s] = info
+
+    for cid in CLIENT_IDS:
+        runs = {}
+        for s in seeds:
+            m = per_seed_models[s][cid]
+            d = data[cid]
+            p = predict_is_high_risk_proba(m, d["x_te"])
+            auc, lo, hi = bootstrap_auc_ci(d["y_ted"][TASK], p, seed=4000 + s)
+            runs[str(s)] = {
+                "test_auc": auc,
+                "ci95": [lo, hi],
+                "gate": gate(auc, lo),
+                "final_mean_val_auc": per_seed_info[s]["final_mean_val_auc"],
+            }
+        median_seed = sorted(seeds, key=lambda s: runs[str(s)]["test_auc"])[1]
+        med = runs[str(median_seed)]
+        report["clients"][cid]["neural"]["federated_reference"] = {
+            "method": "in-process FedAvg + FedBN (non-BN federated weights averaged; local BN state preserved per client)",
+            "best_config": {**best_fed, "rounds": rounds, "hidden_dims": base_hidden, "dropout": base_dropout, "single_task": single_task, "batch_size": 64},
+            "selection": "small grid on mean client validation AUC at final round (seed 42); test evaluated once per seed",
+            "grid": fed_grid_log,
+            "seeds": seeds,
+            "runs": runs,
+            "median_seed": median_seed,
+            "median_test_auc": med["test_auc"],
+            "median_ci95": med["ci95"],
+            "median_gate": med["gate"],
+            "validation_curves_by_seed": {str(s): per_seed_info[s]["validation_curve"] for s in seeds},
+            "standardization": "per-client train statistics (fit on each client's train split)",
+        }
+        print(f"A3 fed {cid}: median_test={med['test_auc']:.4f} ci={med['ci95']}", flush=True)
+
+    note = "A3: in-process FedAvg+FedBN reference (~20 rounds), local epochs/lr chosen on validation grid (seed 42), 3 seeds 42/43/44, per-client local BN eval on own test split; validation curves recorded."
+    if note not in report["notes"]:
+        report["notes"].append(note)
+    save_report(report, out_path)
+    return report
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", default="a1", choices=["a1", "a2"])
+    ap.add_argument("--stage", default="a1", choices=["a1", "a2", "a3"])
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     args = ap.parse_args(argv)
+    out = Path(args.out)
     if args.stage == "a1":
-        run_a1(Path(args.out))
+        run_a1(out)
     elif args.stage == "a2":
-        run_a2(Path(args.out))
+        run_a2(out)
+    elif args.stage == "a3":
+        run_a3(out)
     return 0
 
 

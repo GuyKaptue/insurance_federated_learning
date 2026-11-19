@@ -5,7 +5,7 @@
   "config_hash": "e93bcefe91a0b25a",
   "manifest_seed": 42,
   "manifest_samples_per_client": 5000,
-  "git_sha": "6fe61b5b5e1d9c2b14c3c4add3fab4ec6e8a922c",
+  "git_sha": "ed6f2133ca3e741168006cd16b92259ac3845240",
   "git_dirty": true,
   "clients": {
     "germany_allianz": {
@@ -835,6 +835,750 @@
             "status": "supported"
           },
           "standardization": "per-client train statistics (same as local inputs in this run)"
+        },
+        "federated_reference": {
+          "method": "in-process FedAvg + FedBN (non-BN federated weights averaged; local BN state preserved per client)",
+          "best_config": {
+            "local_epochs": 2,
+            "lr": 0.0005,
+            "rounds": 20,
+            "hidden_dims": [
+              128,
+              64
+            ],
+            "dropout": 0.3,
+            "single_task": true,
+            "batch_size": 64
+          },
+          "selection": "small grid on mean client validation AUC at final round (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "local_epochs": 1,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8273873647112162
+            },
+            {
+              "cfg_id": 1,
+              "local_epochs": 2,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8263420415343257
+            },
+            {
+              "cfg_id": 2,
+              "local_epochs": 1,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8269224863817674
+            },
+            {
+              "cfg_id": 3,
+              "local_epochs": 2,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8274520479588173
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8346799431009958,
+              "ci95": [
+                0.8073375663518169,
+                0.8642655026873741
+              ],
+              "gate": {
+                "auc": 0.8346799431009958,
+                "ci_low": 0.8073375663518169,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8274520479588173
+            },
+            "43": {
+              "test_auc": 0.8370056899004268,
+              "ci95": [
+                0.8091230452144755,
+                0.865062254026162
+              ],
+              "gate": {
+                "auc": 0.8370056899004268,
+                "ci_low": 0.8091230452144755,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8267597779912182
+            },
+            "44": {
+              "test_auc": 0.8318990042674252,
+              "ci95": [
+                0.8029232773699986,
+                0.8611292673731111
+              ],
+              "gate": {
+                "auc": 0.8318990042674252,
+                "ci_low": 0.8029232773699986,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8275978591200255
+            }
+          },
+          "median_seed": 42,
+          "median_test_auc": 0.8346799431009958,
+          "median_ci95": [
+            0.8073375663518169,
+            0.8642655026873741
+          ],
+          "median_gate": {
+            "auc": 0.8346799431009958,
+            "ci_low": 0.8073375663518169,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "validation_curves_by_seed": {
+            "42": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8044954535708252,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7981152882205514,
+                  "france_axa": 0.7879772184751438,
+                  "belgium_ageas": 0.8106079709883881,
+                  "switzerland_helvetia": 0.8212813365992173
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8184627062353393,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8119899749373434,
+                  "france_axa": 0.8020434483090085,
+                  "belgium_ageas": 0.8249496659741984,
+                  "switzerland_helvetia": 0.8348677357208072
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8209997987326125,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8158315789473685,
+                  "france_axa": 0.802560117912815,
+                  "belgium_ageas": 0.8261184560763075,
+                  "switzerland_helvetia": 0.8394890419939589
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8233060490989865,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8183819548872181,
+                  "france_axa": 0.805856389881286,
+                  "belgium_ageas": 0.8278156033478632,
+                  "switzerland_helvetia": 0.841170248279579
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.824152664812539,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170907268170426,
+                  "france_axa": 0.8053757669940242,
+                  "belgium_ageas": 0.8298850022615287,
+                  "switzerland_helvetia": 0.8442591631775603
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8259584356043644,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8185142857142856,
+                  "france_axa": 0.808335602941412,
+                  "belgium_ageas": 0.830689546133186,
+                  "switzerland_helvetia": 0.846294307628574
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8266272407457945,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8204832080200501,
+                  "france_axa": 0.8093729473397524,
+                  "belgium_ageas": 0.8301131564937898,
+                  "switzerland_helvetia": 0.8465396511295857
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8270863661974646,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200380952380952,
+                  "france_axa": 0.8097133885515628,
+                  "belgium_ageas": 0.8312499249492656,
+                  "switzerland_helvetia": 0.8473440560509349
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8271739024503157,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208360902255638,
+                  "france_axa": 0.809384962911934,
+                  "belgium_ageas": 0.8309937517762007,
+                  "switzerland_helvetia": 0.8474808048875644
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8274289921864888,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8096853522164725,
+                  "belgium_ageas": 0.8309657328353968,
+                  "switzerland_helvetia": 0.8481927032429584
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.827526864646851,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.821746365914787,
+                  "france_axa": 0.809849565036287,
+                  "belgium_ageas": 0.8308336435430351,
+                  "switzerland_helvetia": 0.8476778840932948
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8275822249988118,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216942355889725,
+                  "france_axa": 0.8102180425831876,
+                  "belgium_ageas": 0.8304974162533871,
+                  "switzerland_helvetia": 0.8479192055696998
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8275615281846578,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820787969924812,
+                  "france_axa": 0.8100418141911918,
+                  "belgium_ageas": 0.8308656651896682,
+                  "switzerland_helvetia": 0.8485506634329589
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8274039141875102,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.82054335839599,
+                  "france_axa": 0.8100097726653743,
+                  "belgium_ageas": 0.8308376462488642,
+                  "switzerland_helvetia": 0.8482248794398124
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8273174471270771,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8209604010025062,
+                  "france_axa": 0.8090485268908505,
+                  "belgium_ageas": 0.8305774703699701,
+                  "switzerland_helvetia": 0.8486833902449815
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8276339808832514,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199458646616542,
+                  "france_axa": 0.8102100322017335,
+                  "belgium_ageas": 0.8303613242551965,
+                  "switzerland_helvetia": 0.8500187024144212
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.827614300386995,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8103422034957304,
+                  "belgium_ageas": 0.8301491808462521,
+                  "switzerland_helvetia": 0.8490936367548696
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275248462348104,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8211127819548872,
+                  "france_axa": 0.8098095131290152,
+                  "belgium_ageas": 0.8296008101476597,
+                  "switzerland_helvetia": 0.8495762797076792
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8278395206607361,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8214215538847118,
+                  "france_axa": 0.8100738557170093,
+                  "belgium_ageas": 0.8300531159063527,
+                  "switzerland_helvetia": 0.8498095571348705
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8274520479588173,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216581453634086,
+                  "france_axa": 0.8099737259488298,
+                  "belgium_ageas": 0.8294527100319817,
+                  "switzerland_helvetia": 0.848723610491049
+                }
+              }
+            ],
+            "43": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8141199141012709,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8067208020050124,
+                  "france_axa": 0.7997644947852416,
+                  "belgium_ageas": 0.8160436455043609,
+                  "switzerland_helvetia": 0.833950714110469
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.821367622547168,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8135117794486215,
+                  "france_axa": 0.8060206027011008,
+                  "belgium_ageas": 0.8242852168065612,
+                  "switzerland_helvetia": 0.8416528912323886
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8234542452266655,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170506265664161,
+                  "france_axa": 0.8072902481616175,
+                  "belgium_ageas": 0.8262385372511817,
+                  "switzerland_helvetia": 0.8432375689274466
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8243238502282799,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8178766917293234,
+                  "france_axa": 0.8077228087601532,
+                  "belgium_ageas": 0.8271471514743968,
+                  "switzerland_helvetia": 0.844548748949246
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8256766079848492,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184060150375939,
+                  "france_axa": 0.8086600233903138,
+                  "belgium_ageas": 0.8290444340374092,
+                  "switzerland_helvetia": 0.8465959594740802
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8254449188986253,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182897243107771,
+                  "france_axa": 0.8081513641679617,
+                  "belgium_ageas": 0.8290764556840423,
+                  "switzerland_helvetia": 0.8462621314317202
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8251574808469697,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8180170426065163,
+                  "france_axa": 0.8084397379003188,
+                  "belgium_ageas": 0.8280477602859533,
+                  "switzerland_helvetia": 0.8461253825950907
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8257084922122614,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182375939849625,
+                  "france_axa": 0.8082755250805043,
+                  "belgium_ageas": 0.828892331215902,
+                  "switzerland_helvetia": 0.8474285185676766
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8266224053504025,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8191358395989974,
+                  "france_axa": 0.8095371601595667,
+                  "belgium_ageas": 0.8298129535566043,
+                  "switzerland_helvetia": 0.8480036680864413
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8264853195957149,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8193203007518798,
+                  "france_axa": 0.8088522725452185,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8480278002340818
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.8268642150177026,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198055137844612,
+                  "france_axa": 0.809805507938288,
+                  "belgium_ageas": 0.8295928047360016,
+                  "switzerland_helvetia": 0.8482530336120597
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8272306537238598,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8188190476190477,
+                  "france_axa": 0.8104583540268188,
+                  "belgium_ageas": 0.8301091537879606,
+                  "switzerland_helvetia": 0.8495360594616119
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8276323400857244,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8197533834586466,
+                  "france_axa": 0.8105104215062722,
+                  "belgium_ageas": 0.8307455840147939,
+                  "switzerland_helvetia": 0.8495199713631848
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8276575574045302,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195208020050125,
+                  "france_axa": 0.8103381983050033,
+                  "belgium_ageas": 0.8309737382470549,
+                  "switzerland_helvetia": 0.8497974910610502
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8272878639845872,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198496240601505,
+                  "france_axa": 0.8102460789182782,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8493148481082406
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8272491456294966,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8205032581453635,
+                  "france_axa": 0.808752142777039,
+                  "belgium_ageas": 0.8302252322570058,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8266070304840214,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8196411027568923,
+                  "france_axa": 0.8082274627917783,
+                  "belgium_ageas": 0.8300491132005234,
+                  "switzerland_helvetia": 0.8485104431868915
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8274983838888843,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8207679197994988,
+                  "france_axa": 0.8093889681026611,
+                  "belgium_ageas": 0.8304453810776085,
+                  "switzerland_helvetia": 0.849391266575769
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8269922849728172,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202145363408523,
+                  "france_axa": 0.8090925839888495,
+                  "belgium_ageas": 0.8296528453234386,
+                  "switzerland_helvetia": 0.849009174238128
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8267597779912182,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202105263157895,
+                  "france_axa": 0.8081553693586889,
+                  "belgium_ageas": 0.82983296708575,
+                  "switzerland_helvetia": 0.8488402492046446
+                }
+              }
+            ],
+            "44": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8057149716860397,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7946827067669173,
+                  "france_axa": 0.7844366298723146,
+                  "belgium_ageas": 0.8147027390515988,
+                  "switzerland_helvetia": 0.8290378110533281
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8197993319702367,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8100170426065163,
+                  "france_axa": 0.8021115365513706,
+                  "belgium_ageas": 0.8258582801974135,
+                  "switzerland_helvetia": 0.8412104685256465
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8235526641127474,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8134817042606516,
+                  "france_axa": 0.8069658277127156,
+                  "belgium_ageas": 0.8271671650035424,
+                  "switzerland_helvetia": 0.8465959594740801
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8249702939882902,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8150416040100251,
+                  "france_axa": 0.8083716496579567,
+                  "belgium_ageas": 0.8284200119280634,
+                  "switzerland_helvetia": 0.8480479103571156
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8252910602020678,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8162205513784461,
+                  "france_axa": 0.8097494352681074,
+                  "belgium_ageas": 0.8281478279316818,
+                  "switzerland_helvetia": 0.8470464262300358
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.826479646202098,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8179528822055138,
+                  "france_axa": 0.8099937519024656,
+                  "belgium_ageas": 0.8292966045046452,
+                  "switzerland_helvetia": 0.8486753461957679
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8260138770209958,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8176601503759398,
+                  "france_axa": 0.8092567968086639,
+                  "belgium_ageas": 0.8294687208552981,
+                  "switzerland_helvetia": 0.8476698400440815
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8268651249822052,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8186385964912282,
+                  "france_axa": 0.81059853570227,
+                  "belgium_ageas": 0.8297048804992175,
+                  "switzerland_helvetia": 0.8485184872361049
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.827502052859479,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8192401002506267,
+                  "france_axa": 0.8107667537128118,
+                  "belgium_ageas": 0.8304854081358998,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8270847018729639,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184902255639097,
+                  "france_axa": 0.8104423332639101,
+                  "belgium_ageas": 0.8296208236768055,
+                  "switzerland_helvetia": 0.8497854249872301
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.82721076096661,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.819035588972431,
+                  "france_axa": 0.8107867796664479,
+                  "belgium_ageas": 0.8295087479135896,
+                  "switzerland_helvetia": 0.8495119273139712
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8276883664552096,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8203027568922305,
+                  "france_axa": 0.8108188211922651,
+                  "belgium_ageas": 0.8295367668543935,
+                  "switzerland_helvetia": 0.8500951208819495
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8279270705227433,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8201483709273184,
+                  "france_axa": 0.810682644707541,
+                  "belgium_ageas": 0.8298369697915791,
+                  "switzerland_helvetia": 0.851040296664535
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8275216142639124,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199298245614034,
+                  "france_axa": 0.8101940114388249,
+                  "belgium_ageas": 0.8293446369745948,
+                  "switzerland_helvetia": 0.8506179840808266
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.827399159348762,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195368421052632,
+                  "france_axa": 0.8099456896137394,
+                  "belgium_ageas": 0.8296248263826347,
+                  "switzerland_helvetia": 0.8504892792934107
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8273903360383673,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8194526315789474,
+                  "france_axa": 0.81000176228392,
+                  "belgium_ageas": 0.8294407019144943,
+                  "switzerland_helvetia": 0.8506662483761075
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8281648372624831,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200822055137844,
+                  "france_axa": 0.8107827744757204,
+                  "belgium_ageas": 0.8306535217807237,
+                  "switzerland_helvetia": 0.8511408472797037
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275573835226554,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195248120300752,
+                  "france_axa": 0.810550473413544,
+                  "belgium_ageas": 0.8296408372059512,
+                  "switzerland_helvetia": 0.8505134114410512
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8282877353440081,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8210085213032582,
+                  "france_axa": 0.8108869094346274,
+                  "belgium_ageas": 0.8298009454391168,
+                  "switzerland_helvetia": 0.85145456519903
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8275978591200255,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820334837092732,
+                  "france_axa": 0.8095772120668387,
+                  "belgium_ageas": 0.830191209257458,
+                  "switzerland_helvetia": 0.8502881780630733
+                }
+              }
+            ]
+          },
+          "standardization": "per-client train statistics (fit on each client's train split)"
         }
       }
     },
@@ -1665,6 +2409,750 @@
             "status": "supported"
           },
           "standardization": "per-client train statistics (same as local inputs in this run)"
+        },
+        "federated_reference": {
+          "method": "in-process FedAvg + FedBN (non-BN federated weights averaged; local BN state preserved per client)",
+          "best_config": {
+            "local_epochs": 2,
+            "lr": 0.0005,
+            "rounds": 20,
+            "hidden_dims": [
+              128,
+              64
+            ],
+            "dropout": 0.3,
+            "single_task": true,
+            "batch_size": 64
+          },
+          "selection": "small grid on mean client validation AUC at final round (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "local_epochs": 1,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8273873647112162
+            },
+            {
+              "cfg_id": 1,
+              "local_epochs": 2,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8263420415343257
+            },
+            {
+              "cfg_id": 2,
+              "local_epochs": 1,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8269224863817674
+            },
+            {
+              "cfg_id": 3,
+              "local_epochs": 2,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8274520479588173
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8644357142857142,
+              "ci95": [
+                0.8384147994630451,
+                0.8901651709834477
+              ],
+              "gate": {
+                "auc": 0.8644357142857142,
+                "ci_low": 0.8384147994630451,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8274520479588173
+            },
+            "43": {
+              "test_auc": 0.8622428571428572,
+              "ci95": [
+                0.8363585817177926,
+                0.8859661494308281
+              ],
+              "gate": {
+                "auc": 0.8622428571428572,
+                "ci_low": 0.8363585817177926,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8267597779912182
+            },
+            "44": {
+              "test_auc": 0.8625214285714284,
+              "ci95": [
+                0.8353598084129406,
+                0.8892898128399767
+              ],
+              "gate": {
+                "auc": 0.8625214285714284,
+                "ci_low": 0.8353598084129406,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8275978591200255
+            }
+          },
+          "median_seed": 44,
+          "median_test_auc": 0.8625214285714284,
+          "median_ci95": [
+            0.8353598084129406,
+            0.8892898128399767
+          ],
+          "median_gate": {
+            "auc": 0.8625214285714284,
+            "ci_low": 0.8353598084129406,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "validation_curves_by_seed": {
+            "42": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8044954535708252,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7981152882205514,
+                  "france_axa": 0.7879772184751438,
+                  "belgium_ageas": 0.8106079709883881,
+                  "switzerland_helvetia": 0.8212813365992173
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8184627062353393,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8119899749373434,
+                  "france_axa": 0.8020434483090085,
+                  "belgium_ageas": 0.8249496659741984,
+                  "switzerland_helvetia": 0.8348677357208072
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8209997987326125,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8158315789473685,
+                  "france_axa": 0.802560117912815,
+                  "belgium_ageas": 0.8261184560763075,
+                  "switzerland_helvetia": 0.8394890419939589
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8233060490989865,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8183819548872181,
+                  "france_axa": 0.805856389881286,
+                  "belgium_ageas": 0.8278156033478632,
+                  "switzerland_helvetia": 0.841170248279579
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.824152664812539,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170907268170426,
+                  "france_axa": 0.8053757669940242,
+                  "belgium_ageas": 0.8298850022615287,
+                  "switzerland_helvetia": 0.8442591631775603
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8259584356043644,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8185142857142856,
+                  "france_axa": 0.808335602941412,
+                  "belgium_ageas": 0.830689546133186,
+                  "switzerland_helvetia": 0.846294307628574
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8266272407457945,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8204832080200501,
+                  "france_axa": 0.8093729473397524,
+                  "belgium_ageas": 0.8301131564937898,
+                  "switzerland_helvetia": 0.8465396511295857
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8270863661974646,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200380952380952,
+                  "france_axa": 0.8097133885515628,
+                  "belgium_ageas": 0.8312499249492656,
+                  "switzerland_helvetia": 0.8473440560509349
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8271739024503157,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208360902255638,
+                  "france_axa": 0.809384962911934,
+                  "belgium_ageas": 0.8309937517762007,
+                  "switzerland_helvetia": 0.8474808048875644
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8274289921864888,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8096853522164725,
+                  "belgium_ageas": 0.8309657328353968,
+                  "switzerland_helvetia": 0.8481927032429584
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.827526864646851,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.821746365914787,
+                  "france_axa": 0.809849565036287,
+                  "belgium_ageas": 0.8308336435430351,
+                  "switzerland_helvetia": 0.8476778840932948
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8275822249988118,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216942355889725,
+                  "france_axa": 0.8102180425831876,
+                  "belgium_ageas": 0.8304974162533871,
+                  "switzerland_helvetia": 0.8479192055696998
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8275615281846578,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820787969924812,
+                  "france_axa": 0.8100418141911918,
+                  "belgium_ageas": 0.8308656651896682,
+                  "switzerland_helvetia": 0.8485506634329589
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8274039141875102,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.82054335839599,
+                  "france_axa": 0.8100097726653743,
+                  "belgium_ageas": 0.8308376462488642,
+                  "switzerland_helvetia": 0.8482248794398124
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8273174471270771,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8209604010025062,
+                  "france_axa": 0.8090485268908505,
+                  "belgium_ageas": 0.8305774703699701,
+                  "switzerland_helvetia": 0.8486833902449815
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8276339808832514,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199458646616542,
+                  "france_axa": 0.8102100322017335,
+                  "belgium_ageas": 0.8303613242551965,
+                  "switzerland_helvetia": 0.8500187024144212
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.827614300386995,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8103422034957304,
+                  "belgium_ageas": 0.8301491808462521,
+                  "switzerland_helvetia": 0.8490936367548696
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275248462348104,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8211127819548872,
+                  "france_axa": 0.8098095131290152,
+                  "belgium_ageas": 0.8296008101476597,
+                  "switzerland_helvetia": 0.8495762797076792
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8278395206607361,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8214215538847118,
+                  "france_axa": 0.8100738557170093,
+                  "belgium_ageas": 0.8300531159063527,
+                  "switzerland_helvetia": 0.8498095571348705
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8274520479588173,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216581453634086,
+                  "france_axa": 0.8099737259488298,
+                  "belgium_ageas": 0.8294527100319817,
+                  "switzerland_helvetia": 0.848723610491049
+                }
+              }
+            ],
+            "43": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8141199141012709,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8067208020050124,
+                  "france_axa": 0.7997644947852416,
+                  "belgium_ageas": 0.8160436455043609,
+                  "switzerland_helvetia": 0.833950714110469
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.821367622547168,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8135117794486215,
+                  "france_axa": 0.8060206027011008,
+                  "belgium_ageas": 0.8242852168065612,
+                  "switzerland_helvetia": 0.8416528912323886
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8234542452266655,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170506265664161,
+                  "france_axa": 0.8072902481616175,
+                  "belgium_ageas": 0.8262385372511817,
+                  "switzerland_helvetia": 0.8432375689274466
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8243238502282799,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8178766917293234,
+                  "france_axa": 0.8077228087601532,
+                  "belgium_ageas": 0.8271471514743968,
+                  "switzerland_helvetia": 0.844548748949246
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8256766079848492,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184060150375939,
+                  "france_axa": 0.8086600233903138,
+                  "belgium_ageas": 0.8290444340374092,
+                  "switzerland_helvetia": 0.8465959594740802
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8254449188986253,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182897243107771,
+                  "france_axa": 0.8081513641679617,
+                  "belgium_ageas": 0.8290764556840423,
+                  "switzerland_helvetia": 0.8462621314317202
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8251574808469697,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8180170426065163,
+                  "france_axa": 0.8084397379003188,
+                  "belgium_ageas": 0.8280477602859533,
+                  "switzerland_helvetia": 0.8461253825950907
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8257084922122614,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182375939849625,
+                  "france_axa": 0.8082755250805043,
+                  "belgium_ageas": 0.828892331215902,
+                  "switzerland_helvetia": 0.8474285185676766
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8266224053504025,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8191358395989974,
+                  "france_axa": 0.8095371601595667,
+                  "belgium_ageas": 0.8298129535566043,
+                  "switzerland_helvetia": 0.8480036680864413
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8264853195957149,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8193203007518798,
+                  "france_axa": 0.8088522725452185,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8480278002340818
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.8268642150177026,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198055137844612,
+                  "france_axa": 0.809805507938288,
+                  "belgium_ageas": 0.8295928047360016,
+                  "switzerland_helvetia": 0.8482530336120597
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8272306537238598,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8188190476190477,
+                  "france_axa": 0.8104583540268188,
+                  "belgium_ageas": 0.8301091537879606,
+                  "switzerland_helvetia": 0.8495360594616119
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8276323400857244,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8197533834586466,
+                  "france_axa": 0.8105104215062722,
+                  "belgium_ageas": 0.8307455840147939,
+                  "switzerland_helvetia": 0.8495199713631848
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8276575574045302,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195208020050125,
+                  "france_axa": 0.8103381983050033,
+                  "belgium_ageas": 0.8309737382470549,
+                  "switzerland_helvetia": 0.8497974910610502
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8272878639845872,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198496240601505,
+                  "france_axa": 0.8102460789182782,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8493148481082406
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8272491456294966,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8205032581453635,
+                  "france_axa": 0.808752142777039,
+                  "belgium_ageas": 0.8302252322570058,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8266070304840214,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8196411027568923,
+                  "france_axa": 0.8082274627917783,
+                  "belgium_ageas": 0.8300491132005234,
+                  "switzerland_helvetia": 0.8485104431868915
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8274983838888843,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8207679197994988,
+                  "france_axa": 0.8093889681026611,
+                  "belgium_ageas": 0.8304453810776085,
+                  "switzerland_helvetia": 0.849391266575769
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8269922849728172,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202145363408523,
+                  "france_axa": 0.8090925839888495,
+                  "belgium_ageas": 0.8296528453234386,
+                  "switzerland_helvetia": 0.849009174238128
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8267597779912182,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202105263157895,
+                  "france_axa": 0.8081553693586889,
+                  "belgium_ageas": 0.82983296708575,
+                  "switzerland_helvetia": 0.8488402492046446
+                }
+              }
+            ],
+            "44": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8057149716860397,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7946827067669173,
+                  "france_axa": 0.7844366298723146,
+                  "belgium_ageas": 0.8147027390515988,
+                  "switzerland_helvetia": 0.8290378110533281
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8197993319702367,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8100170426065163,
+                  "france_axa": 0.8021115365513706,
+                  "belgium_ageas": 0.8258582801974135,
+                  "switzerland_helvetia": 0.8412104685256465
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8235526641127474,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8134817042606516,
+                  "france_axa": 0.8069658277127156,
+                  "belgium_ageas": 0.8271671650035424,
+                  "switzerland_helvetia": 0.8465959594740801
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8249702939882902,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8150416040100251,
+                  "france_axa": 0.8083716496579567,
+                  "belgium_ageas": 0.8284200119280634,
+                  "switzerland_helvetia": 0.8480479103571156
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8252910602020678,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8162205513784461,
+                  "france_axa": 0.8097494352681074,
+                  "belgium_ageas": 0.8281478279316818,
+                  "switzerland_helvetia": 0.8470464262300358
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.826479646202098,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8179528822055138,
+                  "france_axa": 0.8099937519024656,
+                  "belgium_ageas": 0.8292966045046452,
+                  "switzerland_helvetia": 0.8486753461957679
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8260138770209958,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8176601503759398,
+                  "france_axa": 0.8092567968086639,
+                  "belgium_ageas": 0.8294687208552981,
+                  "switzerland_helvetia": 0.8476698400440815
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8268651249822052,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8186385964912282,
+                  "france_axa": 0.81059853570227,
+                  "belgium_ageas": 0.8297048804992175,
+                  "switzerland_helvetia": 0.8485184872361049
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.827502052859479,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8192401002506267,
+                  "france_axa": 0.8107667537128118,
+                  "belgium_ageas": 0.8304854081358998,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8270847018729639,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184902255639097,
+                  "france_axa": 0.8104423332639101,
+                  "belgium_ageas": 0.8296208236768055,
+                  "switzerland_helvetia": 0.8497854249872301
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.82721076096661,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.819035588972431,
+                  "france_axa": 0.8107867796664479,
+                  "belgium_ageas": 0.8295087479135896,
+                  "switzerland_helvetia": 0.8495119273139712
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8276883664552096,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8203027568922305,
+                  "france_axa": 0.8108188211922651,
+                  "belgium_ageas": 0.8295367668543935,
+                  "switzerland_helvetia": 0.8500951208819495
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8279270705227433,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8201483709273184,
+                  "france_axa": 0.810682644707541,
+                  "belgium_ageas": 0.8298369697915791,
+                  "switzerland_helvetia": 0.851040296664535
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8275216142639124,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199298245614034,
+                  "france_axa": 0.8101940114388249,
+                  "belgium_ageas": 0.8293446369745948,
+                  "switzerland_helvetia": 0.8506179840808266
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.827399159348762,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195368421052632,
+                  "france_axa": 0.8099456896137394,
+                  "belgium_ageas": 0.8296248263826347,
+                  "switzerland_helvetia": 0.8504892792934107
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8273903360383673,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8194526315789474,
+                  "france_axa": 0.81000176228392,
+                  "belgium_ageas": 0.8294407019144943,
+                  "switzerland_helvetia": 0.8506662483761075
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8281648372624831,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200822055137844,
+                  "france_axa": 0.8107827744757204,
+                  "belgium_ageas": 0.8306535217807237,
+                  "switzerland_helvetia": 0.8511408472797037
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275573835226554,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195248120300752,
+                  "france_axa": 0.810550473413544,
+                  "belgium_ageas": 0.8296408372059512,
+                  "switzerland_helvetia": 0.8505134114410512
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8282877353440081,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8210085213032582,
+                  "france_axa": 0.8108869094346274,
+                  "belgium_ageas": 0.8298009454391168,
+                  "switzerland_helvetia": 0.85145456519903
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8275978591200255,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820334837092732,
+                  "france_axa": 0.8095772120668387,
+                  "belgium_ageas": 0.830191209257458,
+                  "switzerland_helvetia": 0.8502881780630733
+                }
+              }
+            ]
+          },
+          "standardization": "per-client train statistics (fit on each client's train split)"
         }
       }
     },
@@ -2495,6 +3983,750 @@
             "status": "supported"
           },
           "standardization": "per-client train statistics (same as local inputs in this run)"
+        },
+        "federated_reference": {
+          "method": "in-process FedAvg + FedBN (non-BN federated weights averaged; local BN state preserved per client)",
+          "best_config": {
+            "local_epochs": 2,
+            "lr": 0.0005,
+            "rounds": 20,
+            "hidden_dims": [
+              128,
+              64
+            ],
+            "dropout": 0.3,
+            "single_task": true,
+            "batch_size": 64
+          },
+          "selection": "small grid on mean client validation AUC at final round (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "local_epochs": 1,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8273873647112162
+            },
+            {
+              "cfg_id": 1,
+              "local_epochs": 2,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8263420415343257
+            },
+            {
+              "cfg_id": 2,
+              "local_epochs": 1,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8269224863817674
+            },
+            {
+              "cfg_id": 3,
+              "local_epochs": 2,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8274520479588173
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8411618352465422,
+              "ci95": [
+                0.8129664684442739,
+                0.8702539555292884
+              ],
+              "gate": {
+                "auc": 0.8411618352465422,
+                "ci_low": 0.8129664684442739,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8274520479588173
+            },
+            "43": {
+              "test_auc": 0.8432913407280471,
+              "ci95": [
+                0.8152326345651821,
+                0.8727203915278023
+              ],
+              "gate": {
+                "auc": 0.8432913407280471,
+                "ci_low": 0.8152326345651821,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8267597779912182
+            },
+            "44": {
+              "test_auc": 0.8423233836909995,
+              "ci95": [
+                0.8151825649910862,
+                0.8693728405267784
+              ],
+              "gate": {
+                "auc": 0.8423233836909995,
+                "ci_low": 0.8151825649910862,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8275978591200255
+            }
+          },
+          "median_seed": 44,
+          "median_test_auc": 0.8423233836909995,
+          "median_ci95": [
+            0.8151825649910862,
+            0.8693728405267784
+          ],
+          "median_gate": {
+            "auc": 0.8423233836909995,
+            "ci_low": 0.8151825649910862,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "validation_curves_by_seed": {
+            "42": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8044954535708252,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7981152882205514,
+                  "france_axa": 0.7879772184751438,
+                  "belgium_ageas": 0.8106079709883881,
+                  "switzerland_helvetia": 0.8212813365992173
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8184627062353393,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8119899749373434,
+                  "france_axa": 0.8020434483090085,
+                  "belgium_ageas": 0.8249496659741984,
+                  "switzerland_helvetia": 0.8348677357208072
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8209997987326125,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8158315789473685,
+                  "france_axa": 0.802560117912815,
+                  "belgium_ageas": 0.8261184560763075,
+                  "switzerland_helvetia": 0.8394890419939589
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8233060490989865,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8183819548872181,
+                  "france_axa": 0.805856389881286,
+                  "belgium_ageas": 0.8278156033478632,
+                  "switzerland_helvetia": 0.841170248279579
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.824152664812539,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170907268170426,
+                  "france_axa": 0.8053757669940242,
+                  "belgium_ageas": 0.8298850022615287,
+                  "switzerland_helvetia": 0.8442591631775603
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8259584356043644,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8185142857142856,
+                  "france_axa": 0.808335602941412,
+                  "belgium_ageas": 0.830689546133186,
+                  "switzerland_helvetia": 0.846294307628574
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8266272407457945,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8204832080200501,
+                  "france_axa": 0.8093729473397524,
+                  "belgium_ageas": 0.8301131564937898,
+                  "switzerland_helvetia": 0.8465396511295857
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8270863661974646,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200380952380952,
+                  "france_axa": 0.8097133885515628,
+                  "belgium_ageas": 0.8312499249492656,
+                  "switzerland_helvetia": 0.8473440560509349
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8271739024503157,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208360902255638,
+                  "france_axa": 0.809384962911934,
+                  "belgium_ageas": 0.8309937517762007,
+                  "switzerland_helvetia": 0.8474808048875644
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8274289921864888,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8096853522164725,
+                  "belgium_ageas": 0.8309657328353968,
+                  "switzerland_helvetia": 0.8481927032429584
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.827526864646851,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.821746365914787,
+                  "france_axa": 0.809849565036287,
+                  "belgium_ageas": 0.8308336435430351,
+                  "switzerland_helvetia": 0.8476778840932948
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8275822249988118,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216942355889725,
+                  "france_axa": 0.8102180425831876,
+                  "belgium_ageas": 0.8304974162533871,
+                  "switzerland_helvetia": 0.8479192055696998
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8275615281846578,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820787969924812,
+                  "france_axa": 0.8100418141911918,
+                  "belgium_ageas": 0.8308656651896682,
+                  "switzerland_helvetia": 0.8485506634329589
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8274039141875102,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.82054335839599,
+                  "france_axa": 0.8100097726653743,
+                  "belgium_ageas": 0.8308376462488642,
+                  "switzerland_helvetia": 0.8482248794398124
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8273174471270771,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8209604010025062,
+                  "france_axa": 0.8090485268908505,
+                  "belgium_ageas": 0.8305774703699701,
+                  "switzerland_helvetia": 0.8486833902449815
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8276339808832514,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199458646616542,
+                  "france_axa": 0.8102100322017335,
+                  "belgium_ageas": 0.8303613242551965,
+                  "switzerland_helvetia": 0.8500187024144212
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.827614300386995,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8103422034957304,
+                  "belgium_ageas": 0.8301491808462521,
+                  "switzerland_helvetia": 0.8490936367548696
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275248462348104,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8211127819548872,
+                  "france_axa": 0.8098095131290152,
+                  "belgium_ageas": 0.8296008101476597,
+                  "switzerland_helvetia": 0.8495762797076792
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8278395206607361,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8214215538847118,
+                  "france_axa": 0.8100738557170093,
+                  "belgium_ageas": 0.8300531159063527,
+                  "switzerland_helvetia": 0.8498095571348705
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8274520479588173,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216581453634086,
+                  "france_axa": 0.8099737259488298,
+                  "belgium_ageas": 0.8294527100319817,
+                  "switzerland_helvetia": 0.848723610491049
+                }
+              }
+            ],
+            "43": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8141199141012709,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8067208020050124,
+                  "france_axa": 0.7997644947852416,
+                  "belgium_ageas": 0.8160436455043609,
+                  "switzerland_helvetia": 0.833950714110469
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.821367622547168,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8135117794486215,
+                  "france_axa": 0.8060206027011008,
+                  "belgium_ageas": 0.8242852168065612,
+                  "switzerland_helvetia": 0.8416528912323886
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8234542452266655,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170506265664161,
+                  "france_axa": 0.8072902481616175,
+                  "belgium_ageas": 0.8262385372511817,
+                  "switzerland_helvetia": 0.8432375689274466
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8243238502282799,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8178766917293234,
+                  "france_axa": 0.8077228087601532,
+                  "belgium_ageas": 0.8271471514743968,
+                  "switzerland_helvetia": 0.844548748949246
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8256766079848492,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184060150375939,
+                  "france_axa": 0.8086600233903138,
+                  "belgium_ageas": 0.8290444340374092,
+                  "switzerland_helvetia": 0.8465959594740802
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8254449188986253,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182897243107771,
+                  "france_axa": 0.8081513641679617,
+                  "belgium_ageas": 0.8290764556840423,
+                  "switzerland_helvetia": 0.8462621314317202
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8251574808469697,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8180170426065163,
+                  "france_axa": 0.8084397379003188,
+                  "belgium_ageas": 0.8280477602859533,
+                  "switzerland_helvetia": 0.8461253825950907
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8257084922122614,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182375939849625,
+                  "france_axa": 0.8082755250805043,
+                  "belgium_ageas": 0.828892331215902,
+                  "switzerland_helvetia": 0.8474285185676766
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8266224053504025,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8191358395989974,
+                  "france_axa": 0.8095371601595667,
+                  "belgium_ageas": 0.8298129535566043,
+                  "switzerland_helvetia": 0.8480036680864413
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8264853195957149,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8193203007518798,
+                  "france_axa": 0.8088522725452185,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8480278002340818
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.8268642150177026,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198055137844612,
+                  "france_axa": 0.809805507938288,
+                  "belgium_ageas": 0.8295928047360016,
+                  "switzerland_helvetia": 0.8482530336120597
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8272306537238598,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8188190476190477,
+                  "france_axa": 0.8104583540268188,
+                  "belgium_ageas": 0.8301091537879606,
+                  "switzerland_helvetia": 0.8495360594616119
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8276323400857244,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8197533834586466,
+                  "france_axa": 0.8105104215062722,
+                  "belgium_ageas": 0.8307455840147939,
+                  "switzerland_helvetia": 0.8495199713631848
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8276575574045302,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195208020050125,
+                  "france_axa": 0.8103381983050033,
+                  "belgium_ageas": 0.8309737382470549,
+                  "switzerland_helvetia": 0.8497974910610502
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8272878639845872,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198496240601505,
+                  "france_axa": 0.8102460789182782,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8493148481082406
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8272491456294966,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8205032581453635,
+                  "france_axa": 0.808752142777039,
+                  "belgium_ageas": 0.8302252322570058,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8266070304840214,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8196411027568923,
+                  "france_axa": 0.8082274627917783,
+                  "belgium_ageas": 0.8300491132005234,
+                  "switzerland_helvetia": 0.8485104431868915
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8274983838888843,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8207679197994988,
+                  "france_axa": 0.8093889681026611,
+                  "belgium_ageas": 0.8304453810776085,
+                  "switzerland_helvetia": 0.849391266575769
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8269922849728172,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202145363408523,
+                  "france_axa": 0.8090925839888495,
+                  "belgium_ageas": 0.8296528453234386,
+                  "switzerland_helvetia": 0.849009174238128
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8267597779912182,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202105263157895,
+                  "france_axa": 0.8081553693586889,
+                  "belgium_ageas": 0.82983296708575,
+                  "switzerland_helvetia": 0.8488402492046446
+                }
+              }
+            ],
+            "44": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8057149716860397,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7946827067669173,
+                  "france_axa": 0.7844366298723146,
+                  "belgium_ageas": 0.8147027390515988,
+                  "switzerland_helvetia": 0.8290378110533281
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8197993319702367,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8100170426065163,
+                  "france_axa": 0.8021115365513706,
+                  "belgium_ageas": 0.8258582801974135,
+                  "switzerland_helvetia": 0.8412104685256465
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8235526641127474,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8134817042606516,
+                  "france_axa": 0.8069658277127156,
+                  "belgium_ageas": 0.8271671650035424,
+                  "switzerland_helvetia": 0.8465959594740801
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8249702939882902,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8150416040100251,
+                  "france_axa": 0.8083716496579567,
+                  "belgium_ageas": 0.8284200119280634,
+                  "switzerland_helvetia": 0.8480479103571156
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8252910602020678,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8162205513784461,
+                  "france_axa": 0.8097494352681074,
+                  "belgium_ageas": 0.8281478279316818,
+                  "switzerland_helvetia": 0.8470464262300358
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.826479646202098,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8179528822055138,
+                  "france_axa": 0.8099937519024656,
+                  "belgium_ageas": 0.8292966045046452,
+                  "switzerland_helvetia": 0.8486753461957679
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8260138770209958,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8176601503759398,
+                  "france_axa": 0.8092567968086639,
+                  "belgium_ageas": 0.8294687208552981,
+                  "switzerland_helvetia": 0.8476698400440815
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8268651249822052,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8186385964912282,
+                  "france_axa": 0.81059853570227,
+                  "belgium_ageas": 0.8297048804992175,
+                  "switzerland_helvetia": 0.8485184872361049
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.827502052859479,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8192401002506267,
+                  "france_axa": 0.8107667537128118,
+                  "belgium_ageas": 0.8304854081358998,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8270847018729639,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184902255639097,
+                  "france_axa": 0.8104423332639101,
+                  "belgium_ageas": 0.8296208236768055,
+                  "switzerland_helvetia": 0.8497854249872301
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.82721076096661,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.819035588972431,
+                  "france_axa": 0.8107867796664479,
+                  "belgium_ageas": 0.8295087479135896,
+                  "switzerland_helvetia": 0.8495119273139712
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8276883664552096,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8203027568922305,
+                  "france_axa": 0.8108188211922651,
+                  "belgium_ageas": 0.8295367668543935,
+                  "switzerland_helvetia": 0.8500951208819495
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8279270705227433,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8201483709273184,
+                  "france_axa": 0.810682644707541,
+                  "belgium_ageas": 0.8298369697915791,
+                  "switzerland_helvetia": 0.851040296664535
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8275216142639124,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199298245614034,
+                  "france_axa": 0.8101940114388249,
+                  "belgium_ageas": 0.8293446369745948,
+                  "switzerland_helvetia": 0.8506179840808266
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.827399159348762,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195368421052632,
+                  "france_axa": 0.8099456896137394,
+                  "belgium_ageas": 0.8296248263826347,
+                  "switzerland_helvetia": 0.8504892792934107
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8273903360383673,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8194526315789474,
+                  "france_axa": 0.81000176228392,
+                  "belgium_ageas": 0.8294407019144943,
+                  "switzerland_helvetia": 0.8506662483761075
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8281648372624831,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200822055137844,
+                  "france_axa": 0.8107827744757204,
+                  "belgium_ageas": 0.8306535217807237,
+                  "switzerland_helvetia": 0.8511408472797037
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275573835226554,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195248120300752,
+                  "france_axa": 0.810550473413544,
+                  "belgium_ageas": 0.8296408372059512,
+                  "switzerland_helvetia": 0.8505134114410512
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8282877353440081,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8210085213032582,
+                  "france_axa": 0.8108869094346274,
+                  "belgium_ageas": 0.8298009454391168,
+                  "switzerland_helvetia": 0.85145456519903
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8275978591200255,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820334837092732,
+                  "france_axa": 0.8095772120668387,
+                  "belgium_ageas": 0.830191209257458,
+                  "switzerland_helvetia": 0.8502881780630733
+                }
+              }
+            ]
+          },
+          "standardization": "per-client train statistics (fit on each client's train split)"
         }
       }
     },
@@ -3325,12 +5557,757 @@
             "status": "supported"
           },
           "standardization": "per-client train statistics (same as local inputs in this run)"
+        },
+        "federated_reference": {
+          "method": "in-process FedAvg + FedBN (non-BN federated weights averaged; local BN state preserved per client)",
+          "best_config": {
+            "local_epochs": 2,
+            "lr": 0.0005,
+            "rounds": 20,
+            "hidden_dims": [
+              128,
+              64
+            ],
+            "dropout": 0.3,
+            "single_task": true,
+            "batch_size": 64
+          },
+          "selection": "small grid on mean client validation AUC at final round (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "local_epochs": 1,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8273873647112162
+            },
+            {
+              "cfg_id": 1,
+              "local_epochs": 2,
+              "lr": 0.001,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8263420415343257
+            },
+            {
+              "cfg_id": 2,
+              "local_epochs": 1,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8269224863817674
+            },
+            {
+              "cfg_id": 3,
+              "local_epochs": 2,
+              "lr": 0.0005,
+              "rounds": 20,
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "dropout": 0.3,
+              "single_task": true,
+              "selection_seed": 42,
+              "final_mean_val_auc": 0.8274520479588173
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8685146205484127,
+              "ci95": [
+                0.8417824568109418,
+                0.8930988371455468
+              ],
+              "gate": {
+                "auc": 0.8685146205484127,
+                "ci_low": 0.8417824568109418,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8274520479588173
+            },
+            "43": {
+              "test_auc": 0.8710248606212311,
+              "ci95": [
+                0.8456008583374504,
+                0.8949724183681017
+              ],
+              "gate": {
+                "auc": 0.8710248606212311,
+                "ci_low": 0.8456008583374504,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8267597779912182
+            },
+            "44": {
+              "test_auc": 0.8693964045966549,
+              "ci95": [
+                0.8450302184384086,
+                0.8924663375420823
+              ],
+              "gate": {
+                "auc": 0.8693964045966549,
+                "ci_low": 0.8450302184384086,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "final_mean_val_auc": 0.8275978591200255
+            }
+          },
+          "median_seed": 44,
+          "median_test_auc": 0.8693964045966549,
+          "median_ci95": [
+            0.8450302184384086,
+            0.8924663375420823
+          ],
+          "median_gate": {
+            "auc": 0.8693964045966549,
+            "ci_low": 0.8450302184384086,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "validation_curves_by_seed": {
+            "42": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8044954535708252,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7981152882205514,
+                  "france_axa": 0.7879772184751438,
+                  "belgium_ageas": 0.8106079709883881,
+                  "switzerland_helvetia": 0.8212813365992173
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8184627062353393,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8119899749373434,
+                  "france_axa": 0.8020434483090085,
+                  "belgium_ageas": 0.8249496659741984,
+                  "switzerland_helvetia": 0.8348677357208072
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8209997987326125,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8158315789473685,
+                  "france_axa": 0.802560117912815,
+                  "belgium_ageas": 0.8261184560763075,
+                  "switzerland_helvetia": 0.8394890419939589
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8233060490989865,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8183819548872181,
+                  "france_axa": 0.805856389881286,
+                  "belgium_ageas": 0.8278156033478632,
+                  "switzerland_helvetia": 0.841170248279579
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.824152664812539,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170907268170426,
+                  "france_axa": 0.8053757669940242,
+                  "belgium_ageas": 0.8298850022615287,
+                  "switzerland_helvetia": 0.8442591631775603
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8259584356043644,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8185142857142856,
+                  "france_axa": 0.808335602941412,
+                  "belgium_ageas": 0.830689546133186,
+                  "switzerland_helvetia": 0.846294307628574
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8266272407457945,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8204832080200501,
+                  "france_axa": 0.8093729473397524,
+                  "belgium_ageas": 0.8301131564937898,
+                  "switzerland_helvetia": 0.8465396511295857
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8270863661974646,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200380952380952,
+                  "france_axa": 0.8097133885515628,
+                  "belgium_ageas": 0.8312499249492656,
+                  "switzerland_helvetia": 0.8473440560509349
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8271739024503157,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208360902255638,
+                  "france_axa": 0.809384962911934,
+                  "belgium_ageas": 0.8309937517762007,
+                  "switzerland_helvetia": 0.8474808048875644
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8274289921864888,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8096853522164725,
+                  "belgium_ageas": 0.8309657328353968,
+                  "switzerland_helvetia": 0.8481927032429584
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.827526864646851,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.821746365914787,
+                  "france_axa": 0.809849565036287,
+                  "belgium_ageas": 0.8308336435430351,
+                  "switzerland_helvetia": 0.8476778840932948
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8275822249988118,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216942355889725,
+                  "france_axa": 0.8102180425831876,
+                  "belgium_ageas": 0.8304974162533871,
+                  "switzerland_helvetia": 0.8479192055696998
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8275615281846578,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820787969924812,
+                  "france_axa": 0.8100418141911918,
+                  "belgium_ageas": 0.8308656651896682,
+                  "switzerland_helvetia": 0.8485506634329589
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8274039141875102,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.82054335839599,
+                  "france_axa": 0.8100097726653743,
+                  "belgium_ageas": 0.8308376462488642,
+                  "switzerland_helvetia": 0.8482248794398124
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8273174471270771,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8209604010025062,
+                  "france_axa": 0.8090485268908505,
+                  "belgium_ageas": 0.8305774703699701,
+                  "switzerland_helvetia": 0.8486833902449815
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8276339808832514,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199458646616542,
+                  "france_axa": 0.8102100322017335,
+                  "belgium_ageas": 0.8303613242551965,
+                  "switzerland_helvetia": 0.8500187024144212
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.827614300386995,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8208721804511279,
+                  "france_axa": 0.8103422034957304,
+                  "belgium_ageas": 0.8301491808462521,
+                  "switzerland_helvetia": 0.8490936367548696
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275248462348104,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8211127819548872,
+                  "france_axa": 0.8098095131290152,
+                  "belgium_ageas": 0.8296008101476597,
+                  "switzerland_helvetia": 0.8495762797076792
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8278395206607361,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8214215538847118,
+                  "france_axa": 0.8100738557170093,
+                  "belgium_ageas": 0.8300531159063527,
+                  "switzerland_helvetia": 0.8498095571348705
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8274520479588173,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8216581453634086,
+                  "france_axa": 0.8099737259488298,
+                  "belgium_ageas": 0.8294527100319817,
+                  "switzerland_helvetia": 0.848723610491049
+                }
+              }
+            ],
+            "43": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8141199141012709,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8067208020050124,
+                  "france_axa": 0.7997644947852416,
+                  "belgium_ageas": 0.8160436455043609,
+                  "switzerland_helvetia": 0.833950714110469
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.821367622547168,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8135117794486215,
+                  "france_axa": 0.8060206027011008,
+                  "belgium_ageas": 0.8242852168065612,
+                  "switzerland_helvetia": 0.8416528912323886
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8234542452266655,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8170506265664161,
+                  "france_axa": 0.8072902481616175,
+                  "belgium_ageas": 0.8262385372511817,
+                  "switzerland_helvetia": 0.8432375689274466
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8243238502282799,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8178766917293234,
+                  "france_axa": 0.8077228087601532,
+                  "belgium_ageas": 0.8271471514743968,
+                  "switzerland_helvetia": 0.844548748949246
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8256766079848492,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184060150375939,
+                  "france_axa": 0.8086600233903138,
+                  "belgium_ageas": 0.8290444340374092,
+                  "switzerland_helvetia": 0.8465959594740802
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.8254449188986253,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182897243107771,
+                  "france_axa": 0.8081513641679617,
+                  "belgium_ageas": 0.8290764556840423,
+                  "switzerland_helvetia": 0.8462621314317202
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8251574808469697,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8180170426065163,
+                  "france_axa": 0.8084397379003188,
+                  "belgium_ageas": 0.8280477602859533,
+                  "switzerland_helvetia": 0.8461253825950907
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8257084922122614,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8182375939849625,
+                  "france_axa": 0.8082755250805043,
+                  "belgium_ageas": 0.828892331215902,
+                  "switzerland_helvetia": 0.8474285185676766
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.8266224053504025,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8191358395989974,
+                  "france_axa": 0.8095371601595667,
+                  "belgium_ageas": 0.8298129535566043,
+                  "switzerland_helvetia": 0.8480036680864413
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8264853195957149,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8193203007518798,
+                  "france_axa": 0.8088522725452185,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8480278002340818
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.8268642150177026,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198055137844612,
+                  "france_axa": 0.809805507938288,
+                  "belgium_ageas": 0.8295928047360016,
+                  "switzerland_helvetia": 0.8482530336120597
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8272306537238598,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8188190476190477,
+                  "france_axa": 0.8104583540268188,
+                  "belgium_ageas": 0.8301091537879606,
+                  "switzerland_helvetia": 0.8495360594616119
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8276323400857244,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8197533834586466,
+                  "france_axa": 0.8105104215062722,
+                  "belgium_ageas": 0.8307455840147939,
+                  "switzerland_helvetia": 0.8495199713631848
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8276575574045302,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195208020050125,
+                  "france_axa": 0.8103381983050033,
+                  "belgium_ageas": 0.8309737382470549,
+                  "switzerland_helvetia": 0.8497974910610502
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.8272878639845872,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8198496240601505,
+                  "france_axa": 0.8102460789182782,
+                  "belgium_ageas": 0.8297409048516797,
+                  "switzerland_helvetia": 0.8493148481082406
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8272491456294966,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8205032581453635,
+                  "france_axa": 0.808752142777039,
+                  "belgium_ageas": 0.8302252322570058,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8266070304840214,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8196411027568923,
+                  "france_axa": 0.8082274627917783,
+                  "belgium_ageas": 0.8300491132005234,
+                  "switzerland_helvetia": 0.8485104431868915
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8274983838888843,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8207679197994988,
+                  "france_axa": 0.8093889681026611,
+                  "belgium_ageas": 0.8304453810776085,
+                  "switzerland_helvetia": 0.849391266575769
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8269922849728172,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202145363408523,
+                  "france_axa": 0.8090925839888495,
+                  "belgium_ageas": 0.8296528453234386,
+                  "switzerland_helvetia": 0.849009174238128
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8267597779912182,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8202105263157895,
+                  "france_axa": 0.8081553693586889,
+                  "belgium_ageas": 0.82983296708575,
+                  "switzerland_helvetia": 0.8488402492046446
+                }
+              }
+            ],
+            "44": [
+              {
+                "round": 1,
+                "mean_val_auc": 0.8057149716860397,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.7946827067669173,
+                  "france_axa": 0.7844366298723146,
+                  "belgium_ageas": 0.8147027390515988,
+                  "switzerland_helvetia": 0.8290378110533281
+                }
+              },
+              {
+                "round": 2,
+                "mean_val_auc": 0.8197993319702367,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8100170426065163,
+                  "france_axa": 0.8021115365513706,
+                  "belgium_ageas": 0.8258582801974135,
+                  "switzerland_helvetia": 0.8412104685256465
+                }
+              },
+              {
+                "round": 3,
+                "mean_val_auc": 0.8235526641127474,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8134817042606516,
+                  "france_axa": 0.8069658277127156,
+                  "belgium_ageas": 0.8271671650035424,
+                  "switzerland_helvetia": 0.8465959594740801
+                }
+              },
+              {
+                "round": 4,
+                "mean_val_auc": 0.8249702939882902,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8150416040100251,
+                  "france_axa": 0.8083716496579567,
+                  "belgium_ageas": 0.8284200119280634,
+                  "switzerland_helvetia": 0.8480479103571156
+                }
+              },
+              {
+                "round": 5,
+                "mean_val_auc": 0.8252910602020678,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8162205513784461,
+                  "france_axa": 0.8097494352681074,
+                  "belgium_ageas": 0.8281478279316818,
+                  "switzerland_helvetia": 0.8470464262300358
+                }
+              },
+              {
+                "round": 6,
+                "mean_val_auc": 0.826479646202098,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8179528822055138,
+                  "france_axa": 0.8099937519024656,
+                  "belgium_ageas": 0.8292966045046452,
+                  "switzerland_helvetia": 0.8486753461957679
+                }
+              },
+              {
+                "round": 7,
+                "mean_val_auc": 0.8260138770209958,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8176601503759398,
+                  "france_axa": 0.8092567968086639,
+                  "belgium_ageas": 0.8294687208552981,
+                  "switzerland_helvetia": 0.8476698400440815
+                }
+              },
+              {
+                "round": 8,
+                "mean_val_auc": 0.8268651249822052,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8186385964912282,
+                  "france_axa": 0.81059853570227,
+                  "belgium_ageas": 0.8297048804992175,
+                  "switzerland_helvetia": 0.8485184872361049
+                }
+              },
+              {
+                "round": 9,
+                "mean_val_auc": 0.827502052859479,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8192401002506267,
+                  "france_axa": 0.8107667537128118,
+                  "belgium_ageas": 0.8304854081358998,
+                  "switzerland_helvetia": 0.849515949338578
+                }
+              },
+              {
+                "round": 10,
+                "mean_val_auc": 0.8270847018729639,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8184902255639097,
+                  "france_axa": 0.8104423332639101,
+                  "belgium_ageas": 0.8296208236768055,
+                  "switzerland_helvetia": 0.8497854249872301
+                }
+              },
+              {
+                "round": 11,
+                "mean_val_auc": 0.82721076096661,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.819035588972431,
+                  "france_axa": 0.8107867796664479,
+                  "belgium_ageas": 0.8295087479135896,
+                  "switzerland_helvetia": 0.8495119273139712
+                }
+              },
+              {
+                "round": 12,
+                "mean_val_auc": 0.8276883664552096,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8203027568922305,
+                  "france_axa": 0.8108188211922651,
+                  "belgium_ageas": 0.8295367668543935,
+                  "switzerland_helvetia": 0.8500951208819495
+                }
+              },
+              {
+                "round": 13,
+                "mean_val_auc": 0.8279270705227433,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8201483709273184,
+                  "france_axa": 0.810682644707541,
+                  "belgium_ageas": 0.8298369697915791,
+                  "switzerland_helvetia": 0.851040296664535
+                }
+              },
+              {
+                "round": 14,
+                "mean_val_auc": 0.8275216142639124,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8199298245614034,
+                  "france_axa": 0.8101940114388249,
+                  "belgium_ageas": 0.8293446369745948,
+                  "switzerland_helvetia": 0.8506179840808266
+                }
+              },
+              {
+                "round": 15,
+                "mean_val_auc": 0.827399159348762,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195368421052632,
+                  "france_axa": 0.8099456896137394,
+                  "belgium_ageas": 0.8296248263826347,
+                  "switzerland_helvetia": 0.8504892792934107
+                }
+              },
+              {
+                "round": 16,
+                "mean_val_auc": 0.8273903360383673,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8194526315789474,
+                  "france_axa": 0.81000176228392,
+                  "belgium_ageas": 0.8294407019144943,
+                  "switzerland_helvetia": 0.8506662483761075
+                }
+              },
+              {
+                "round": 17,
+                "mean_val_auc": 0.8281648372624831,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8200822055137844,
+                  "france_axa": 0.8107827744757204,
+                  "belgium_ageas": 0.8306535217807237,
+                  "switzerland_helvetia": 0.8511408472797037
+                }
+              },
+              {
+                "round": 18,
+                "mean_val_auc": 0.8275573835226554,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8195248120300752,
+                  "france_axa": 0.810550473413544,
+                  "belgium_ageas": 0.8296408372059512,
+                  "switzerland_helvetia": 0.8505134114410512
+                }
+              },
+              {
+                "round": 19,
+                "mean_val_auc": 0.8282877353440081,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.8210085213032582,
+                  "france_axa": 0.8108869094346274,
+                  "belgium_ageas": 0.8298009454391168,
+                  "switzerland_helvetia": 0.85145456519903
+                }
+              },
+              {
+                "round": 20,
+                "mean_val_auc": 0.8275978591200255,
+                "per_client_val_auc": {
+                  "germany_allianz": 0.820334837092732,
+                  "france_axa": 0.8095772120668387,
+                  "belgium_ageas": 0.830191209257458,
+                  "switzerland_helvetia": 0.8502881780630733
+                }
+              }
+            ]
+          },
+          "standardization": "per-client train statistics (fit on each client's train split)"
         }
       }
     }
   },
   "notes": [
     "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once).",
-    "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance)."
+    "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance).",
+    "A3: in-process FedAvg+FedBN reference (~20 rounds), local epochs/lr chosen on validation grid (seed 42), 3 seeds 42/43/44, per-client local BN eval on own test split; validation curves recorded."
   ]
 }
