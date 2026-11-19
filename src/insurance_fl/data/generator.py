@@ -33,13 +33,15 @@ import json
 import zlib
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from insurance_fl.data.country_profiles import COUNTRY_PROFILES
+
+# mypy: disable-error-code="no-any-return"
 
 TARGET_COLUMNS: List[str] = [
     "claim_risk_score",
@@ -96,7 +98,7 @@ def high_risk_logit(df: pd.DataFrame) -> np.ndarray:
         * (df["savings_balance"] - df["savings_balance"].mean())
         / (df["savings_balance"].std() + 1e-12)
     )
-    return cast(np.ndarray, np.array(logit, dtype=np.float64, copy=True))
+    return np.asarray(logit, dtype=float)
 
 
 def label_logic_sha() -> str:

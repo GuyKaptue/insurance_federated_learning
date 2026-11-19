@@ -73,7 +73,7 @@ kernel: ## Register the repo venv as the 'insurance-fl' Jupyter kernel for noteb
 
 flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
 	@tmp=$$(mktemp); \
-	KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(FLWR) run . --stream --run-config num-server-rounds=1 > $$tmp 2>&1; rc=$$?; \
+	KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(PYTHON) -m flwr run . --stream --run-config num-server-rounds=1 > $$tmp 2>&1; rc=$$?; \
 	if grep -qi "backend not available" $$tmp; then \
 		echo "ERROR: dp-accounting backend not available in flwr run" >&2; \
 		cat $$tmp >&2; \

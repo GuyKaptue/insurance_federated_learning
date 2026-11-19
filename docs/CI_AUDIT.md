@@ -146,3 +146,33 @@ Source: `./venv/bin/flwr --version` → `Flower version: 1.31.0`; CLI help inspe
 ### 7.5 Flower command names (corrected/verified)
 
 Verified binaries and defaults (Flower 1.31.0, `./venv`): `flower-superlink`, `flower-supernode`, `flwr run`, `flwr-serverapp`, `flwr-clientapp`. No `flwr-superlink`/`flwr-supernode` console scripts. Defaults from help: SuperLink ServerAppIo `0.0.0.0:9091`, Control API `0.0.0.0:9093`; SuperNode ClientAppIo `0.0.0.0:9094`; `flwr-serverapp` `127.0.0.1:9091`; `flwr-clientapp` `127.0.0.1:9094`. Fleet API address remains deployment-specific/unpinned in captured defaults; `scripts/launch_tls.py` example (`127.0.0.1:8000`) must be re-verified in Phase 2.
+
+## 8. Phase 1 CI run 44550001836 (failed) — diagnosis and fixes
+
+**Run:** https://github.com/GuyKaptue/insurance_federated_learning/actions/runs/44550001836 (commit `c70c8f6`, push 2026-11-19T15:00:54Z) — **failure**.
+
+| Job | Result | Started (UTC) | Completed (UTC) | Notes |
+|---|---|---|---|---|
+| quality | success | 15:00:56 | 15:03:53 | |
+| unit | failure | 15:00:56 | 15:03:55 | 245 passed, 3 skipped, 4 deselected, 2 failed; coverage 71.37% (>=70). Failures: `tests/unit/scripts/test_run_federated_training.py::{test_main_echoes_strategy_and_rounds,test_main_rounds_override}` (`ERROR: data_dir not found: data/processed/european_insurance_federated`, exit/assert 1) because `main()` performs booster pre-training without dataset. |
+| integration | success | 15:00:56 | 15:03:54 | |
+| artifacts | failure | 15:00:56 | 15:03:45 | `make data-check` PASS (generated data), provenance tests 4 passed, then `make flwr-guard` exit 127 (`$(FLWR)` not resolved on runner). Generated-data log showed `label_logic_sha=c3743a2919c5f813` (unintended drift from source formatting/cast change in committed `4ef7e95`; reverted in fix commit to preserve canonical `03051d931c560108`). |
+| notebooks | failure | 15:00:56 | 15:04:03 | 0/11: validator rejected `/opt/hostedtoolcache` interpreter and missing `insurance-fl` kernel in CI (repo-venv-only assumptions). |
+| privacy-invariants | failure | 15:00:57 | 15:03:33 | `dp_accounting` installed but has no `__version__` attribute; check step failed before tests. |
+| security | failure | 15:00:57 | 15:03:23 | Gitleaks scan completed with **no leaks** (SARIF uploaded), but `pip-audit: command not found` (not installed). |
+| ci-gate | failure | 15:04:06 | 15:04:10 | Upstream failures. |
+
+**Fixes applied (next push):**
+- Regenerated `constraints/ci-linux-py311.txt` with `--extra dev --extra causal --extra privacy --extra notebooks` (Linux x86_64, py311; 808 lines). Keys unchanged where applicable: `flwr==1.31.0`, `dp-accounting==0.6.0`, `mypy==1.10.0`, `pytest==9.2.0`, `pytest-cov==7.1.0`.
+- Workflow `.github/workflows/ci.yml`: `python -m pip check` after install in all installing jobs; notebooks job registers `insurance-fl` kernel and sets `CI=true`; `privacy-invariants` import check changed to `import dp_accounting; print('dp_accounting ok')`; `security` job gets `permissions.pull-requests: read`, installs `pip-audit`, runs `pip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --strict`; gitleaks kept with `fetch-depth: 0` and `GITHUB_TOKEN`.
+- `Makefile`: `flwr-guard` invokes `$(PYTHON) -m flwr` (portable).
+- `scripts/validate_notebooks.py`: in CI, allow validator/kernel executables matching the job interpreter (not only repo `venv/` paths).
+- `tests/unit/scripts/test_run_federated_training.py`: use `--dry-run` (avoids data dependency/heavy booster pre-training; config echo still validated).
+- `src/insurance_fl/data/generator.py`: restored `label_logic_sha` to canonical `03051d931c560108` (unintended source-hash drift from prior formatting/cast change reverted; behavior-neutral). Mypy satisfied via config/module directive without changing hashed label-logic function sources.
+- `pyproject.toml`: ruff isort config moved to `[tool.ruff.lint.isort]`.
+
+**Housekeeping / clarifications:**
+- Test-count baseline "296 unit not-slow passed" reported earlier: **not reproducible** in this environment; verified clean counts are **250 passed, 4 deselected** (unit, not slow) and **47 passed** (integration), with collected test IDs identical to `d04506f` (no disappeared/added IDs). Do not cite 296.
+- `tests/unit/fl/test_privacy.py::test_state_persistence_roundtrip` gained `assert math.isfinite(eps1["epsilon"])` in commit `9344252` (strengthening assertion; noted here explicitly).
+- Local coverage (clean, `pytest -q -m "not slow" tests/unit --cov=insurance_fl --cov-report=term`): **TOTAL 77%** (2941 stmts, 675 miss). CI gate remains `--cov-fail-under=70` (measured, with headroom); ratchet upward as tests are added.
+- Docker daemon unavailable locally: Linux install remains verified by GitHub Actions.

@@ -72,16 +72,25 @@ def _validator_env() -> dict:
 def _in_repo_venv(exe: str | None) -> bool:
     if not exe:
         return False
-    exe = str(exe)
+    exe = str(Path(exe).resolve())
     venv_bin = str((ROOT / "venv" / "bin").resolve())
     venv_root = str((ROOT / "venv").resolve())
-    return exe.startswith(venv_bin + "/") or exe.startswith(venv_root + "/")
+    if exe.startswith(venv_bin + "/") or exe.startswith(venv_root + "/"):
+        return True
+    # CI/controlled env: allow current interpreter outside repo venv.
+    if os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true":
+        try:
+            return Path(exe).resolve() == Path(sys.executable).resolve()
+        except Exception:
+            return False
+    return False
 
 
 def _assert_venv_env(info: dict) -> list[str]:
     errs = []
     vexe = info.get("validator_executable")
     kexe = info.get("kernel_executable")
+    ci = os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true"
     if not _in_repo_venv(vexe):
         errs.append(f"validator executable not in repo venv: {vexe}")
     if not kexe:
@@ -90,7 +99,15 @@ def _assert_venv_env(info: dict) -> list[str]:
             f"make kernel (or ./venv/bin/python -m ipykernel install --user --name {KERNEL_NAME})"
         )
     elif not _in_repo_venv(kexe):
-        errs.append(f"kernel executable not in repo venv: {kexe}")
+        if ci:
+            # In CI the kernel must run the same interpreter/environment as the validator.
+            try:
+                if Path(str(kexe)).resolve() != Path(sys.executable).resolve():
+                    errs.append(f"kernel executable not matching CI interpreter: {kexe}")
+            except Exception:
+                errs.append(f"kernel executable not matching CI interpreter: {kexe}")
+        else:
+            errs.append(f"kernel executable not in repo venv: {kexe}")
     return errs
 
 
