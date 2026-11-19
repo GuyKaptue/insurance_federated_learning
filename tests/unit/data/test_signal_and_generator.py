@@ -164,3 +164,23 @@ def test_legacy_generator_default_output_is_noncanonical() -> None:
     default = sig.parameters["output_dir"].default
     assert "legacy_european_insurance_federated" in str(default)
     assert str(default) != "data/processed/european_insurance_federated"
+
+
+def test_check_fails_when_label_logic_hash_differs(tmp_path: Path) -> None:
+    # generate small valid dataset, then tamper stored label_logic_sha
+    gen = EuropeanInsuranceFederatedDataset(
+        samples_per_client=400, random_seed=42, dataset_version="test", inject_quality_issues=False
+    )
+    out = tmp_path / "ds"
+    gen.generate_dataset(str(out), save_format="parquet", include_centralized=False, force=True)
+    meta_path = out / "metadata.json"
+    meta = json.loads(meta_path.read_text())
+    assert "label_logic_sha" in meta and meta["label_logic_sha"]
+    meta["label_logic_sha"] = "0" * 16
+    meta_path.write_text(json.dumps(meta, indent=2))
+    report = check_dataset_signal(out, threshold=0.70)
+    assert report["ok"] is False
+    assert report["label_logic_ok"] is False
+    err = report.get("label_logic_error") or ""
+    assert "different label logic" in err.lower()
+    assert "make data" in err.lower()

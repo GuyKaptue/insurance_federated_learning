@@ -27,6 +27,8 @@ self-describing. No silent FX conversion is applied.
 
 from __future__ import annotations
 
+import inspect
+import hashlib
 import json
 import zlib
 from datetime import datetime
@@ -95,6 +97,14 @@ def high_risk_logit(df: pd.DataFrame) -> np.ndarray:
         / (df["savings_balance"].std() + 1e-12)
     )
     return np.asarray(logit, dtype=float)
+
+
+def label_logic_sha() -> str:
+    """Hash of label-generating logic (detects silent label/semantics drift)."""
+    src = inspect.getsource(high_risk_logit) + inspect.getsource(
+        EuropeanInsuranceFederatedDataset._generate_targets
+    )
+    return hashlib.sha256(src.encode("utf-8")).hexdigest()[:16]
 
 
 class EuropeanInsuranceFederatedDataset:
@@ -646,11 +656,13 @@ class EuropeanInsuranceFederatedDataset:
                 sort_keys=True,
             ).encode("utf-8")
         ).hexdigest()[:16]
+        ll_sha = label_logic_sha()
 
         metadata = {
             "dataset_version": self.dataset_version,
             "generator_git_sha": _git_sha_or_unknown(Path(__file__).resolve().parents[3]),
             "config_hash": config_hash,
+            "label_logic_sha": ll_sha,
             "random_seed": self.random_seed,
             "output_directory": str(output_dir),
             "save_format": save_format,
@@ -736,10 +748,12 @@ class EuropeanInsuranceFederatedDataset:
                 sort_keys=True,
             ).encode("utf-8")
         ).hexdigest()[:16]
+        ll_sha = label_logic_sha()
         metadata = {
             "dataset_version": self.dataset_version,
             "generator_git_sha": _git_sha_or_unknown(Path(__file__).resolve().parents[3]),
             "config_hash": config_hash,
+            "label_logic_sha": ll_sha,
             "random_seed": self.random_seed,
             "samples_per_client": self.samples_per_client,
             "total_clients": len(self.client_ids),

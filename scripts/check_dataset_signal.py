@@ -22,7 +22,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from insurance_fl.data.generator import high_risk_logit  # noqa: E402
+from insurance_fl.data.generator import high_risk_logit, label_logic_sha  # noqa: E402
 
 CLIENTS = [
     "germany_allianz",
@@ -47,8 +47,33 @@ def _load_client_all(data_dir: Path, client: str) -> pd.DataFrame:
 
 def check_dataset_signal(data_dir: str | Path, threshold: float = 0.70) -> dict:
     data_dir = Path(data_dir)
+    # Label-logic staleness guard (must run before trusting Bayes/signal results)
+    expected_label_sha = label_logic_sha()
+    meta_path = data_dir / "metadata.json"
+    stored_label_sha = None
+    label_logic_ok = True
+    label_logic_error = None
+    if not meta_path.exists():
+        label_logic_ok = False
+        label_logic_error = f"Dataset metadata missing at {meta_path}. Regenerate with: make data"
+    else:
+        try:
+            meta = json.loads(meta_path.read_text())
+        except Exception as e:
+            label_logic_ok = False
+            label_logic_error = f"Could not read dataset metadata {meta_path}: {e}. Regenerate with: make data"
+        else:
+            stored_label_sha = meta.get("label_logic_sha")
+            if stored_label_sha != expected_label_sha:
+                label_logic_ok = False
+                label_logic_error = (
+                    f"Dataset was generated with different label logic "
+                    f"(stored={stored_label_sha!r}, expected={expected_label_sha!r}). "
+                    "Regenerate with: make data"
+                )
+
     results = {}
-    ok = True
+    ok = label_logic_ok
     for client in CLIENTS:
         try:
             df = _load_client_all(data_dir, client)
@@ -66,7 +91,16 @@ def check_dataset_signal(data_dir: str | Path, threshold: float = 0.70) -> dict:
         if status != "pass":
             ok = False
         results[client] = {"n": n, "positive_rate": pos, "bayes_auc_logit": auc, "status": status}
-    return {"data_dir": str(data_dir), "threshold": threshold, "ok": ok, "clients": results}
+    return {
+        "data_dir": str(data_dir),
+        "threshold": threshold,
+        "ok": ok,
+        "label_logic_sha_expected": expected_label_sha,
+        "label_logic_sha_stored": stored_label_sha,
+        "label_logic_ok": label_logic_ok,
+        "label_logic_error": label_logic_error,
+        "clients": results,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -88,6 +122,12 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2))
     else:
         print(f"Dataset signal check: {report['data_dir']} (threshold AUC >= {report['threshold']})")
+        if not report.get("label_logic_ok", True):
+            print(f"LABEL_LOGIC: FAIL ({report.get('label_logic_error')})")
+        else:
+            print(
+                f"LABEL_LOGIC: ok (sha={report.get('label_logic_sha_stored')})"
+            )
         for c, r in report["clients"].items():
             if r.get("status") == "missing":
                 print(f"  - {c}: MISSING ({r.get('error')})")

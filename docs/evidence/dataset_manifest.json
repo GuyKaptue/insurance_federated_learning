@@ -1,7 +1,7 @@
 {
   "dataset": "european_insurance_federated",
   "dataset_version": "v2",
-  "generator_git_sha_recorded_in_metadata": "91470a58798111225f02d5f0c36f47cbe7dcff54",
+  "generator_git_sha_recorded_in_metadata": "22694a565f9c9711fa9e2b04f5b8e532e89b5985",
   "generator_git_sha": "91470a5",
   "generator_git_sha_note": "Regenerated from committed code at 91470a5 (working tree clean at generation except pre-existing untracked reports/*). Data/parquet files SHA-256-identical to prior v2 pregen (a43c757-recorded metadata); metadata json differs only in recorded git SHA/config metadata fields as expected. Repro check: scratch regen matched prior canonical parquet bytes.",
   "seed": 42,
@@ -9,7 +9,7 @@
   "quality_issues_injected": true,
   "include_centralized": true,
   "config_hash": "e93bcefe91a0b25a",
-  "generation_timestamp_utc": "2026-11-19T12:22:33.312774",
+  "generation_timestamp_utc": "2026-11-19T13:46:19.748780",
   "client_sizes": {
     "germany_allianz": 5000,
     "france_axa": 5000,
@@ -48,7 +48,13 @@
     "federated/switzerland_helvetia/test.parquet": "6e247156c1ff558d1e8ec0433dd14f2b5f8426f29e1f0f78ae501840179b7dfd",
     "federated/switzerland_helvetia/train.parquet": "5f7c4b21ce280e4cf43bb9b9e33fa4dfdac401abe2864424ff45804c85379fbf",
     "federated/switzerland_helvetia/val.parquet": "80438b3a203c504db8d6ab5066379ba4b3431d6886af3edfc345bc1bac40b4b0",
-    "metadata.json": "28aebdf4f314853dc0df64591dd896e2d776087b9671a208ffa7c2f8273e58cd"
+    "metadata.json": "2b78c985719644fb5333dd9a43511a227b4a15560632bae4ce3c417c86fc3ba9"
   },
-  "file_count": 19
+  "file_count": 19,
+  "label_logic_sha": "03051d931c560108",
+  "staleness_guard": {
+    "label_logic_sha": "03051d931c560108",
+    "check": "scripts/check_dataset_signal.py and make data-check fail on label_logic_sha mismatch with \"Regenerate with: make data\"",
+    "regen_for_label_logic_sha": "v2 regenerated once from committed code state including label_logic_sha; all parquet files byte-identical to prior v2 canonical (verified)."
+  }
 }
