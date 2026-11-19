@@ -1,0 +1,158 @@
+{
+  "generated_at_utc": "2026-11-19T10:40:00Z",
+  "generator_git_sha": "49a5f349cb37c06ed199f0a35f1c236d45def43a",
+  "branch": "feat/task0-baseline-federation",
+  "commands": {
+    "saved_bayes_current_old": "./venv/bin/python - <<PY (inline checks in session)> old/current logit AUCs on data/processed/european_insurance_federated",
+    "cli_on": "./venv/bin/insurance-fl-generate --samples 5000 --output /tmp/cli_gen_on.rMwmtp",
+    "cli_off_class": "EuropeanInsuranceFederatedDataset(samples_per_client=5000, random_seed=42, dataset_version='v1.0', inject_quality_issues=False).generate_dataset(output_dir=/tmp/cli_gen_off.x721ych1)",
+    "legacy_probe": "AUC(claim_risk_score->is_high_risk) and legacy synthetic-style formula Bayes on saved data"
+  },
+  "saved_dataset": {
+    "path": "data/processed/european_insurance_federated",
+    "metadata": {
+      "generation_date": "2026-10-25T01:52:35.149354",
+      "dataset_version": "v1.0",
+      "random_seed": 42,
+      "samples_per_client": 5000
+    },
+    "layout_per_client": {
+      "train": 3000,
+      "val": 1000,
+      "test": 1000,
+      "site": 250,
+      "total": 5250,
+      "overlaps": 0
+    },
+    "bayes_auc_current_formula": {
+      "germany_allianz": 0.5319,
+      "france_axa": 0.5321,
+      "belgium_ageas": 0.5292,
+      "switzerland_helvetia": 0.5347
+    },
+    "bayes_auc_old_formula_c9bc449_prev": {
+      "note": "exact expression from git show c9bc449^:src/insurance_fl/data/generator.py; prob clip [0.15,0.40]",
+      "all_splits": {
+        "germany_allianz": {
+          "n": 4932,
+          "saved_pos": 0.3473,
+          "old_mean_prob": 0.2666,
+          "bayes_auc_logit": 0.5668
+        },
+        "france_axa": {
+          "n": 5216,
+          "saved_pos": 0.3403,
+          "old_mean_prob": 0.2546,
+          "bayes_auc_logit": 0.5708
+        },
+        "belgium_ageas": {
+          "n": 5226,
+          "saved_pos": 0.3523,
+          "old_mean_prob": 0.2717,
+          "bayes_auc_logit": 0.581
+        },
+        "switzerland_helvetia": {
+          "n": 5222,
+          "saved_pos": 0.3047,
+          "old_mean_prob": 0.2395,
+          "bayes_auc_logit": 0.5584
+        }
+      }
+    },
+    "legacy_synthetic_probe": {
+      "auc_claim_risk_score_to_is_high_risk": {
+        "germany_allianz": 0.5375,
+        "france_axa": 0.5564,
+        "belgium_ageas": 0.5336,
+        "switzerland_helvetia": 0.5244
+      },
+      "legacy_style_formula_bayes_auc": {
+        "germany_allianz": 0.5678,
+        "france_axa": 0.5741,
+        "belgium_ageas": 0.582,
+        "switzerland_helvetia": 0.5574
+      },
+      "legacy_mean_prob": {
+        "germany_allianz": 0.3485,
+        "france_axa": 0.3415,
+        "belgium_ageas": 0.3462,
+        "switzerland_helvetia": 0.3063
+      },
+      "corr_saved_claim_risk_score_vs_legacy_base_claim_risk": {
+        "germany_allianz": 0.725664,
+        "france_axa": 0.825589,
+        "belgium_ageas": 0.69168,
+        "switzerland_helvetia": 0.579864
+      }
+    }
+  },
+  "cli_injection_on": {
+    "root": "/tmp/cli_gen_on.rMwmtp",
+    "layout_per_client": {
+      "train": 3000,
+      "val": 1000,
+      "test": 750,
+      "site": 250,
+      "total": 5000
+    },
+    "bayes_auc_all_splits": {
+      "germany_allianz": 0.8375,
+      "france_axa": 0.8369,
+      "belgium_ageas": 0.8498,
+      "switzerland_helvetia": 0.8542
+    },
+    "gbm_ceiling_train_5fold_cv": {
+      "germany_allianz": 0.8061,
+      "france_axa": 0.7966,
+      "belgium_ageas": 0.832,
+      "switzerland_helvetia": 0.8112
+    },
+    "test_split_n": {
+      "germany_allianz": 750,
+      "france_axa": 750,
+      "belgium_ageas": 750,
+      "switzerland_helvetia": 750
+    },
+    "test_pos_neg": {
+      "germany_allianz": [
+        380,
+        370
+      ],
+      "france_axa": [
+        400,
+        350
+      ],
+      "belgium_ageas": [
+        409,
+        341
+      ],
+      "switzerland_helvetia": [
+        374,
+        376
+      ]
+    }
+  },
+  "cli_injection_off": {
+    "root": "/tmp/cli_gen_off.x721ych1",
+    "bayes_auc_all_splits": {
+      "germany_allianz": 0.8431,
+      "france_axa": 0.8457,
+      "belgium_ageas": 0.8588,
+      "switzerland_helvetia": 0.8611
+    },
+    "gbm_ceiling_train_5fold_cv": {
+      "germany_allianz": 0.8151,
+      "france_axa": 0.8045,
+      "belgium_ageas": 0.8351,
+      "switzerland_helvetia": 0.8172
+    }
+  },
+  "hanley_mcneil_se_at_ceiling_n750": {
+    "germany_allianz": 0.0157,
+    "france_axa": 0.016,
+    "belgium_ageas": 0.0147,
+    "switzerland_helvetia": 0.0155,
+    "ci95_approx": "\u00b10.029-0.031"
+  },
+  "producer_conclusion": "supported_not_proven: saved (2026-10-25, 5250/client 3000/1000/1000/250, pos~0.30-0.36, selective NaNs) is inconsistent with current CLI/generator (Bayes~0.53) and only weakly consistent with c9bc449^ old formula (Bayes~0.56-0.58, old_mean_prob 0.24-0.27 below saved pos). Legacy src/synthetic/data_generator.py shares some traits (claim_risk-coupled is_high_risk clip [0.2,0.7], 60/20/20 splits, subset NaN candidates) but saved shows modest AUC(claim_risk_score->is_high_risk)~0.52-0.56 (not strongly coupled as legacy formula implies) and layout differs; exact producer not identified. Canonical regeneration must use official insurance-fl-generate path with signal check."
+}
