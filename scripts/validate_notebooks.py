@@ -151,6 +151,7 @@ def main() -> int:
     env = _validator_env()
     env_errs = _assert_venv_env(env)
     results = []
+    failed = False
     notebooks = sorted(NB_DIR.glob("*.ipynb"))
     if not notebooks:
         print("No notebooks found")
@@ -231,7 +232,8 @@ def main() -> int:
             row["seconds"] = round(dt, 1)
             row["execution"] = "FAILED"
             if not row["notes"]:
-                row["notes"] = str(e).splitlines()[-1][:400]
+                _lines = str(e).splitlines()
+                row["notes"] = (_lines[-1] if _lines else str(e) or repr(e))[:400]
 
         row["status"] = "passed" if (structure_ok and exec_ok) else "failed"
         results.append(row)
