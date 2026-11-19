@@ -2,6 +2,9 @@
 # Run `make help` to list all targets.
 # PYTHON is venv-aware; override: make test PYTHON=/path/to/python
 
+SHELL := /bin/bash
+.SHELLFLAGS := -eo pipefail -c
+
 # Coverage ratchet: single source of truth for the fail-under threshold.
 # WAVE6-COVERAGE: raise to 85% by Wave 6 (see docs/PROGRAM_PLAN.md).
 COVERAGE_THRESHOLD ?= 70
@@ -11,7 +14,8 @@ PYTHON ?= $(shell if [ -x venv/bin/python ]; then echo venv/bin/python; \
 	else echo python3; fi)
 PYTEST ?= $(PYTHON) -m pytest
 PIP ?= $(PYTHON) -m pip
-FLWR ?= $(dir $(PYTHON))flwr
+FLWR := $(shell $(PYTHON) -c "import os,shutil,sys; p=shutil.which('flwr', path=os.path.dirname(sys.executable) or None); print(p or '')")
+GUARD_DATA ?= $(or $(FLWR_GUARD_DATA),data/processed/european_insurance_federated)
 
 .DEFAULT_GOAL := help
 
@@ -72,31 +76,15 @@ kernel: ## Register the repo venv as the 'insurance-fl' Jupyter kernel for noteb
 	$(PYTHON) -m ipykernel install --user --name insurance-fl --display-name "insurance-fl (venv)"
 
 flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
-	@data_dir=""; \
-	if [ -d "data/processed/european_insurance_federated/federated" ]; then \
-		data_dir="data/processed/european_insurance_federated"; \
-	elif [ -d "data/processed/fl_task0_smoke/federated" ]; then \
-		data_dir="data/processed/fl_task0_smoke"; \
-	fi; \
-	tmp=$$(mktemp); \
-	if [ -n "$$data_dir" ]; then \
-		KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(PYTHON) -m flwr run . --stream --run-config "num-server-rounds=1 data-dir=$$data_dir" > $$tmp 2>&1; rc=$$?; \
-	else \
-		KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(PYTHON) -m flwr run . --stream --run-config num-server-rounds=1 > $$tmp 2>&1; rc=$$?; \
-	fi; \
-	if grep -qi "backend not available" $$tmp; then \
-		echo "ERROR: dp-accounting backend not available in flwr run" >&2; \
-		cat $$tmp >&2; \
-		rm -f $$tmp; \
-		exit 1; \
-	fi; \
-	if [ $$rc -ne 0 ]; then \
-		echo "ERROR: flwr-guard failed (exit $$rc)" >&2; \
-		cat $$tmp >&2; \
-		rm -f $$tmp; \
-		exit $$rc; \
-	fi; \
-	rm -f $$tmp
+	@test -n "$(FLWR)" || { echo "ERROR: flwr CLI not found next to $(PYTHON)" >&2; exit 1; }
+	@if [ -n "$(FLWR_GUARD_DATA)" ]; then echo "flwr-guard: using FLWR_GUARD_DATA=$(FLWR_GUARD_DATA)"; fi
+	@test -d "$(GUARD_DATA)" || { echo "ERROR: canonical data dir missing: $(GUARD_DATA)" >&2; exit 1; }
+	@PATH="$(dir $(FLWR)):$$PATH" KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 FLWR_TELEMETRY_ENABLED=0 "$(FLWR)" run . --stream --run-config 'num-server-rounds=1 data-dir="$(GUARD_DATA)"' 2>&1 | tee flwr-guard.log
+	@echo "--- flwr-guard: last 20 lines ---"
+	@tail -20 flwr-guard.log
+	@if grep -qi "backend not available" flwr-guard.log; then echo "ERROR: dp-accounting backend not available in flwr run" >&2; exit 1; fi
+	@grep -Eq "Run finished [0-9]+ round" flwr-guard.log || { echo "ERROR: no completed round in log" >&2; exit 1; }
+	@rm -f flwr-guard.log
 
 coverage: ## Run tests with branch coverage (fail under 85%)
 	$(PYTEST) -q --cov=insurance_fl --cov-branch --cov-report=term-missing \
