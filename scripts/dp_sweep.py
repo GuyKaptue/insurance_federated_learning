@@ -33,6 +33,21 @@ def _git_state() -> dict[str, Any]:
     return state
 
 
+def _dataset_provenance():
+    root = Path(__file__).resolve().parents[1]
+    mp = root / "docs" / "evidence" / "dataset_manifest.json"
+    if not mp.exists():
+        return {"dataset_version": None, "config_hash": None}
+    try:
+        m = json.loads(mp.read_text())
+    except Exception:
+        return {"dataset_version": None, "config_hash": None}
+    return {
+        "dataset_version": m.get("dataset_version"),
+        "config_hash": m.get("config_hash"),
+    }
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out", default="reports/dp_utility_curve.json", help="Output JSON path")
@@ -129,8 +144,11 @@ def main(argv: list[str] | None = None) -> int:
     input_dim = int(x_train.shape[1])
     baseline_metrics = evaluate(model, x_val, y_val)
     git = _git_state()
+    prov = _dataset_provenance()
 
     results: dict[str, Any] = {
+        "dataset_version": prov.get("dataset_version"),
+        "config_hash": prov.get("config_hash"),
         "delta": args.delta,
         "clipping_norm": args.clipping_norm,
         "sensitivity": args.sensitivity,

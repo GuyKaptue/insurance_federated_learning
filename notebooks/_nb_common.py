@@ -197,6 +197,44 @@ def short_df(df, n=5):
     return df.head(n)
 
 
+MANIFEST_PATH = ROOT / "docs" / "evidence" / "dataset_manifest.json"
+
+
+class StaleArtifactError(RuntimeError):
+    """Artifact was computed on a different dataset version or config."""
+
+
+def provenance_fields(manifest_path: Optional[Path] = None) -> dict:
+    mp = Path(manifest_path) if manifest_path else MANIFEST_PATH
+    if not mp.is_absolute():
+        mp = ROOT / mp
+    m = json.loads(mp.read_text())
+    return {
+        "dataset_version": m.get("dataset_version"),
+        "config_hash": m.get("config_hash"),
+    }
+
+
+def load_artifact(path, manifest_path: Optional[Path] = None) -> dict:
+    """Load a JSON artifact and reject it if dataset provenance does not match."""
+    p = Path(path)
+    if not p.is_absolute():
+        p = ROOT / p
+    d = json.loads(p.read_text())
+    mp = Path(manifest_path) if manifest_path else MANIFEST_PATH
+    if not mp.is_absolute():
+        mp = ROOT / mp
+    if not mp.exists():
+        raise FileNotFoundError(f"Dataset manifest missing: {mp}")
+    m = json.loads(mp.read_text())
+    for k in ("dataset_version", "config_hash"):
+        if d.get(k) != m.get(k):
+            raise StaleArtifactError(
+                f"{p}: {k}={d.get(k)!r} but dataset has {m.get(k)!r}"
+            )
+    return d
+
+
 __all__ = [
     "SEED",
     "MODE",
@@ -205,6 +243,7 @@ __all__ = [
     "REPORTS",
     "ARTIFACTS",
     "FIG_DIR",
+    "MANIFEST_PATH",
     "CLIENTS",
     "CLIENT_LABELS",
     "repo_root",
@@ -216,6 +255,9 @@ __all__ = [
     "style",
     "save_fig",
     "read_json_if_exists",
+    "StaleArtifactError",
+    "provenance_fields",
+    "load_artifact",
     "Timer",
     "short_df",
 ]

@@ -520,4 +520,5 @@ data/processed/
 catboost_info/
 runs/
 reports/figures/
+reports/stale_v1/
 .ipynb_checkpoints/

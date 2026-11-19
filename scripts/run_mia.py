@@ -39,6 +39,21 @@ def _git_state() -> dict[str, Any]:
     return state
 
 
+def _dataset_provenance():
+    root = Path(__file__).resolve().parents[1]
+    mp = root / "docs" / "evidence" / "dataset_manifest.json"
+    if not mp.exists():
+        return {"dataset_version": None, "config_hash": None}
+    try:
+        m = json.loads(mp.read_text())
+    except Exception:
+        return {"dataset_version": None, "config_hash": None}
+    return {
+        "dataset_version": m.get("dataset_version"),
+        "config_hash": m.get("config_hash"),
+    }
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out", default="reports/mia_evaluation.json", help="Output JSON path")
@@ -406,12 +421,15 @@ def main(argv: list[str] | None = None) -> int:
     n_non = int(len(x_nonmember))
     min_resolvable_fpr = (1.0 / n_non) if n_non > 0 else None
     git = _git_state()
+    prov = _dataset_provenance()
 
     ci_width = (ci[1] - ci[0]) if ci is not None else None
     degenerate = bool(unique_scores < 10 or pred_has_nan or (ci_width is not None and ci_width == 0.0 and auc is not None and abs(auc - 0.5) < 1e-12))
     status = "degenerate" if degenerate else "ok"
 
     result: dict[str, Any] = {
+        "dataset_version": prov.get("dataset_version"),
+        "config_hash": prov.get("config_hash"),
         "status": status,
         "task": task_name,
         "client": target_client,
