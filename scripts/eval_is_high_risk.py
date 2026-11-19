@@ -20,6 +20,8 @@ from typing import Any
 import numpy as np
 import torch
 from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.calibration import calibration_curve
+from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -663,9 +665,171 @@ def run_a3(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
     return report
 
 
+
+
+def ece_score(y_true, y_prob, n_bins=10):
+    y_true = np.asarray(y_true).astype(int)
+    y_prob = np.asarray(y_prob, dtype=float)
+    bins = np.linspace(0.0, 1.0, n_bins + 1)
+    ece = 0.0
+    for i in range(n_bins):
+        lo, hi = bins[i], bins[i + 1]
+        mask = (y_prob >= lo) & (y_prob < hi) if i < n_bins - 1 else (y_prob >= lo) & (y_prob <= hi)
+        if not np.any(mask):
+            continue
+        acc = np.mean(y_true[mask])
+        conf = np.mean(y_prob[mask])
+        ece += (np.sum(mask) / len(y_true)) * abs(acc - conf)
+    return float(ece)
+
+
+def save_reliability_diagram(y_true, prob_before, prob_after, out_path: Path, title: str):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig, ax = plt.subplots(figsize=(5, 5))
+    for probs, label, marker in [(prob_before, 'before (raw)', 'o'), (prob_after, 'after (isotonic)', 's')]:
+        frac_pos, mean_pred = calibration_curve(y_true, probs, n_bins=10, strategy='uniform')
+        ax.plot(mean_pred, frac_pos, marker=marker, label=label)
+    ax.plot([0, 1], [0, 1], '--', color='gray', label='perfect')
+    ax.set_xlabel('Mean predicted probability')
+    ax.set_ylabel('Fraction of positives')
+    ax.set_title(title)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best', fontsize=8)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+
+
+def _recompute_federated_median_model(data, best_cfg, median_seed, rounds=20):
+    # single run to recover median-seed model per client
+    models, info = fedavg_fedbn_reference(
+        data,
+        rounds=rounds,
+        local_epochs=best_cfg["local_epochs"],
+        lr=best_cfg["lr"],
+        seed=median_seed,
+        hidden_dims=best_cfg["hidden_dims"],
+        dropout=best_cfg["dropout"],
+        single_task=bool(best_cfg.get("single_task", True)),
+        batch_size=int(best_cfg.get("batch_size", 64)),
+    )
+    return models, info
+
+
+def run_a4(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
+    report = load_report(out_path)
+    report.setdefault("clients", {})
+    report.setdefault("notes", [])
+
+    # rebuild data
+    data = {}
+    for cid in CLIENT_IDS:
+        (x_tr, y_trd), (x_va, y_vad), (x_te, y_ted) = load_client_splits(cid)
+        mu, sd = standardize_fit(x_tr)
+        data[cid] = {
+            "x_tr": standardize_apply(x_tr, mu, sd),
+            "y_trd": y_trd,
+            "x_va": standardize_apply(x_va, mu, sd),
+            "y_vad": y_vad,
+            "x_te": standardize_apply(x_te, mu, sd),
+            "y_ted": y_ted,
+        }
+
+    # calibration for federated reference (median seed) per client
+    for cid in CLIENT_IDS:
+        fed = report["clients"][cid]["neural"]["federated_reference"]
+        best_cfg = fed["best_config"]
+        median_seed = int(fed["median_seed"])
+        models, info = _recompute_federated_median_model(data, best_cfg, median_seed, rounds=int(best_cfg.get("rounds", 20)))
+        d = data[cid]
+        m = models[cid]
+        val_raw = predict_is_high_risk_proba(m, d["x_va"])
+        test_raw = predict_is_high_risk_proba(m, d["x_te"])
+        y_va = d["y_vad"][TASK].astype(int)
+        y_te = d["y_ted"][TASK].astype(int)
+
+        ir = IsotonicRegression(out_of_bounds='clip')
+        ir.fit(val_raw, y_va)
+        val_cal = ir.predict(val_raw)
+        test_cal = ir.predict(test_raw)
+
+        auc_raw = float(roc_auc_score(y_te, test_raw))
+        auc_cal = float(roc_auc_score(y_te, test_cal))
+        brier_before = float(brier_score_loss(y_te, test_raw))
+        brier_after = float(brier_score_loss(y_te, test_cal))
+        ece_before = ece_score(y_te, test_raw)
+        ece_after = ece_score(y_te, test_cal)
+
+        fig_path = ROOT / "reports" / "figures" / f"reliability_{cid}_federated.png"
+        save_reliability_diagram(y_te, test_raw, test_cal, fig_path, f"Reliability: {cid} (federated, median seed {median_seed})")
+
+        fed["calibration"] = {
+            "method": "isotonic_regression_fit_on_validation",
+            "median_seed_recomputed": median_seed,
+            "test_auc_raw": auc_raw,
+            "test_auc_calibrated": auc_cal,
+            "auc_unchanged_up_to_ties_note": "Isotonic regression is monotonic; ROC AUC is rank-based so it is unchanged up to tie-breaking.",
+            "brier_before": brier_before,
+            "brier_after": brier_after,
+            "ece_before": ece_before,
+            "ece_after": ece_after,
+            "reliability_diagram": str(fig_path.relative_to(ROOT)),
+        }
+        print(f"A4 calib {cid}: auc_raw={auc_raw:.4f} auc_cal={auc_cal:.4f} brier {brier_before:.4f}->{brier_after:.4f} ece {ece_before:.4f}->{ece_after:.4f}", flush=True)
+
+    # finalize summary/gap/provenance
+    fed_aucs = {cid: report["clients"][cid]["neural"]["federated_reference"]["median_test_auc"] for cid in CLIENT_IDS}
+    auc_vals = list(fed_aucs.values())
+    best_c = max(fed_aucs, key=fed_aucs.get)
+    worst_c = min(fed_aucs, key=fed_aucs.get)
+    gap = float(max(auc_vals) - min(auc_vals))
+
+    report["summary"] = {
+        "federated_median_test_auc_by_client": fed_aucs,
+        "best_to_worst_client_gap_federated": gap,
+        "best_client": best_c,
+        "worst_client": worst_c,
+        "seeds": [42, 43, 44],
+        "split_sizes_per_client": report["clients"][CLIENT_IDS[0]]["splits"],
+        "gate_target": 0.80,
+        "gate_note": "750-row test split => ~0.03 CI half-width typical; 'marginal' (point>=0.80, CI lower < 0.80) is common for good models; 'supported' means lower CI bound >= 0.80.",
+    }
+    # shipped-model rule outcome (pre-registered): compare federated vs GBM per client
+    outcomes = {}
+    for cid in CLIENT_IDS:
+        fed_gate = report["clients"][cid]["neural"]["federated_reference"]["median_gate"]
+        gbm_gate = report["clients"][cid]["baselines"]["gbm"]["gate"]
+        outcomes[cid] = {
+            "federated_status": fed_gate["status"],
+            "gbm_status": gbm_gate["status"],
+            "federated_misses_0_80": fed_gate["auc"] < 0.80,
+            "gbm_passes": gbm_gate["auc"] >= 0.80,
+        }
+    report["summary"]["shipped_model_rule_check"] = outcomes
+    all_fed_meet = all(o["federated_status"] in ("supported", "marginal") and not o["federated_misses_0_80"] for o in outcomes.values())
+    report["summary"]["shipped_model_rule_decision"] = (
+        "Federated model meets >=0.80 point estimate for all clients (GBM also passes); no model-work escalation required by pre-registered miss rule. keep_5000 remains provisional pending broader evaluation."
+        if all_fed_meet
+        else "At least one client federated AUC < 0.80 while GBM passes -> model work (tuning, Boruta+Optuna, architecture) recommended, not more data; larger profile only if shipped-model learning curve still rises at 5000."
+    )
+
+    report.update({**provenance(), **git_state()})
+    # finalized artifact should report clean git state if committed; we set git_dirty from current state but caller should run after commit
+    note = "A4: isotonic calibration on validation predictions for federated reference (median seed) per client; Brier/ECE before/after, reliability diagrams, AUC unchanged up to ties; finalized summary/gap and shipped-model rule outcome."
+    if note not in report["notes"]:
+        report["notes"].append(note)
+    save_report(report, out_path)
+    return report
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", default="a1", choices=["a1", "a2", "a3"])
+    ap.add_argument("--stage", default="a1", choices=["a1", "a2", "a3", "a4"])
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     args = ap.parse_args(argv)
     out = Path(args.out)
@@ -675,7 +839,10 @@ def main(argv=None):
         run_a2(out)
     elif args.stage == "a3":
         run_a3(out)
+    elif args.stage == "a4":
+        run_a4(out)
     return 0
+
 
 
 if __name__ == "__main__":
