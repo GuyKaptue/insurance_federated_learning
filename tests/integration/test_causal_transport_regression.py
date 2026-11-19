@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import pytest
-
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from insurance_fl.causal.dag_check import load_dag, validate_dag
 from insurance_fl.causal.estimands import CausalEstimand, estimate_backdoor, estimate_doubly_robust

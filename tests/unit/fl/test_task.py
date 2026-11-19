@@ -131,7 +131,7 @@ def test_policy_is_fit_on_train_only(tmp_path) -> None:
     train.to_parquet(d / "train.parquet", index=False)
     val.to_parquet(d / "val.parquet", index=False)
     x_val, _ = fl_task.load_partition(tmp_path, cid, split="val")
-    # feature_columns order is from train df numeric non-target/excluded sorted by select_dtypes? 
+    # feature_columns order is from train df numeric non-target/excluded sorted by select_dtypes?
     # Easier: check that the imputed value equals train median (2.0), not val median (100.0)
     # annual_income is first feature column in this small df
     cols, _ = fl_task._fit_missing_policy(tmp_path, cid)

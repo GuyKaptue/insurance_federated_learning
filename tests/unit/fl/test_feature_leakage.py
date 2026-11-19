@@ -18,7 +18,11 @@ FORBIDDEN = {
     "renewal_probability",
     "customer_id",
 }
-EXPECTED_INDICATORS = ("annual_income__missing", "savings_balance__missing", "medical_expenses__missing")
+EXPECTED_INDICATORS = (
+    "annual_income__missing",
+    "savings_balance__missing",
+    "medical_expenses__missing",
+)
 
 
 @pytest.mark.skipif(
@@ -35,12 +39,15 @@ def test_feature_surface_is_identical_ordered_and_clean() -> None:
     """
     lists = {cid: get_feature_names(DATA_DIR, cid, "train") for cid in CLIENT_IDS}
     first = lists[CLIENT_IDS[0]]
-    assert all(v == first for v in lists.values()), f"feature lists differ across clients: { {k: len(v) for k,v in lists.items()} }"
-    assert len(first) == 24, f"expected 24 features (21 base + 3 indicators), got {len(first)}: {first}"
+    assert all(
+        v == first for v in lists.values()
+    ), f"feature lists differ across clients: { {k: len(v) for k,v in lists.items()} }"
+    assert (
+        len(first) == 24
+    ), f"expected 24 features (21 base + 3 indicators), got {len(first)}: {first}"
     bad = set(first) & FORBIDDEN
     assert not bad, f"forbidden columns in features: {sorted(bad)}"
     assert tuple(f"{c}__missing" for c in MISSING_INDICATOR_COLS) == EXPECTED_INDICATORS
     assert first[-3:] == list(EXPECTED_INDICATORS)
     assert set(EXPECTED_INDICATORS) <= set(first)
     assert all(not n.endswith("__missing") for n in first[:-3])
-

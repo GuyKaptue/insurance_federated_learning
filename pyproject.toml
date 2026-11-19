@@ -101,8 +101,8 @@ insurance-fl-analyze = "insurance_fl.scripts.analyze_data:main"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.2.0,<9.0.0",
-    "pytest-cov>=4.0.0,<5.0.0",
+    "pytest>=7.2.0,<10.0.0",
+    "pytest-cov>=4.0.0,<8.0.0",
     "black>=23.0.0,<25.0.0",
     "flake8>=6.0.0,<8.0.0",
     "isort>=5.12.0,<6.0.0",

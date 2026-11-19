@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import math
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from insurance_fl.fl.privacy import (
-    PrivacyBackendUnavailable,
-    PrivacyConfig,
-    RdpAccountantWrapper,
-)
+from insurance_fl.fl.privacy import PrivacyBackendUnavailable, PrivacyConfig, RdpAccountantWrapper
 
 
 def _make(noise_multiplier: float = 1.0, **kw) -> RdpAccountantWrapper:
@@ -153,6 +148,7 @@ def test_invalid_config_delta_rejected() -> None:
 
 def test_get_epsilon_delta_sensitivity() -> None:
     """Stricter delta should require >= epsilon for same releases (property preserved)."""
+
     def eps_for_delta(d: float) -> float:
         acc = RdpAccountantWrapper(
             PrivacyConfig(noise_multiplier=1.0, delta=d, target_delta=d, max_epsilon=1e9)

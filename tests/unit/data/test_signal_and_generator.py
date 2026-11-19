@@ -13,7 +13,6 @@ from sklearn.metrics import roc_auc_score
 from insurance_fl.data.generator import EuropeanInsuranceFederatedDataset, high_risk_logit
 from scripts.check_dataset_signal import check_dataset_signal
 
-
 CLIENTS = [
     "germany_allianz",
     "france_axa",
