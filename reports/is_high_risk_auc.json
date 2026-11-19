@@ -5,8 +5,8 @@
   "config_hash": "e93bcefe91a0b25a",
   "manifest_seed": 42,
   "manifest_samples_per_client": 5000,
-  "git_sha": "4671b29f420d745d2278d6f9b6e42f1fbe53ec0a",
-  "git_dirty": false,
+  "git_sha": "6fe61b5b5e1d9c2b14c3c4add3fab4ec6e8a922c",
+  "git_dirty": true,
   "clients": {
     "germany_allianz": {
       "splits": {
@@ -60,6 +60,781 @@
             "random_state": 42
           },
           "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
+        }
+      },
+      "neural": {
+        "local_only": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              128,
+              64
+            ],
+            "lr": 0.0005,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on validation AUC (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8144601503759399,
+              "best_epoch": 8,
+              "best_val_auc": 0.8144601503759399,
+              "epochs_run": 18
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8148531328320802,
+              "best_epoch": 13,
+              "best_val_auc": 0.8148531328320802,
+              "epochs_run": 23
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8153062656641604,
+              "best_epoch": 13,
+              "best_val_auc": 0.8153062656641604,
+              "epochs_run": 23
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8159558897243109,
+              "best_epoch": 14,
+              "best_val_auc": 0.8159558897243109,
+              "epochs_run": 24
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8134135338345863,
+              "best_epoch": 7,
+              "best_val_auc": 0.8134135338345863,
+              "epochs_run": 17
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8157393483709273,
+              "best_epoch": 24,
+              "best_val_auc": 0.8157393483709273,
+              "epochs_run": 34
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8120461152882206,
+              "best_epoch": 18,
+              "best_val_auc": 0.8120461152882206,
+              "epochs_run": 28
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8140390977443609,
+              "best_epoch": 24,
+              "best_val_auc": 0.8140390977443609,
+              "epochs_run": 34
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6642365914786967,
+              "best_epoch": 2,
+              "best_val_auc": 0.6642365914786967,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6689924812030075,
+              "best_epoch": 1,
+              "best_val_auc": 0.6689924812030075,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6597614035087719,
+              "best_epoch": 3,
+              "best_val_auc": 0.6597614035087719,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6623037593984962,
+              "best_epoch": 6,
+              "best_val_auc": 0.6623037593984962,
+              "epochs_run": 16
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6153503759398496,
+              "best_epoch": 2,
+              "best_val_auc": 0.6153503759398496,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6224641604010025,
+              "best_epoch": 2,
+              "best_val_auc": 0.6224641604010025,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6093674185463659,
+              "best_epoch": 4,
+              "best_val_auc": 0.6093674185463659,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6103298245614035,
+              "best_epoch": 4,
+              "best_val_auc": 0.6103298245614035,
+              "epochs_run": 14
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8190469416785207,
+              "ci95": [
+                0.7889785621835352,
+                0.8483369584596185
+              ],
+              "gate": {
+                "auc": 0.8190469416785207,
+                "ci_low": 0.7889785621835352,
+                "meets_target": true,
+                "status": "marginal"
+              },
+              "best_val_auc": 0.8159558897243109,
+              "best_epoch": 14
+            },
+            "43": {
+              "test_auc": 0.8283001422475107,
+              "ci95": [
+                0.7970507023629674,
+                0.8584728688441895
+              ],
+              "gate": {
+                "auc": 0.8283001422475107,
+                "ci_low": 0.7970507023629674,
+                "meets_target": true,
+                "status": "marginal"
+              },
+              "best_val_auc": 0.8152822055137845,
+              "best_epoch": 14
+            },
+            "44": {
+              "test_auc": 0.8210526315789475,
+              "ci95": [
+                0.7921645478303406,
+                0.848866916310832
+              ],
+              "gate": {
+                "auc": 0.8210526315789475,
+                "ci_low": 0.7921645478303406,
+                "meets_target": true,
+                "status": "marginal"
+              },
+              "best_val_auc": 0.8136621553884712,
+              "best_epoch": 13
+            }
+          },
+          "median_seed": 44,
+          "median_test_auc": 0.8210526315789475,
+          "median_ci95": [
+            0.7921645478303406,
+            0.848866916310832
+          ],
+          "median_gate": {
+            "auc": 0.8210526315789475,
+            "ci_low": 0.7921645478303406,
+            "meets_target": true,
+            "status": "marginal"
+          }
+        },
+        "pooled": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              64,
+              32
+            ],
+            "lr": 0.001,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on pooled validation AUC (seed 42); evaluated on each client's test split once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8283701433424421,
+              "best_epoch": 9,
+              "best_val_auc": 0.8283701433424421,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8288266303815425,
+              "best_epoch": 9,
+              "best_val_auc": 0.8288266303815425,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8285510344742919,
+              "best_epoch": 9,
+              "best_val_auc": 0.8285510344742919,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8286414800402169,
+              "best_epoch": 9,
+              "best_val_auc": 0.8286414800402169,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.829166615514396,
+              "best_epoch": 4,
+              "best_val_auc": 0.829166615514396,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10,
+              "best_val_auc": 0.8296454007678102,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8290274395812345,
+              "best_epoch": 10,
+              "best_val_auc": 0.8290274395812345,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8293427463533024,
+              "best_epoch": 16,
+              "best_val_auc": 0.8293427463533024,
+              "epochs_run": 26
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6087012893629249,
+              "best_epoch": 1,
+              "best_val_auc": 0.6087012893629249,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6203318124614948,
+              "best_epoch": 1,
+              "best_val_auc": 0.6203318124614948,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6434290043646875,
+              "best_epoch": 1,
+              "best_val_auc": 0.6434290043646875,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6476458722873534,
+              "best_epoch": 1,
+              "best_val_auc": 0.6476458722873534,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6014454754793552,
+              "best_epoch": 1,
+              "best_val_auc": 0.6014454754793552,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6043184375415744,
+              "best_epoch": 1,
+              "best_val_auc": 0.6043184375415744,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6128160615290412,
+              "best_epoch": 1,
+              "best_val_auc": 0.6128160615290412,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6111844084872515,
+              "best_epoch": 1,
+              "best_val_auc": 0.6111844084872515,
+              "epochs_run": 11
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8351920341394026,
+              "ci95": [
+                0.8040623500647008,
+                0.8652033735890894
+              ],
+              "gate": {
+                "auc": 0.8351920341394026,
+                "ci_low": 0.8040623500647008,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10
+            },
+            "43": {
+              "test_auc": 0.8359246088193457,
+              "ci95": [
+                0.8079552243236243,
+                0.8635579658605975
+              ],
+              "gate": {
+                "auc": 0.8359246088193457,
+                "ci_low": 0.8079552243236243,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8294026258276959,
+              "best_epoch": 12
+            },
+            "44": {
+              "test_auc": 0.8349288762446657,
+              "ci95": [
+                0.8071224439541961,
+                0.862631997753083
+              ],
+              "gate": {
+                "auc": 0.8349288762446657,
+                "ci_low": 0.8071224439541961,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296709560246643,
+              "best_epoch": 8
+            }
+          },
+          "median_seed": 42,
+          "median_test_auc": 0.8351920341394026,
+          "median_ci95": [
+            0.8040623500647008,
+            0.8652033735890894
+          ],
+          "median_gate": {
+            "auc": 0.8351920341394026,
+            "ci_low": 0.8040623500647008,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "standardization": "per-client train statistics (same as local inputs in this run)"
         }
       }
     },
@@ -116,6 +891,781 @@
           },
           "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
         }
+      },
+      "neural": {
+        "local_only": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              64,
+              32
+            ],
+            "lr": 0.001,
+            "dropout": 0.2,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on validation AUC (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8095531809224756,
+              "best_epoch": 8,
+              "best_val_auc": 0.8095531809224756,
+              "epochs_run": 18
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8103742450215479,
+              "best_epoch": 8,
+              "best_val_auc": 0.8103742450215479,
+              "epochs_run": 18
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8088682933081274,
+              "best_epoch": 8,
+              "best_val_auc": 0.8088682933081274,
+              "epochs_run": 18
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8098295390826512,
+              "best_epoch": 10,
+              "best_val_auc": 0.8098295390826512,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8157812525032443,
+              "best_epoch": 10,
+              "best_val_auc": 0.8157812525032443,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8157171694516092,
+              "best_epoch": 11,
+              "best_val_auc": 0.8157171694516092,
+              "epochs_run": 21
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8150362870279882,
+              "best_epoch": 13,
+              "best_val_auc": 0.8150362870279882,
+              "epochs_run": 23
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8153446867139813,
+              "best_epoch": 27,
+              "best_val_auc": 0.8153446867139813,
+              "epochs_run": 37
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6346344862942374,
+              "best_epoch": 1,
+              "best_val_auc": 0.6346344862942374,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6293276085807205,
+              "best_epoch": 3,
+              "best_val_auc": 0.6293276085807205,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6382311475672471,
+              "best_epoch": 3,
+              "best_val_auc": 0.6382311475672471,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6335971418958971,
+              "best_epoch": 3,
+              "best_val_auc": 0.6335971418958971,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6083203832166488,
+              "best_epoch": 2,
+              "best_val_auc": 0.6083203832166488,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6115285409891218,
+              "best_epoch": 2,
+              "best_val_auc": 0.6115285409891218,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6031616975600378,
+              "best_epoch": 2,
+              "best_val_auc": 0.6031616975600378,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.5981632195325142,
+              "best_epoch": 3,
+              "best_val_auc": 0.5981632195325142,
+              "epochs_run": 13
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8554214285714286,
+              "ci95": [
+                0.828281714420117,
+                0.8822576360597357
+              ],
+              "gate": {
+                "auc": 0.8554214285714286,
+                "ci_low": 0.828281714420117,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8157812525032443,
+              "best_epoch": 10
+            },
+            "43": {
+              "test_auc": 0.8524785714285714,
+              "ci95": [
+                0.8248381641052768,
+                0.8789134572433553
+              ],
+              "gate": {
+                "auc": 0.8524785714285714,
+                "ci_low": 0.8248381641052768,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8098095131290153,
+              "best_epoch": 9
+            },
+            "44": {
+              "test_auc": 0.8561071428571427,
+              "ci95": [
+                0.8292479899300929,
+                0.8825924157538546
+              ],
+              "gate": {
+                "auc": 0.8561071428571427,
+                "ci_low": 0.8292479899300929,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.811980326503148,
+              "best_epoch": 13
+            }
+          },
+          "median_seed": 42,
+          "median_test_auc": 0.8554214285714286,
+          "median_ci95": [
+            0.828281714420117,
+            0.8822576360597357
+          ],
+          "median_gate": {
+            "auc": 0.8554214285714286,
+            "ci_low": 0.828281714420117,
+            "meets_target": true,
+            "status": "supported"
+          }
+        },
+        "pooled": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              64,
+              32
+            ],
+            "lr": 0.001,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on pooled validation AUC (seed 42); evaluated on each client's test split once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8283701433424421,
+              "best_epoch": 9,
+              "best_val_auc": 0.8283701433424421,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8288266303815425,
+              "best_epoch": 9,
+              "best_val_auc": 0.8288266303815425,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8285510344742919,
+              "best_epoch": 9,
+              "best_val_auc": 0.8285510344742919,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8286414800402169,
+              "best_epoch": 9,
+              "best_val_auc": 0.8286414800402169,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.829166615514396,
+              "best_epoch": 4,
+              "best_val_auc": 0.829166615514396,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10,
+              "best_val_auc": 0.8296454007678102,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8290274395812345,
+              "best_epoch": 10,
+              "best_val_auc": 0.8290274395812345,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8293427463533024,
+              "best_epoch": 16,
+              "best_val_auc": 0.8293427463533024,
+              "epochs_run": 26
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6087012893629249,
+              "best_epoch": 1,
+              "best_val_auc": 0.6087012893629249,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6203318124614948,
+              "best_epoch": 1,
+              "best_val_auc": 0.6203318124614948,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6434290043646875,
+              "best_epoch": 1,
+              "best_val_auc": 0.6434290043646875,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6476458722873534,
+              "best_epoch": 1,
+              "best_val_auc": 0.6476458722873534,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6014454754793552,
+              "best_epoch": 1,
+              "best_val_auc": 0.6014454754793552,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6043184375415744,
+              "best_epoch": 1,
+              "best_val_auc": 0.6043184375415744,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6128160615290412,
+              "best_epoch": 1,
+              "best_val_auc": 0.6128160615290412,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6111844084872515,
+              "best_epoch": 1,
+              "best_val_auc": 0.6111844084872515,
+              "epochs_run": 11
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8633571428571429,
+              "ci95": [
+                0.8386284139304636,
+                0.8897507521070536
+              ],
+              "gate": {
+                "auc": 0.8633571428571429,
+                "ci_low": 0.8386284139304636,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10
+            },
+            "43": {
+              "test_auc": 0.8626214285714287,
+              "ci95": [
+                0.8376052864829939,
+                0.8863357100447962
+              ],
+              "gate": {
+                "auc": 0.8626214285714287,
+                "ci_low": 0.8376052864829939,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8294026258276959,
+              "best_epoch": 12
+            },
+            "44": {
+              "test_auc": 0.8598714285714287,
+              "ci95": [
+                0.8329937357594736,
+                0.8855412210496357
+              ],
+              "gate": {
+                "auc": 0.8598714285714287,
+                "ci_low": 0.8329937357594736,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296709560246643,
+              "best_epoch": 8
+            }
+          },
+          "median_seed": 43,
+          "median_test_auc": 0.8626214285714287,
+          "median_ci95": [
+            0.8376052864829939,
+            0.8863357100447962
+          ],
+          "median_gate": {
+            "auc": 0.8626214285714287,
+            "ci_low": 0.8376052864829939,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "standardization": "per-client train statistics (same as local inputs in this run)"
+        }
       }
     },
     "belgium_ageas": {
@@ -170,6 +1720,781 @@
             "random_state": 42
           },
           "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
+        }
+      },
+      "neural": {
+        "local_only": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              128,
+              64
+            ],
+            "lr": 0.001,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on validation AUC (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.824053059868471,
+              "best_epoch": 6,
+              "best_val_auc": 0.824053059868471,
+              "epochs_run": 16
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.825217847264751,
+              "best_epoch": 12,
+              "best_val_auc": 0.825217847264751,
+              "epochs_run": 22
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8235687324631451,
+              "best_epoch": 6,
+              "best_val_auc": 0.8235687324631451,
+              "epochs_run": 16
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8237848785779186,
+              "best_epoch": 15,
+              "best_val_auc": 0.8237848785779186,
+              "epochs_run": 25
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8210350196732992,
+              "best_epoch": 18,
+              "best_val_auc": 0.8210350196732992,
+              "epochs_run": 28
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8237328434021399,
+              "best_epoch": 22,
+              "best_val_auc": 0.8237328434021399,
+              "epochs_run": 32
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8216634444884743,
+              "best_epoch": 27,
+              "best_val_auc": 0.8216634444884743,
+              "epochs_run": 37
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8228162237672667,
+              "best_epoch": 26,
+              "best_val_auc": 0.8228162237672667,
+              "epochs_run": 36
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6565838506830618,
+              "best_epoch": 2,
+              "best_val_auc": 0.6565838506830618,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6591375770020534,
+              "best_epoch": 2,
+              "best_val_auc": 0.6591375770020534,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6494910559538248,
+              "best_epoch": 4,
+              "best_val_auc": 0.6494910559538248,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6533976968430659,
+              "best_epoch": 3,
+              "best_val_auc": 0.6533976968430659,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6140430931309566,
+              "best_epoch": 2,
+              "best_val_auc": 0.6140430931309566,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6252106423942585,
+              "best_epoch": 2,
+              "best_val_auc": 0.6252106423942585,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.607991001917296,
+              "best_epoch": 3,
+              "best_val_auc": 0.607991001917296,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6106127742353831,
+              "best_epoch": 3,
+              "best_val_auc": 0.6106127742353831,
+              "epochs_run": 13
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.834938230000932,
+              "ci95": [
+                0.8065000730336412,
+                0.8620508694129836
+              ],
+              "gate": {
+                "auc": 0.834938230000932,
+                "ci_low": 0.8065000730336412,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.825217847264751,
+              "best_epoch": 12
+            },
+            "43": {
+              "test_auc": 0.8340921638500314,
+              "ci95": [
+                0.8057591478108854,
+                0.8616457255369528
+              ],
+              "gate": {
+                "auc": 0.8340921638500314,
+                "ci_low": 0.8057591478108854,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8229142900600805,
+              "best_epoch": 3
+            },
+            "44": {
+              "test_auc": 0.8381504133535052,
+              "ci95": [
+                0.8094958686403363,
+                0.8628814506281595
+              ],
+              "gate": {
+                "auc": 0.8381504133535052,
+                "ci_low": 0.8094958686403363,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8240570625743002,
+              "best_epoch": 7
+            }
+          },
+          "median_seed": 42,
+          "median_test_auc": 0.834938230000932,
+          "median_ci95": [
+            0.8065000730336412,
+            0.8620508694129836
+          ],
+          "median_gate": {
+            "auc": 0.834938230000932,
+            "ci_low": 0.8065000730336412,
+            "meets_target": true,
+            "status": "supported"
+          }
+        },
+        "pooled": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              64,
+              32
+            ],
+            "lr": 0.001,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on pooled validation AUC (seed 42); evaluated on each client's test split once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8283701433424421,
+              "best_epoch": 9,
+              "best_val_auc": 0.8283701433424421,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8288266303815425,
+              "best_epoch": 9,
+              "best_val_auc": 0.8288266303815425,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8285510344742919,
+              "best_epoch": 9,
+              "best_val_auc": 0.8285510344742919,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8286414800402169,
+              "best_epoch": 9,
+              "best_val_auc": 0.8286414800402169,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.829166615514396,
+              "best_epoch": 4,
+              "best_val_auc": 0.829166615514396,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10,
+              "best_val_auc": 0.8296454007678102,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8290274395812345,
+              "best_epoch": 10,
+              "best_val_auc": 0.8290274395812345,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8293427463533024,
+              "best_epoch": 16,
+              "best_val_auc": 0.8293427463533024,
+              "epochs_run": 26
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6087012893629249,
+              "best_epoch": 1,
+              "best_val_auc": 0.6087012893629249,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6203318124614948,
+              "best_epoch": 1,
+              "best_val_auc": 0.6203318124614948,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6434290043646875,
+              "best_epoch": 1,
+              "best_val_auc": 0.6434290043646875,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6476458722873534,
+              "best_epoch": 1,
+              "best_val_auc": 0.6476458722873534,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6014454754793552,
+              "best_epoch": 1,
+              "best_val_auc": 0.6014454754793552,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6043184375415744,
+              "best_epoch": 1,
+              "best_val_auc": 0.6043184375415744,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6128160615290412,
+              "best_epoch": 1,
+              "best_val_auc": 0.6128160615290412,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6111844084872515,
+              "best_epoch": 1,
+              "best_val_auc": 0.6111844084872515,
+              "epochs_run": 11
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8466684352795245,
+              "ci95": [
+                0.8187882078455935,
+                0.8745822107199531
+              ],
+              "gate": {
+                "auc": 0.8466684352795245,
+                "ci_low": 0.8187882078455935,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10
+            },
+            "43": {
+              "test_auc": 0.8465752246018828,
+              "ci95": [
+                0.8181384056830875,
+                0.8733790446551774
+              ],
+              "gate": {
+                "auc": 0.8465752246018828,
+                "ci_low": 0.8181384056830875,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8294026258276959,
+              "best_epoch": 12
+            },
+            "44": {
+              "test_auc": 0.8453061253755314,
+              "ci95": [
+                0.8169296589762534,
+                0.8730312353527692
+              ],
+              "gate": {
+                "auc": 0.8453061253755314,
+                "ci_low": 0.8169296589762534,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296709560246643,
+              "best_epoch": 8
+            }
+          },
+          "median_seed": 43,
+          "median_test_auc": 0.8465752246018828,
+          "median_ci95": [
+            0.8181384056830875,
+            0.8733790446551774
+          ],
+          "median_gate": {
+            "auc": 0.8465752246018828,
+            "ci_low": 0.8181384056830875,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "standardization": "per-client train statistics (same as local inputs in this run)"
         }
       }
     },
@@ -226,10 +2551,786 @@
           },
           "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
         }
+      },
+      "neural": {
+        "local_only": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              64,
+              32
+            ],
+            "lr": 0.001,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on validation AUC (seed 42); test evaluated once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8400923456849709,
+              "best_epoch": 11,
+              "best_val_auc": 0.8400923456849709,
+              "epochs_run": 21
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8428273224175585,
+              "best_epoch": 11,
+              "best_val_auc": 0.8428273224175585,
+              "epochs_run": 21
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8412104685256464,
+              "best_epoch": 11,
+              "best_val_auc": 0.8412104685256464,
+              "epochs_run": 21
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8418338823396923,
+              "best_epoch": 11,
+              "best_val_auc": 0.8418338823396923,
+              "epochs_run": 21
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8459926557830679,
+              "best_epoch": 9,
+              "best_val_auc": 0.8459926557830679,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8462379992840796,
+              "best_epoch": 9,
+              "best_val_auc": 0.8462379992840796,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.8458559069464388,
+              "best_epoch": 16,
+              "best_val_auc": 0.8458559069464388,
+              "epochs_run": 26
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.845469792584191,
+              "best_epoch": 16,
+              "best_val_auc": 0.845469792584191,
+              "epochs_run": 26
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6500416279546799,
+              "best_epoch": 2,
+              "best_val_auc": 0.6500416279546799,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6512140481275465,
+              "best_epoch": 2,
+              "best_val_auc": 0.6512140481275465,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6595275729896917,
+              "best_epoch": 3,
+              "best_val_auc": 0.6595275729896917,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6584939126657576,
+              "best_epoch": 3,
+              "best_val_auc": 0.6584939126657576,
+              "epochs_run": 13
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6333039725537041,
+              "best_epoch": 2,
+              "best_val_auc": 0.6333039725537041,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6326483825428043,
+              "best_epoch": 2,
+              "best_val_auc": 0.6326483825428043,
+              "epochs_run": 12
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6314216650377467,
+              "best_epoch": 4,
+              "best_val_auc": 0.6314216650377467,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc": 0.6328897040192092,
+              "best_epoch": 4,
+              "best_val_auc": 0.6328897040192092,
+              "epochs_run": 14
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.8552451928547048,
+              "ci95": [
+                0.827922159325191,
+                0.8812877583620613
+              ],
+              "gate": {
+                "auc": 0.8552451928547048,
+                "ci_low": 0.827922159325191,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8462379992840796,
+              "best_epoch": 9
+            },
+            "43": {
+              "test_auc": 0.8627403572647628,
+              "ci95": [
+                0.8354917401003736,
+                0.8887433829349632
+              ],
+              "gate": {
+                "auc": 0.8627403572647628,
+                "ci_low": 0.8354917401003736,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8433381195426154,
+              "best_epoch": 12
+            },
+            "44": {
+              "test_auc": 0.8599314484014108,
+              "ci95": [
+                0.8336009776259962,
+                0.8856486709388585
+              ],
+              "gate": {
+                "auc": 0.8599314484014108,
+                "ci_low": 0.8336009776259962,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc": 0.8490373284103752,
+              "best_epoch": 15
+            }
+          },
+          "median_seed": 44,
+          "median_test_auc": 0.8599314484014108,
+          "median_ci95": [
+            0.8336009776259962,
+            0.8856486709388585
+          ],
+          "median_gate": {
+            "auc": 0.8599314484014108,
+            "ci_low": 0.8336009776259962,
+            "meets_target": true,
+            "status": "supported"
+          }
+        },
+        "pooled": {
+          "best_config": {
+            "head": "single",
+            "hidden_dims": [
+              64,
+              32
+            ],
+            "lr": 0.001,
+            "dropout": 0.3,
+            "weight_decay": 0.0,
+            "max_epochs": 60,
+            "patience": 10,
+            "batch_size": 64
+          },
+          "selection": "grid search on pooled validation AUC (seed 42); evaluated on each client's test split once per seed",
+          "grid": [
+            {
+              "cfg_id": 0,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8283701433424421,
+              "best_epoch": 9,
+              "best_val_auc": 0.8283701433424421,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 1,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8288266303815425,
+              "best_epoch": 9,
+              "best_val_auc": 0.8288266303815425,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 2,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8285510344742919,
+              "best_epoch": 9,
+              "best_val_auc": 0.8285510344742919,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 3,
+              "head": "single",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8286414800402169,
+              "best_epoch": 9,
+              "best_val_auc": 0.8286414800402169,
+              "epochs_run": 19
+            },
+            {
+              "cfg_id": 4,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.829166615514396,
+              "best_epoch": 4,
+              "best_val_auc": 0.829166615514396,
+              "epochs_run": 14
+            },
+            {
+              "cfg_id": 5,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10,
+              "best_val_auc": 0.8296454007678102,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 6,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8290274395812345,
+              "best_epoch": 10,
+              "best_val_auc": 0.8290274395812345,
+              "epochs_run": 20
+            },
+            {
+              "cfg_id": 7,
+              "head": "single",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.8293427463533024,
+              "best_epoch": 16,
+              "best_val_auc": 0.8293427463533024,
+              "epochs_run": 26
+            },
+            {
+              "cfg_id": 8,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6087012893629249,
+              "best_epoch": 1,
+              "best_val_auc": 0.6087012893629249,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 9,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6203318124614948,
+              "best_epoch": 1,
+              "best_val_auc": 0.6203318124614948,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 10,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6434290043646875,
+              "best_epoch": 1,
+              "best_val_auc": 0.6434290043646875,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 11,
+              "head": "multi",
+              "hidden_dims": [
+                128,
+                64
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6476458722873534,
+              "best_epoch": 1,
+              "best_val_auc": 0.6476458722873534,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 12,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6014454754793552,
+              "best_epoch": 1,
+              "best_val_auc": 0.6014454754793552,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 13,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.001,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6043184375415744,
+              "best_epoch": 1,
+              "best_val_auc": 0.6043184375415744,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 14,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.2,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6128160615290412,
+              "best_epoch": 1,
+              "best_val_auc": 0.6128160615290412,
+              "epochs_run": 11
+            },
+            {
+              "cfg_id": 15,
+              "head": "multi",
+              "hidden_dims": [
+                64,
+                32
+              ],
+              "lr": 0.0005,
+              "dropout": 0.3,
+              "weight_decay": 0.0,
+              "max_epochs": 60,
+              "patience": 10,
+              "batch_size": 64,
+              "selection_seed": 42,
+              "val_auc_pooled": 0.6111844084872515,
+              "best_epoch": 1,
+              "best_val_auc": 0.6111844084872515,
+              "epochs_run": 11
+            }
+          ],
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "runs": {
+            "42": {
+              "test_auc": 0.86945329389009,
+              "ci95": [
+                0.8453209458749518,
+                0.8946569966980439
+              ],
+              "gate": {
+                "auc": 0.86945329389009,
+                "ci_low": 0.8453209458749518,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296454007678102,
+              "best_epoch": 10
+            },
+            "43": {
+              "test_auc": 0.8720630902264195,
+              "ci95": [
+                0.8474608284005064,
+                0.8954914118283165
+              ],
+              "gate": {
+                "auc": 0.8720630902264195,
+                "ci_low": 0.8474608284005064,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8294026258276959,
+              "best_epoch": 12
+            },
+            "44": {
+              "test_auc": 0.8672346114461258,
+              "ci95": [
+                0.8421860302320059,
+                0.890796584651561
+              ],
+              "gate": {
+                "auc": 0.8672346114461258,
+                "ci_low": 0.8421860302320059,
+                "meets_target": true,
+                "status": "supported"
+              },
+              "best_val_auc_pooled": 0.8296709560246643,
+              "best_epoch": 8
+            }
+          },
+          "median_seed": 42,
+          "median_test_auc": 0.86945329389009,
+          "median_ci95": [
+            0.8453209458749518,
+            0.8946569966980439
+          ],
+          "median_gate": {
+            "auc": 0.86945329389009,
+            "ci_low": 0.8453209458749518,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "standardization": "per-client train statistics (same as local inputs in this run)"
+        }
       }
     }
   },
   "notes": [
-    "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once)."
+    "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once).",
+    "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance)."
   ]
 }

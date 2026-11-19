@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Evaluate is_high_risk shipped-model gate per client on v2 canonical data.
 
-Produces/updates reports/is_high_risk_auc.json incrementally (A1 baselines, etc.).
+Produces/updates reports/is_high_risk_auc.json incrementally.
 Selection/early stopping use validation only; test evaluated once per reported run.
 """
 
@@ -11,6 +11,7 @@ import argparse
 import copy
 import json
 import math
+import random
 import subprocess
 import sys
 from pathlib import Path
@@ -26,8 +27,8 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from insurance_fl.fl.task import CLIENT_IDS, build_model, evaluate, load_partition, train  # noqa: E402
-from insurance_fl.models.multi_task_nn import MultiTaskNN  # noqa: E402
+from insurance_fl.fl.task import CLIENT_IDS, load_partition  # noqa: E402
+from insurance_fl.models.multi_task_nn import DEFAULT_TASK_TYPES, MultiTaskNN  # noqa: E402
 
 MANIFEST = ROOT / "docs" / "evidence" / "dataset_manifest.json"
 DEFAULT_OUT = ROOT / "reports" / "is_high_risk_auc.json"
@@ -45,7 +46,17 @@ def git_state(cwd: Path = ROOT) -> dict[str, Any]:
         pass
     try:
         dirty = subprocess.check_output(
-            ["git", "status", "--porcelain", "-uno", "--", ".", ":(exclude)reports", ":(exclude)artifacts"],
+            [
+                "git",
+                "status",
+                "--porcelain",
+                "-uno",
+                "--",
+                ".",
+                ":(exclude)reports",
+                ":(exclude)artifacts",
+                ":(exclude)docs/evidence",
+            ],
             cwd=str(cwd),
             text=True,
             stderr=subprocess.DEVNULL,
@@ -70,8 +81,8 @@ def provenance() -> dict[str, Any]:
 
 def gate(auc: float, ci_low: float, target: float = 0.80) -> dict[str, Any]:
     auc_f = float(auc)
-    ci_low_f = float(ci_low)
-    status = "below" if auc_f < target else ("supported" if ci_low_f >= target else "marginal")
+    ci_low_f = float(ci_low) if ci_low is not None and np.isfinite(ci_low) else float("nan")
+    status = "below" if auc_f < target else ("supported" if np.isfinite(ci_low_f) and ci_low_f >= target else "marginal")
     return {
         "auc": auc_f,
         "ci_low": ci_low_f,
@@ -83,7 +94,7 @@ def gate(auc: float, ci_low: float, target: float = 0.80) -> dict[str, Any]:
 def bootstrap_auc_ci(y_true: np.ndarray, y_score: np.ndarray, seed: int, n_boot: int = 1000) -> tuple[float, float, float]:
     y_true = np.asarray(y_true).astype(int)
     y_score = np.asarray(y_score, dtype=float)
-    auc = float(roc_auc_score(y_true, y_score))
+    auc = float(roc_auc_score(y_true, y_score)) if len(np.unique(y_true)) > 1 else float("nan")
     if len(np.unique(y_true)) < 2:
         return auc, float("nan"), float("nan")
     rng = np.random.default_rng(seed)
@@ -108,11 +119,10 @@ def load_client_splits(client_id: str, data_dir: Path = DATA_DIR):
     x_tr, y_tr = load_partition(data_dir, client_id, split="train")
     x_va, y_va = load_partition(data_dir, client_id, split="val")
     x_te, y_te = load_partition(data_dir, client_id, split="test")
-    return (x_tr, y_tr[TASK]), (x_va, y_va[TASK]), (x_te, y_te[TASK])
+    return (x_tr, y_tr), (x_va, y_va), (x_te, y_te)
 
 
 def majority_baseline(train_y: np.ndarray, test_y: np.ndarray, seed: int) -> dict[str, Any]:
-    # Constant-score predictor => AUC 0.5 (uninformative ranking). Report majority class for reference.
     p = np.full(len(test_y), float(np.mean(train_y)), dtype=float)
     auc, lo, hi = bootstrap_auc_ci(test_y, p, seed=seed)
     maj = int(np.mean(train_y) >= 0.5)
@@ -130,8 +140,6 @@ def majority_baseline(train_y: np.ndarray, test_y: np.ndarray, seed: int) -> dic
 
 def gbm_baseline(train_xy, val_xy, test_xy, seed: int) -> dict[str, Any]:
     (x_tr, y_tr), (x_va, y_va), (x_te, y_te) = train_xy, val_xy, test_xy
-    # Selection/early stopping on validation only: use early_stopping with internal split on train
-    # (does not touch test). Report val AUC for transparency.
     clf = HistGradientBoostingClassifier(
         max_iter=300,
         learning_rate=0.05,
@@ -165,13 +173,12 @@ def gbm_baseline(train_xy, val_xy, test_xy, seed: int) -> dict[str, Any]:
 
 
 def set_seeds(seed: int) -> None:
-    import random
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
 
 
-def sigmoid(x):
+def sigmoid_np(x):
     return 1.0 / (1.0 + np.exp(-np.clip(x, -50, 50)))
 
 
@@ -180,16 +187,18 @@ def predict_is_high_risk_proba(model: MultiTaskNN, x: np.ndarray) -> np.ndarray:
     with torch.no_grad():
         logits = model(torch.as_tensor(x, dtype=torch.float32))
         out = logits[TASK]
-        return sigmoid(out.detach().cpu().numpy().reshape(-1))
+        return sigmoid_np(out.detach().cpu().numpy().reshape(-1))
 
 
-def standardize_train(train_x, other_xs):
-    mean = train_x.mean(axis=0)
-    std = train_x.std(axis=0)
-    std = np.where(std < 1e-8, 1.0, std)
-    def tr(x):
-        return ((x - mean) / std).astype(np.float32)
-    return tr(train_x), [tr(x) for x in other_xs], {"mean": mean.tolist(), "std": std.tolist()}
+def standardize_fit(train_x: np.ndarray):
+    mean = train_x.mean(axis=0).astype(np.float32)
+    std = train_x.std(axis=0).astype(np.float32)
+    std = np.where(std < 1e-8, 1.0, std).astype(np.float32)
+    return mean, std
+
+
+def standardize_apply(x: np.ndarray, mean, std):
+    return ((x - mean) / std).astype(np.float32)
 
 
 def nn_val_auc(model: MultiTaskNN, x_va: np.ndarray, y_va: np.ndarray) -> float:
@@ -199,8 +208,8 @@ def nn_val_auc(model: MultiTaskNN, x_va: np.ndarray, y_va: np.ndarray) -> float:
     return float(roc_auc_score(y_va, p))
 
 
-def train_nn_local(
-    x_tr, y_tr_dict, x_va, y_va, *, seed: int, hidden_dims, dropout, lr, weight_decay,
+def train_nn(
+    x_tr, y_tr_dict, x_va, y_va_binary, *, seed: int, hidden_dims, dropout, lr, weight_decay,
     max_epochs: int, patience: int, batch_size: int, single_task: bool,
 ) -> tuple[MultiTaskNN, dict[str, Any]]:
     set_seeds(seed)
@@ -209,9 +218,14 @@ def train_nn_local(
         task_types = {TASK: "binary"}
         y_tr_use = {TASK: y_tr_dict[TASK]}
     else:
-        task_types = None  # default 5 tasks
+        task_types = dict(DEFAULT_TASK_TYPES)
         y_tr_use = y_tr_dict
-    model = MultiTaskNN(input_dim=input_dim, task_types=task_types, hidden_dims=list(hidden_dims), dropout_rate=dropout)
+    model = MultiTaskNN(
+        input_dim=input_dim,
+        task_types=task_types,
+        hidden_dims=list(hidden_dims),
+        dropout_rate=float(dropout),
+    )
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     xt = torch.as_tensor(x_tr, dtype=torch.float32)
     yt = {k: torch.as_tensor(v) for k, v in y_tr_use.items()}
@@ -229,17 +243,21 @@ def train_nn_local(
             idx = perm[start : start + batch_size]
             if idx.numel() < 2:
                 continue
-            opt.zero_grad()
+            opt.zero_grad(set_to_none=True)
             logits = model(xt[idx])
             losses = model.get_losses(logits, {k: v[idx] for k, v in yt.items()})
-            loss = model.get_kendall_total_loss(losses) if not single_task else model.get_total_loss(losses)
+            if single_task:
+                loss = model.get_total_loss(losses)
+            else:
+                loss = model.get_kendall_total_loss(losses)
             loss.backward()
             opt.step()
             last = float(loss.detach().item())
-        va = nn_val_auc(model, x_va, y_va)
+        va = nn_val_auc(model, x_va, y_va_binary)
         history.append({"epoch": epoch, "train_loss": last, "val_auc": va})
-        if np.isfinite(va) and va > best_auc + 1e-6:
-            best_auc = va
+        score = va if np.isfinite(va) else -1.0
+        if score > best_auc + 1e-6:
+            best_auc = score
             best_state = copy.deepcopy(model.state_dict())
             best_epoch = epoch
             bad = 0
@@ -248,28 +266,35 @@ def train_nn_local(
         if bad >= patience:
             break
     model.load_state_dict(best_state)
-    info = {
+    return model, {
         "best_epoch": best_epoch,
         "best_val_auc": float(best_auc),
         "epochs_run": len(history),
-        "history_tail": history[-5:],
     }
-    return model, info
+
+
+def load_report(out_path: Path) -> dict[str, Any]:
+    if out_path.exists():
+        return json.loads(out_path.read_text())
+    return {"task": TASK, "data_dir": str(DATA_DIR), **provenance(), **git_state(), "clients": {}, "notes": []}
+
+
+def save_report(report: dict[str, Any], out_path: Path) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2, default=str))
 
 
 def run_a1(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
-    report = {
-        "task": TASK,
-        "data_dir": str(DATA_DIR),
-        **provenance(),
-        **git_state(),
-        "clients": {},
-        "notes": [],
-    }
+    report = load_report(out_path)
+    report.update({"task": TASK, "data_dir": str(DATA_DIR), **provenance(), **git_state()})
+    report.setdefault("clients", {})
+    report.setdefault("notes", [])
     for cid in CLIENT_IDS:
-        (x_tr, y_tr), (x_va, y_va), (x_te, y_te) = load_client_splits(cid)
-        client = {
-            "splits": {"train": len(y_tr), "val": len(y_va), "test": len(y_te)},
+        (x_tr, y_trd), (x_va, y_vad), (x_te, y_ted) = load_client_splits(cid)
+        y_tr, y_va, y_te = y_trd[TASK], y_vad[TASK], y_ted[TASK]
+        client = report["clients"].get(cid, {})
+        client.update({
+            "splits": {"train": int(len(y_tr)), "val": int(len(y_va)), "test": int(len(y_te))},
             "pos_rate": {
                 "train": float(np.mean(y_tr)),
                 "val": float(np.mean(y_va)),
@@ -279,22 +304,179 @@ def run_a1(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
                 "majority": majority_baseline(y_tr, y_te, seed=42),
                 "gbm": gbm_baseline((x_tr, y_tr), (x_va, y_va), (x_te, y_te), seed=42),
             },
-        }
+        })
         report["clients"][cid] = client
         print(f"A1 {cid}: majority_auc={client['baselines']['majority']['auc']:.4f} gbm_auc={client['baselines']['gbm']['auc']:.4f} ci={client['baselines']['gbm']['ci95']}", flush=True)
-    report["notes"].append("A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once).")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(report, indent=2))
+    note = "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once)."
+    if note not in report["notes"]:
+        report["notes"].append(note)
+    save_report(report, out_path)
+    return report
+
+
+def nn_grid() -> list[dict[str, Any]]:
+    grid = []
+    for head in ["single", "multi"]:
+        for hidden in [[128, 64], [64, 32]]:
+            for lr in [1e-3, 5e-4]:
+                for dropout in [0.2, 0.3]:
+                    grid.append({
+                        "head": head,
+                        "hidden_dims": hidden,
+                        "lr": lr,
+                        "dropout": dropout,
+                        "weight_decay": 0.0,
+                        "max_epochs": 60,
+                        "patience": 10,
+                        "batch_size": 64,
+                    })
+    return grid
+
+
+def run_a2(out_path: Path = DEFAULT_OUT) -> dict[str, Any]:
+    report = load_report(out_path)
+    report.update({**provenance(), **git_state()})
+    report.setdefault("clients", {})
+    report.setdefault("notes", [])
+    grid = nn_grid()
+    seeds = [42, 43, 44]
+
+    # Preload all client data
+    data = {}
+    for cid in CLIENT_IDS:
+        (x_tr, y_trd), (x_va, y_vad), (x_te, y_ted) = load_client_splits(cid)
+        mu, sd = standardize_fit(x_tr)
+        data[cid] = {
+            "x_tr": standardize_apply(x_tr, mu, sd),
+            "y_trd": y_trd,
+            "x_va": standardize_apply(x_va, mu, sd),
+            "y_vad": y_vad,
+            "x_te": standardize_apply(x_te, mu, sd),
+            "y_ted": y_ted,
+        }
+
+    # Local-only per client
+    for cid in CLIENT_IDS:
+        d = data[cid]
+        grid_log = []
+        best_cfg = None
+        best_val = -1.0
+        for i, cfg in enumerate(grid):
+            model, info = train_nn(
+                d["x_tr"], d["y_trd"], d["x_va"], d["y_vad"][TASK],
+                seed=42,
+                hidden_dims=cfg["hidden_dims"], dropout=cfg["dropout"], lr=cfg["lr"],
+                weight_decay=cfg["weight_decay"], max_epochs=cfg["max_epochs"],
+                patience=cfg["patience"], batch_size=cfg["batch_size"], single_task=(cfg["head"]=="single"),
+            )
+            val_auc = float(info["best_val_auc"])
+            entry = {"cfg_id": i, **cfg, "selection_seed": 42, "val_auc": val_auc, **info}
+            grid_log.append(entry)
+            if np.isfinite(val_auc) and val_auc > best_val:
+                best_val = val_auc
+                best_cfg = cfg
+        # evaluate best with 3 seeds
+        runs = {}
+        preds_by_seed = {}
+        for s in seeds:
+            model, info = train_nn(
+                d["x_tr"], d["y_trd"], d["x_va"], d["y_vad"][TASK],
+                seed=s,
+                hidden_dims=best_cfg["hidden_dims"], dropout=best_cfg["dropout"], lr=best_cfg["lr"],
+                weight_decay=best_cfg["weight_decay"], max_epochs=best_cfg["max_epochs"],
+                patience=best_cfg["patience"], batch_size=best_cfg["batch_size"], single_task=(best_cfg["head"]=="single"),
+            )
+            p = predict_is_high_risk_proba(model, d["x_te"])
+            auc, lo, hi = bootstrap_auc_ci(d["y_ted"][TASK], p, seed=2000 + s)
+            runs[str(s)] = {"test_auc": auc, "ci95": [lo, hi], "gate": gate(auc, lo), "best_val_auc": info["best_val_auc"], "best_epoch": info["best_epoch"]}
+            preds_by_seed[str(s)] = p.tolist()
+        median_seed = sorted(seeds, key=lambda s: runs[str(s)]["test_auc"])[1]
+        med = runs[str(median_seed)]
+        client = report["clients"].setdefault(cid, {})
+        client.setdefault("neural", {})
+        client["neural"]["local_only"] = {
+            "best_config": best_cfg,
+            "selection": "grid search on validation AUC (seed 42); test evaluated once per seed",
+            "grid": grid_log,
+            "seeds": seeds,
+            "runs": runs,
+            "median_seed": median_seed,
+            "median_test_auc": med["test_auc"],
+            "median_ci95": med["ci95"],
+            "median_gate": med["gate"],
+        }
+        print(f"A2 local {cid}: best_val={best_val:.4f} cfg={best_cfg} median_test={med['test_auc']:.4f}", flush=True)
+
+    # Pooled NN
+    x_tr_all = np.vstack([data[c]["x_tr"] for c in CLIENT_IDS])
+    y_trd_all = {t: np.concatenate([data[c]["y_trd"][t] for c in CLIENT_IDS]) for t in DEFAULT_TASK_TYPES}
+    x_va_all = np.vstack([data[c]["x_va"] for c in CLIENT_IDS])
+    y_va_all = np.concatenate([data[c]["y_vad"][TASK] for c in CLIENT_IDS])
+    grid_log_p = []
+    best_cfg_p = None
+    best_val_p = -1.0
+    for i, cfg in enumerate(grid):
+        model, info = train_nn(
+            x_tr_all, y_trd_all, x_va_all, y_va_all,
+            seed=42,
+            hidden_dims=cfg["hidden_dims"], dropout=cfg["dropout"], lr=cfg["lr"],
+            weight_decay=cfg["weight_decay"], max_epochs=cfg["max_epochs"],
+            patience=cfg["patience"], batch_size=cfg["batch_size"], single_task=(cfg["head"]=="single"),
+        )
+        val_auc = float(info["best_val_auc"])
+        entry = {"cfg_id": i, **cfg, "selection_seed": 42, "val_auc_pooled": val_auc, **info}
+        grid_log_p.append(entry)
+        if np.isfinite(val_auc) and val_auc > best_val_p:
+            best_val_p = val_auc
+            best_cfg_p = cfg
+    for cid in CLIENT_IDS:
+        d = data[cid]
+        runs = {}
+        for s in seeds:
+            model, info = train_nn(
+                x_tr_all, y_trd_all, x_va_all, y_va_all,
+                seed=s,
+                hidden_dims=best_cfg_p["hidden_dims"], dropout=best_cfg_p["dropout"], lr=best_cfg_p["lr"],
+                weight_decay=best_cfg_p["weight_decay"], max_epochs=best_cfg_p["max_epochs"],
+                patience=best_cfg_p["patience"], batch_size=best_cfg_p["batch_size"], single_task=(best_cfg_p["head"]=="single"),
+            )
+            p = predict_is_high_risk_proba(model, d["x_te"])
+            auc, lo, hi = bootstrap_auc_ci(d["y_ted"][TASK], p, seed=3000 + s)
+            runs[str(s)] = {"test_auc": auc, "ci95": [lo, hi], "gate": gate(auc, lo), "best_val_auc_pooled": info["best_val_auc"], "best_epoch": info["best_epoch"]}
+        median_seed = sorted(seeds, key=lambda s: runs[str(s)]["test_auc"])[1]
+        med = runs[str(median_seed)]
+        client = report["clients"].setdefault(cid, {})
+        client.setdefault("neural", {})
+        client["neural"]["pooled"] = {
+            "best_config": best_cfg_p,
+            "selection": "grid search on pooled validation AUC (seed 42); evaluated on each client's test split once per seed",
+            "grid": grid_log_p,
+            "seeds": seeds,
+            "runs": runs,
+            "median_seed": median_seed,
+            "median_test_auc": med["test_auc"],
+            "median_ci95": med["ci95"],
+            "median_gate": med["gate"],
+            "standardization": "per-client train statistics (same as local inputs in this run)",
+        }
+        print(f"A2 pooled {cid}: best_val_pooled={best_val_p:.4f} median_test={med['test_auc']:.4f}", flush=True)
+
+    note = "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance)."
+    if note not in report["notes"]:
+        report["notes"].append(note)
+    save_report(report, out_path)
     return report
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", default="a1", choices=["a1"])
+    ap.add_argument("--stage", default="a1", choices=["a1", "a2"])
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     args = ap.parse_args(argv)
     if args.stage == "a1":
         run_a1(Path(args.out))
+    elif args.stage == "a2":
+        run_a2(Path(args.out))
     return 0
 
 
