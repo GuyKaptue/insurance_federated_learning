@@ -27,13 +27,13 @@ self-describing. No silent FX conversion is applied.
 
 from __future__ import annotations
 
-import inspect
 import hashlib
+import inspect
 import json
 import zlib
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import pandas as pd
@@ -96,7 +96,7 @@ def high_risk_logit(df: pd.DataFrame) -> np.ndarray:
         * (df["savings_balance"] - df["savings_balance"].mean())
         / (df["savings_balance"].std() + 1e-12)
     )
-    return np.asarray(logit, dtype=float)
+    return cast(np.ndarray, np.array(logit, dtype=np.float64, copy=True))
 
 
 def label_logic_sha() -> str:

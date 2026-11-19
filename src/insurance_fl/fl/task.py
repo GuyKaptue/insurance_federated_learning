@@ -25,7 +25,7 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
-from typing import Any
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -99,9 +99,7 @@ def _partition_path(data_dir: Path, client_id: str, split: str) -> Path:
     return path
 
 
-def _fit_missing_policy(
-    data_dir: Path, client_id: str
-) -> tuple[list[str], dict[str, float]]:
+def _fit_missing_policy(data_dir: Path, client_id: str) -> tuple[list[str], dict[str, float]]:
     """Fit median imputation on the TRAIN split only (per client).
 
     Returns (feature_cols, medians). Indicator columns are fixed globally
@@ -141,11 +139,11 @@ def _apply_missing_policy(
         if xdf[c].isna().any():
             xdf[c] = xdf[c].fillna(medians.get(c, 0.0))
     xdf = pd.concat([xdf, ind_df], axis=1)
-    arr = xdf.to_numpy(dtype=np.float32, copy=True)
+    arr = np.asarray(xdf.to_numpy(dtype=np.float32, copy=True), dtype=np.float32)
     if not np.isfinite(arr).all():
         # Final safety net for any remaining non-finite values.
         arr = np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0, copy=False)
-    return arr
+    return cast(np.ndarray, np.array(arr, dtype=np.float32, copy=False))
 
 
 def get_feature_names(data_dir: Path, client_id: str, split: str = "train") -> list[str]:
@@ -154,7 +152,6 @@ def get_feature_names(data_dir: Path, client_id: str, split: str = "train") -> l
     df = pd.read_parquet(path)
     cols = feature_columns(df)
     return cols + [f"{c}__missing" for c in MISSING_INDICATOR_COLS]
-
 
 
 def load_partition(

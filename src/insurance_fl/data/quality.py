@@ -52,9 +52,11 @@ class DataQualityAnalyzer:
         except TypeError:
             # Fallback: hash stable string representations per cell/row
             safe = df.map(
-                lambda x: x.tobytes()
-                if isinstance(x, np.ndarray)
-                else (tuple(x) if isinstance(x, list) else x)
+                lambda x: (
+                    x.tobytes()
+                    if isinstance(x, np.ndarray)
+                    else (tuple(x) if isinstance(x, list) else x)
+                )
             )
             try:
                 dup_mask = safe.duplicated()
@@ -91,9 +93,11 @@ class DataQualityAnalyzer:
                 try:
                     unique_values[col] = int(
                         s.map(
-                            lambda x: x.tobytes()
-                            if isinstance(x, np.ndarray)
-                            else (tuple(x) if isinstance(x, list) else x)
+                            lambda x: (
+                                x.tobytes()
+                                if isinstance(x, np.ndarray)
+                                else (tuple(x) if isinstance(x, list) else x)
+                            )
                         ).nunique()
                     )
                 except Exception:

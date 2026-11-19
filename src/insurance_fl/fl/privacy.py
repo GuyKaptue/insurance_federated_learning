@@ -71,9 +71,7 @@ def build_privacy_config(run_config: dict[str, Any] | None = None) -> PrivacyCon
 def _make_accountant() -> Any:
     """Create an RdpAccountant instance if dp_accounting is available."""
     if not _HAS_DP:
-        raise PrivacyBackendUnavailable(
-            "dp-accounting not installed; refusing to report epsilon."
-        )
+        raise PrivacyBackendUnavailable("dp-accounting not installed; refusing to report epsilon.")
     return RdpAccountant()
 
 
@@ -140,9 +138,7 @@ class RdpAccountantWrapper:
             self._compose_event(ev)
 
     @classmethod
-    def from_state(
-        cls, cfg: PrivacyConfig, state: dict[str, Any]
-    ) -> "RdpAccountantWrapper":
+    def from_state(cls, cfg: PrivacyConfig, state: dict[str, Any]) -> RdpAccountantWrapper:
         """Create accountant from state dict (for resuming runs)."""
         acc = cls.__new__(cls)
         acc.cfg = cfg
@@ -172,7 +168,7 @@ class RdpAccountantWrapper:
     @classmethod
     def load_state(
         cls, path: str | Path | None = None, cfg: PrivacyConfig | None = None
-    ) -> "RdpAccountantWrapper":
+    ) -> RdpAccountantWrapper:
         """Load accountant state from disk."""
         cfg = cfg or PrivacyConfig()
         if path is None:
@@ -247,9 +243,7 @@ class RdpAccountantWrapper:
         gd_event = GaussianDpEvent(noise_multiplier=self.cfg.noise_multiplier)
         if projected_count > 0:
             temp_accountant.compose(gd_event, count=projected_count)
-        eps, _ = temp_accountant.get_epsilon_and_optimal_order(
-            target_delta=self.cfg.delta
-        )
+        eps, _ = temp_accountant.get_epsilon_and_optimal_order(target_delta=self.cfg.delta)
         return float(eps)
 
     def would_exceed(self) -> bool:
@@ -258,7 +252,7 @@ class RdpAccountantWrapper:
         if self.cfg.noise_multiplier <= 0:
             return True
         eps = self.epsilon()["epsilon"]
-        return eps > float(self.cfg.max_epsilon)
+        return bool(eps > float(self.cfg.max_epsilon))
 
 
 __all__ = [
