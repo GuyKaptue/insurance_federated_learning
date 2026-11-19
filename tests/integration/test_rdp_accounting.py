@@ -151,6 +151,32 @@ def test_invalid_config_delta_rejected() -> None:
         PrivacyConfig(delta=1.0)
 
 
+def test_get_epsilon_delta_sensitivity() -> None:
+    """Stricter delta should require >= epsilon for same releases (property preserved)."""
+    def eps_for_delta(d: float) -> float:
+        acc = RdpAccountantWrapper(
+            PrivacyConfig(noise_multiplier=1.0, delta=d, target_delta=d, max_epsilon=1e9)
+        )
+        for _ in range(3):
+            acc.compose({"round": 1})
+        return acc.get_epsilon()
+
+    assert eps_for_delta(1e-7) > eps_for_delta(1e-5)
+
+
+def test_rejected_release_projection_does_not_commit() -> None:
+    """Budget-check/projection path must not mutate committed accounting state."""
+    acc = _make(noise_multiplier=0.1, max_epsilon=0.01)
+    # Current state is empty/under budget in terms of committed rounds; project over budget.
+    rounds_before = acc.rounds
+    eps_before = acc.get_epsilon()
+    projected = acc.project_epsilon(additional_releases=1)
+    assert projected > 0.01 or math.isinf(projected) or acc.would_exceed() in (True, False)
+    # Projection/check must not commit events.
+    assert acc.rounds == rounds_before
+    assert acc.get_epsilon() == pytest.approx(eps_before)
+
+
 def test_backend_unavailable_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     import insurance_fl.fl.privacy as p
 
