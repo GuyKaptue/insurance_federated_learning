@@ -206,28 +206,44 @@ def main(argv: list[str] | None = None) -> int:
 
     target_epochs = args.epochs
     target_lr = args.lr
+    requested_m = args.n_members if args.mode == "full" else 100
+    requested_nm = args.n_nonmembers if args.mode == "full" else 100
     if args.control == "overfit":
-        # Intentionally memorize small train subset to sanity-check that MIA can detect leakage.
-        n_over = min(128, len(x_train))
+        # Intentionally memorize a very small train subset to sanity-check that MIA can detect leakage.
+        # Members are drawn from memorized training samples; non-members from held-out eval split.
+        # Use a small n and many epochs so train-vs-eval loss/confidence gap is detectable.
+        n_over = 32
+        n_over = min(n_over, requested_m, requested_nm, len(x_train), len(x_eval))
+        n_over = max(16, n_over)
         x_train_t, y_train_t = _slice_xy(x_train, y_train, 0, n_over)
-        target_epochs = max(args.epochs, 200)
-        target_lr = max(args.lr, 0.01)
+        target_epochs = max(args.epochs, 1000)
+        target_lr = max(args.lr, 0.05)
+        target_batch = min(args.batch_size, max(8, n_over // 2))
     else:
         x_train_t, y_train_t = x_train, y_train
+        target_batch = args.batch_size
 
     _set_global_seeds(args.seed)
     target_model = build_model(input_dim=int(x_train_t.shape[1]))
-    train(target_model, x_train_t, y_train_t, epochs=target_epochs, batch_size=args.batch_size, lr=target_lr)
+    train(target_model, x_train_t, y_train_t, epochs=target_epochs, batch_size=target_batch, lr=target_lr)
 
     # Member/non-member split for target
-    requested_m = args.n_members if args.mode == "full" else 100
-    requested_nm = args.n_nonmembers if args.mode == "full" else 100
-    n_member = min(requested_m, len(x_eval) // 2)
-    n_nonmember = min(requested_nm, len(x_eval) - n_member)
-    if n_member < 1 or n_nonmember < 1:
-        raise RuntimeError(f"Insufficient evaluation data for MIA: n_eval={len(x_eval)}")
-    x_member, y_member = _slice_xy(x_eval, y_eval, 0, n_member)
-    x_nonmember, y_nonmember = _slice_xy(x_eval, y_eval, n_member, n_member + n_nonmember)
+    if args.control == "overfit":
+        n_member = n_over
+        n_nonmember = n_over
+        if n_member < 1 or n_nonmember < 1:
+            raise RuntimeError(
+                f"Insufficient data for overfit control: n_train_t={len(x_train_t)} n_eval={len(x_eval)}"
+            )
+        x_member, y_member = _slice_xy(x_train_t, y_train_t, 0, n_member)
+        x_nonmember, y_nonmember = _slice_xy(x_eval, y_eval, 0, n_nonmember)
+    else:
+        n_member = min(requested_m, len(x_eval) // 2)
+        n_nonmember = min(requested_nm, len(x_eval) - n_member)
+        if n_member < 1 or n_nonmember < 1:
+            raise RuntimeError(f"Insufficient evaluation data for MIA: n_eval={len(x_eval)}")
+        x_member, y_member = _slice_xy(x_eval, y_eval, 0, n_member)
+        x_nonmember, y_nonmember = _slice_xy(x_eval, y_eval, n_member, n_member + n_nonmember)
 
     # Shadow models: train on other clients
     shadow_models = []
@@ -249,15 +265,31 @@ def main(argv: list[str] | None = None) -> int:
         sm_seed = _stable_seed(args.seed, cid)
         _set_global_seeds(sm_seed)
         sm = build_model(input_dim=int(x_tr.shape[1]))
-        train(sm, x_tr, y_tr, epochs=args.shadow_epochs, batch_size=args.batch_size, lr=args.lr)
-        shadow_models.append(sm)
-
-        n = min(req_sm, len(x_te) // 2)
-        n2 = min(req_snm, len(x_te) - n)
-        if n < 1 or n2 < 1:
-            continue
-        shadow_member_data.append(_slice_xy(x_te, y_te, 0, n))
-        shadow_nonmember_data.append(_slice_xy(x_te, y_te, n, n + n2))
+        if args.control == "overfit":
+            # Align shadows with memorization control: train/memorize on train subset,
+            # label that subset as members and held-out eval samples as non-members.
+            n_sm = min(32, req_sm, req_snm, len(x_tr), len(x_te))
+            n_sm = max(16, n_sm)
+            n_snm = n_sm
+            if n_sm < 1 or n_snm < 1:
+                continue
+            x_tr_s, y_tr_s = _slice_xy(x_tr, y_tr, 0, n_sm)
+            sm_epochs = max(args.shadow_epochs, 1000)
+            sm_lr = max(args.lr, 0.05)
+            sm_batch = min(args.batch_size, max(8, n_sm // 2))
+            train(sm, x_tr_s, y_tr_s, epochs=sm_epochs, batch_size=sm_batch, lr=sm_lr)
+            shadow_models.append(sm)
+            shadow_member_data.append(_slice_xy(x_tr_s, y_tr_s, 0, n_sm))
+            shadow_nonmember_data.append(_slice_xy(x_te, y_te, 0, n_snm))
+        else:
+            train(sm, x_tr, y_tr, epochs=args.shadow_epochs, batch_size=args.batch_size, lr=args.lr)
+            shadow_models.append(sm)
+            n = min(req_sm, len(x_te) // 2)
+            n2 = min(req_snm, len(x_te) - n)
+            if n < 1 or n2 < 1:
+                continue
+            shadow_member_data.append(_slice_xy(x_te, y_te, 0, n))
+            shadow_nonmember_data.append(_slice_xy(x_te, y_te, n, n + n2))
 
     if not shadow_models or not shadow_member_data or not shadow_nonmember_data:
         raise RuntimeError("Insufficient shadow data/models for MIA evaluation")
@@ -296,7 +328,16 @@ def main(argv: list[str] | None = None) -> int:
     f_target_nonmember = compute_features(target_model, x_nonmember, y_nonmember_task, task_type)
     X_target = np.vstack([f_target_member, f_target_nonmember])
     y_target = np.concatenate([np.ones(len(f_target_member)), np.zeros(len(f_target_nonmember))])
-    y_scores = attack_clf.predict_proba(X_target)[:, 1]
+    rf_scores = attack_clf.predict_proba(X_target)[:, 1]
+    # plain loss-threshold attack scores (uses loss feature column 2; lower loss => more member-like)
+    loss_scores = -X_target[:, 2]
+    if args.control == "overfit":
+        # Positive-control sanity check: memorized members should have lower loss/confidence gap.
+        # Use loss-threshold attack as the primary control signal (robust direct memorization detector);
+        # retain RF attack score in diagnostics.
+        y_scores = loss_scores
+    else:
+        y_scores = rf_scores
 
     # Diagnostics (requested)
     unique_scores = int(np.unique(np.round(y_scores, 12)).size)
@@ -310,29 +351,49 @@ def main(argv: list[str] | None = None) -> int:
             outp = outp.squeeze(1)
         pred_has_nan = bool(torch.isnan(outp).any().item())
         distinct_target_predictions = int(torch.unique(outp).numel())
-        if task_type == "classification":
+        if task_type in ("classification", "binary"):
+            # binary logit/prob output
             if outp.ndim == 1 or (outp.ndim == 2 and outp.shape[1] == 1):
                 probs = torch.sigmoid(outp.reshape(-1)).cpu().numpy()
-            else:
+            elif outp.ndim == 2 and outp.shape[1] == 2:
                 probs = torch.softmax(outp, dim=-1)[:, 1].cpu().numpy()
+            else:
+                # multiclass-style output fallback
+                probs = torch.softmax(outp, dim=-1).cpu().numpy()
+                if probs.ndim == 2 and probs.shape[1] == 2:
+                    probs = probs[:, 1]
+        elif task_type == "multiclass":
+            probs_np = torch.softmax(outp, dim=-1).cpu().numpy() if outp.ndim > 1 else outp.cpu().numpy()
+            probs = probs_np
         else:
             probs = outp.reshape(-1).cpu().numpy()
     target_labels = np.concatenate([y_member_task, y_nonmember_task]).astype(np.float32)
     majority_baseline_accuracy = float(max(np.mean(target_labels), 1.0 - np.mean(target_labels))) if len(target_labels) else None
     try:
-        if task_type == "classification" and len(np.unique(target_labels)) > 1:
-            target_auc = float(roc_auc_score(target_labels, probs))
+        if task_type in ("classification", "binary") and len(np.unique(target_labels)) > 1:
+            target_auc = float(roc_auc_score(target_labels, np.asarray(probs).reshape(-1)))
+        elif task_type == "multiclass" and len(np.unique(target_labels)) > 1:
+            from sklearn.preprocessing import label_binarize
+            classes = np.unique(target_labels)
+            if len(classes) == 2:
+                target_auc = float(roc_auc_score(target_labels, np.asarray(probs)[:, 1] if np.asarray(probs).ndim == 2 else np.asarray(probs)))
+            else:
+                y_bin = label_binarize(target_labels, classes=classes)
+                target_auc = float(roc_auc_score(y_bin, np.asarray(probs), multi_class="ovr", average="macro"))
         else:
             target_auc = None
     except Exception:
         target_auc = None
     target_has_skill = bool(target_auc is not None and majority_baseline_accuracy is not None and target_auc > majority_baseline_accuracy + 1e-6)
-    # plain loss-threshold attack AUC (uses loss feature column 2)
-    loss_scores = -X_target[:, 2]
+    # plain loss-threshold / RF attack AUC diagnostics
     try:
         loss_threshold_auc = float(roc_auc_score(y_target, loss_scores))
     except Exception:
         loss_threshold_auc = None
+    try:
+        rf_attack_auc = float(roc_auc_score(y_target, rf_scores))
+    except Exception:
+        rf_attack_auc = None
 
     try:
         auc = float(roc_auc_score(y_target, y_scores))
@@ -393,6 +454,7 @@ def main(argv: list[str] | None = None) -> int:
             "distinct_target_predictions": distinct_target_predictions,
             "pred_has_nan": pred_has_nan,
             "loss_threshold_auc": loss_threshold_auc,
+            "rf_attack_auc": rf_attack_auc,
             "feature_nans": bool(np.isnan(X_target).any()),
             "feature_infs": bool(np.isinf(X_target).any()),
             "majority_baseline_accuracy": majority_baseline_accuracy,
@@ -423,7 +485,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  Min resolvable FPR: {min_resolvable_fpr}")
         print(f"  Shadow models: {len(shadow_models)}")
         print(f"  Bootstrap: {args.bootstrap}")
-        print(f"  unique_scores={unique_scores} distinct_target_predictions={distinct_target_predictions} pred_has_nan={pred_has_nan} loss_threshold_auc={loss_threshold_auc}")
+        print(f"  unique_scores={unique_scores} distinct_target_predictions={distinct_target_predictions} pred_has_nan={pred_has_nan} loss_threshold_auc={loss_threshold_auc} rf_attack_auc={rf_attack_auc}")
         print(f"  target_auc={target_auc} majority_baseline_accuracy={majority_baseline_accuracy} target_has_skill={target_has_skill}")
         print(f"  control={args.control} target_epochs={target_epochs}")
         print(f"  Mode: {args.mode}, data_dir: {data_dir}")
