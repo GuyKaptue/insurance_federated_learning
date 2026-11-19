@@ -45,12 +45,25 @@ def test_every_module_has_mirrored_test() -> None:
 
 
 def test_no_orphan_test_modules() -> None:
-    """Every unit test file must mirror an existing source module."""
+    """Every unit test file must mirror an existing source module.
+
+    Explicit allowlist covers tests that validate scripts, notebook helpers,
+    or cross-module integration points not represented as 1:1 src/insurance_fl
+    modules.
+    """
+    allowed = {
+        Path("data/test_signal_and_generator.py"),
+        Path("scripts/test_mia_script.py"),
+        Path("test_artifact_provenance.py"),
+    }
     orphans = []
     for t in sorted(TESTS_ROOT.rglob("test_*.py")):
         if t.name == "__init__.py" or t.name.startswith("._"):
             continue
         pkg_dir = t.parent.relative_to(TESTS_ROOT)
+        rel = t.relative_to(TESTS_ROOT)
+        if rel in allowed:
+            continue
         stem = t.stem[len("test_") :]  # test_loader -> loader
         if len(pkg_dir.parts) == 0:
             src = SRC_ROOT / f"{stem}.py"
