@@ -33,7 +33,7 @@
   "disparity": 0.0347164614956591,
   "max_country": "Switzerland",
   "min_country": "Germany",
-  "passes_threshold": true,
+  "passes_threshold": false,
   "smoke": false,
   "rounds": 20,
   "samples_per_client": 5000,
@@ -52,5 +52,55 @@
   "config_hash": "e93bcefe91a0b25a",
   "git_sha": "fa1927f02ee643c22727b136a51f2aca21dbcad5",
   "git_dirty": false,
-  "note": "Disparity computed from federated per-country (per-client) test AUC on v2 data; AUC bounded in [0,1]."
+  "note": "Point disparity (0.0347) from per-client median-seed federated test AUCs passes 0.05 threshold, but joint bootstrap 95% CI crosses 0.05 so overall status is inconclusive at 95% confidence. Per-seed disparities are 0.0338/0.0340/0.0375. Bayes AUCs are analytic test-split ceilings (not gaps caused by fairness intervention).",
+  "disparity_point_median_seed_per_client": 0.0347164614956591,
+  "disparity_per_seed": {
+    "42": 0.03383467744741686,
+    "43": 0.03401917072080429,
+    "44": 0.03749740032922966
+  },
+  "per_seed_auc": {
+    "42": {
+      "Germany": 0.8346799431009958,
+      "France": 0.8644357142857142,
+      "Belgium": 0.8411618352465422,
+      "Switzerland": 0.8685146205484127
+    },
+    "43": {
+      "Germany": 0.8370056899004268,
+      "France": 0.8622428571428572,
+      "Belgium": 0.8432913407280471,
+      "Switzerland": 0.8710248606212311
+    },
+    "44": {
+      "Germany": 0.8318990042674252,
+      "France": 0.8625214285714284,
+      "Belgium": 0.8423233836909995,
+      "Switzerland": 0.8693964045966549
+    }
+  },
+  "joint_bootstrap_disparity_ci95": [
+    0.01589121447078012,
+    0.04451447668743447,
+    0.08028176833165
+  ],
+  "joint_bootstrap": {
+    "n_boot": 2000,
+    "seed": 123,
+    "method": "independent per-client resampling of median-seed federated test predictions (recomputed), AUC disparity max-min per bootstrap"
+  },
+  "status_3way": "inconclusive",
+  "passes_threshold_point": true,
+  "bayes_test_auc_reference": {
+    "Germany": 0.843235327963176,
+    "France": 0.8405507936507935,
+    "Belgium": 0.8519739334824254,
+    "Switzerland": 0.8476126126126126
+  },
+  "per_country_gap_bayes_minus_federated": {
+    "Germany": 0.008555384862180215,
+    "France": -0.02197063492063489,
+    "Belgium": 0.009650549791425989,
+    "Switzerland": -0.021783791984042344
+  }
 }

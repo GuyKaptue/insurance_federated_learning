@@ -148,6 +148,15 @@ def _apply_missing_policy(
     return arr
 
 
+def get_feature_names(data_dir: Path, client_id: str, split: str = "train") -> list[str]:
+    """Return ordered feature names produced by load_partition for a client/split."""
+    path = _partition_path(Path(data_dir), client_id, split)
+    df = pd.read_parquet(path)
+    cols = feature_columns(df)
+    return cols + [f"{c}__missing" for c in MISSING_INDICATOR_COLS]
+
+
+
 def load_partition(
     data_dir: Path,
     client_id: str,

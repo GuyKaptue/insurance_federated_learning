@@ -1590,6 +1590,46 @@
             "ece_before": 0.03589952960362036,
             "ece_after": 0.03941248622039953,
             "reliability_diagram": "reports/figures/reliability_germany_allianz_federated.png"
+          },
+          "calibration_comparison": {
+            "temperature_T": 1.0149172136338078,
+            "raw": {
+              "brier": 0.16620550749418658,
+              "ece": 0.03589952960362036,
+              "auc": 0.8346799431009958
+            },
+            "isotonic": {
+              "brier": 0.16855404425557508,
+              "ece": 0.03941248622039953,
+              "auc": 0.8330405405405406
+            },
+            "temperature": {
+              "brier": 0.16627684713656113,
+              "ece": 0.03700398993492127,
+              "auc": 0.8346799431009958
+            },
+            "platt": {
+              "brier": 0.16655712450860957,
+              "ece": 0.03878856543739008,
+              "auc": 0.8346799431009958
+            },
+            "diff_brier_minus_raw_ci95_paired_bootstrap": {
+              "isotonic": [
+                0.00041727291574022654,
+                0.002372879488519164,
+                0.00432702161302577
+              ],
+              "temperature": [
+                -6.49422252351553e-05,
+                7.437291905230958e-05,
+                0.00020230618013677564
+              ],
+              "platt": [
+                -0.00014720487141327496,
+                0.0003580648055213631,
+                0.0008785970035616575
+              ]
+            }
           }
         }
       }
@@ -3176,6 +3216,46 @@
             "ece_before": 0.04879945879429578,
             "ece_after": 0.024518175830443703,
             "reliability_diagram": "reports/figures/reliability_france_axa_federated.png"
+          },
+          "calibration_comparison": {
+            "temperature_T": 1.0962228674193244,
+            "raw": {
+              "brier": 0.1504545405617881,
+              "ece": 0.04879945879429578,
+              "auc": 0.8625214285714284
+            },
+            "isotonic": {
+              "brier": 0.15274533752793698,
+              "ece": 0.024518175830443703,
+              "auc": 0.8579
+            },
+            "temperature": {
+              "brier": 0.15167227526614552,
+              "ece": 0.06059877552092075,
+              "auc": 0.8625214285714284
+            },
+            "platt": {
+              "brier": 0.15161226886390114,
+              "ece": 0.05650359475856818,
+              "auc": 0.8625214285714284
+            },
+            "diff_brier_minus_raw_ci95_paired_bootstrap": {
+              "isotonic": [
+                2.5038811204766005e-05,
+                0.0023423659163842175,
+                0.004721900214891809
+              ],
+              "temperature": [
+                0.0003915748473994729,
+                0.0012388549450603331,
+                0.0019895631990111905
+              ],
+              "platt": [
+                0.000305959220436728,
+                0.0011826752872788754,
+                0.0019615512446076668
+              ]
+            }
           }
         }
       }
@@ -4762,6 +4842,46 @@
             "ece_before": 0.040988268026461196,
             "ece_after": 0.04318376690149307,
             "reliability_diagram": "reports/figures/reliability_belgium_ageas_federated.png"
+          },
+          "calibration_comparison": {
+            "temperature_T": 1.0652148699121584,
+            "raw": {
+              "brier": 0.16295708916808707,
+              "ece": 0.040988268026461196,
+              "auc": 0.8423233836909995
+            },
+            "isotonic": {
+              "brier": 0.16357120860899713,
+              "ece": 0.04318376690149307,
+              "auc": 0.8412908961848152
+            },
+            "temperature": {
+              "brier": 0.16263269312398013,
+              "ece": 0.038768198543538634,
+              "auc": 0.8423233836909995
+            },
+            "platt": {
+              "brier": 0.16137310632455207,
+              "ece": 0.028474490985926026,
+              "auc": 0.8423233836909995
+            },
+            "diff_brier_minus_raw_ci95_paired_bootstrap": {
+              "isotonic": [
+                -0.001829167632118555,
+                0.0006255897891713075,
+                0.0031007500742471885
+              ],
+              "temperature": [
+                -0.0009718476764522206,
+                -0.00033401320976550464,
+                0.00027895520833950266
+              ],
+              "platt": [
+                -0.0030059105738956303,
+                -0.0015718435795585572,
+                -0.0003495798054031974
+              ]
+            }
           }
         }
       }
@@ -6348,6 +6468,46 @@
             "ece_before": 0.05276677379881344,
             "ece_after": 0.06367576633393765,
             "reliability_diagram": "reports/figures/reliability_switzerland_helvetia_federated.png"
+          },
+          "calibration_comparison": {
+            "temperature_T": 0.9395587729091328,
+            "raw": {
+              "brier": 0.1514260614889195,
+              "ece": 0.05276677379881344,
+              "auc": 0.8693964045966549
+            },
+            "isotonic": {
+              "brier": 0.1514023876802369,
+              "ece": 0.06367576633393765,
+              "auc": 0.8681803959494823
+            },
+            "temperature": {
+              "brier": 0.1514115425158308,
+              "ece": 0.055378770221645626,
+              "auc": 0.8693964045966549
+            },
+            "platt": {
+              "brier": 0.14973493215790643,
+              "ece": 0.04389183524575942,
+              "auc": 0.8693964045966549
+            },
+            "diff_brier_minus_raw_ci95_paired_bootstrap": {
+              "isotonic": [
+                -0.0023284532485286025,
+                -2.871390098173332e-05,
+                0.002320113862795323
+              ],
+              "temperature": [
+                -0.0005489475566100258,
+                -1.7128416007150538e-05,
+                0.0005659218022016583
+              ],
+              "platt": [
+                -0.0028420090660615576,
+                -0.0017007730384424602,
+                -0.0005879068546314469
+              ]
+            }
           }
         }
       }
@@ -6408,5 +6568,181 @@
       }
     },
     "shipped_model_rule_decision": "Federated model meets >=0.80 point estimate for all clients (GBM also passes); no model-work escalation required by pre-registered miss rule. keep_5000 remains provisional pending broader evaluation."
+  },
+  "calibration_comparison": {
+    "description": "Post-hoc calibration on federated reference model (per-client median seed from A3), fit on validation, evaluated on test. Brier-diff CIs from paired bootstrap (B=1000, seed=42); negative diff means improved Brier vs raw.",
+    "methods_compared": [
+      "raw",
+      "isotonic_regression",
+      "temperature_scaling",
+      "platt_scaling"
+    ],
+    "per_client": {
+      "germany_allianz": {
+        "temperature_T": 1.0149172136338078,
+        "raw": {
+          "brier": 0.16620550749418658,
+          "ece": 0.03589952960362036,
+          "auc": 0.8346799431009958
+        },
+        "isotonic": {
+          "brier": 0.16855404425557508,
+          "ece": 0.03941248622039953,
+          "auc": 0.8330405405405406
+        },
+        "temperature": {
+          "brier": 0.16627684713656113,
+          "ece": 0.03700398993492127,
+          "auc": 0.8346799431009958
+        },
+        "platt": {
+          "brier": 0.16655712450860957,
+          "ece": 0.03878856543739008,
+          "auc": 0.8346799431009958
+        },
+        "diff_brier_minus_raw_ci95_paired_bootstrap": {
+          "isotonic": [
+            0.00041727291574022654,
+            0.002372879488519164,
+            0.00432702161302577
+          ],
+          "temperature": [
+            -6.49422252351553e-05,
+            7.437291905230958e-05,
+            0.00020230618013677564
+          ],
+          "platt": [
+            -0.00014720487141327496,
+            0.0003580648055213631,
+            0.0008785970035616575
+          ]
+        }
+      },
+      "france_axa": {
+        "temperature_T": 1.0962228674193244,
+        "raw": {
+          "brier": 0.1504545405617881,
+          "ece": 0.04879945879429578,
+          "auc": 0.8625214285714284
+        },
+        "isotonic": {
+          "brier": 0.15274533752793698,
+          "ece": 0.024518175830443703,
+          "auc": 0.8579
+        },
+        "temperature": {
+          "brier": 0.15167227526614552,
+          "ece": 0.06059877552092075,
+          "auc": 0.8625214285714284
+        },
+        "platt": {
+          "brier": 0.15161226886390114,
+          "ece": 0.05650359475856818,
+          "auc": 0.8625214285714284
+        },
+        "diff_brier_minus_raw_ci95_paired_bootstrap": {
+          "isotonic": [
+            2.5038811204766005e-05,
+            0.0023423659163842175,
+            0.004721900214891809
+          ],
+          "temperature": [
+            0.0003915748473994729,
+            0.0012388549450603331,
+            0.0019895631990111905
+          ],
+          "platt": [
+            0.000305959220436728,
+            0.0011826752872788754,
+            0.0019615512446076668
+          ]
+        }
+      },
+      "belgium_ageas": {
+        "temperature_T": 1.0652148699121584,
+        "raw": {
+          "brier": 0.16295708916808707,
+          "ece": 0.040988268026461196,
+          "auc": 0.8423233836909995
+        },
+        "isotonic": {
+          "brier": 0.16357120860899713,
+          "ece": 0.04318376690149307,
+          "auc": 0.8412908961848152
+        },
+        "temperature": {
+          "brier": 0.16263269312398013,
+          "ece": 0.038768198543538634,
+          "auc": 0.8423233836909995
+        },
+        "platt": {
+          "brier": 0.16137310632455207,
+          "ece": 0.028474490985926026,
+          "auc": 0.8423233836909995
+        },
+        "diff_brier_minus_raw_ci95_paired_bootstrap": {
+          "isotonic": [
+            -0.001829167632118555,
+            0.0006255897891713075,
+            0.0031007500742471885
+          ],
+          "temperature": [
+            -0.0009718476764522206,
+            -0.00033401320976550464,
+            0.00027895520833950266
+          ],
+          "platt": [
+            -0.0030059105738956303,
+            -0.0015718435795585572,
+            -0.0003495798054031974
+          ]
+        }
+      },
+      "switzerland_helvetia": {
+        "temperature_T": 0.9395587729091328,
+        "raw": {
+          "brier": 0.1514260614889195,
+          "ece": 0.05276677379881344,
+          "auc": 0.8693964045966549
+        },
+        "isotonic": {
+          "brier": 0.1514023876802369,
+          "ece": 0.06367576633393765,
+          "auc": 0.8681803959494823
+        },
+        "temperature": {
+          "brier": 0.1514115425158308,
+          "ece": 0.055378770221645626,
+          "auc": 0.8693964045966549
+        },
+        "platt": {
+          "brier": 0.14973493215790643,
+          "ece": 0.04389183524575942,
+          "auc": 0.8693964045966549
+        },
+        "diff_brier_minus_raw_ci95_paired_bootstrap": {
+          "isotonic": [
+            -0.0023284532485286025,
+            -2.871390098173332e-05,
+            0.002320113862795323
+          ],
+          "temperature": [
+            -0.0005489475566100258,
+            -1.7128416007150538e-05,
+            0.0005659218022016583
+          ],
+          "platt": [
+            -0.0028420090660615576,
+            -0.0017007730384424602,
+            -0.0005879068546314469
+          ]
+        }
+      }
+    },
+    "ship_decision": {
+      "uniform_ship": null,
+      "recommendation": "No uniform calibration shipped. Platt scaling shows statistically supported Brier improvement for belgium_ageas and switzerland_helvetia (95% CI entirely below 0) with ECE reductions; isotonic/temperature/platt worsen Brier for germany_allianz and france_axa (CIs above or crossing 0 in unfavorable direction). AUC unchanged up to ties for temperature/platt; isotonic can change due to tie handling. Retain raw probabilities as shipped default; client-specific Platt calibration may be applied only with explicit per-client validation if needed.",
+      "note": "Comparison computed on median-seed federated models (DE seed 42, FR/BE/CH seed 44)."
+    }
   }
 }
