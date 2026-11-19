@@ -63,8 +63,9 @@ def main(argv: list[str] | None = None) -> int:
         if r.returncode != 0:
             print("ERROR: notebooks/ modified during execution run", file=sys.stderr)
             return 1
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"ERROR: could not verify notebooks unchanged: {e}", file=sys.stderr)
+        return 1
     return 0
 
 

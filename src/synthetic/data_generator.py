@@ -1,6 +1,6 @@
 """
 European Insurance Federated Dataset Generator
-Saves data to the correct project structure: data/processed/
+LEGACY (deprecated): saves to a non-canonical synthetic path by default; do not use for canonical data.
 Generates both federated (client-specific) and centralized datasets
 """
 
@@ -17,6 +17,13 @@ from sklearn.model_selection import train_test_split
 
 warnings.filterwarnings('ignore')
 
+_LEGACY_DEPRECATION = (
+    "src.synthetic.data_generator is a legacy/non-canonical generator "
+    "(claim_risk-coupled/older behavior) and is deprecated. "
+    "Use the official CLI `insurance-fl-generate` backed by "
+    "`insurance_fl.data.generator.EuropeanInsuranceFederatedDataset`."
+)
+
 
 class EuropeanInsuranceFederatedDataset:
     """
@@ -26,6 +33,7 @@ class EuropeanInsuranceFederatedDataset:
     """
 
     def __init__(self, samples_per_client=5000, random_seed=42, dataset_version="v1.0"):
+        warnings.warn(_LEGACY_DEPRECATION, DeprecationWarning, stacklevel=2)
         self.samples_per_client = samples_per_client
         self.random_seed = random_seed
         self.dataset_version = dataset_version
@@ -619,7 +627,7 @@ class EuropeanInsuranceFederatedDataset:
             'test': centralized_test
         }
 
-    def generate_dataset(self, output_dir="data/processed/european_insurance_federated",
+    def generate_dataset(self, output_dir="data/synthetic/legacy_european_insurance_federated",
                         save_format='parquet', generate_centralized=True):
         """
         Generate complete federated dataset with train/val/test splits
@@ -628,7 +636,7 @@ class EuropeanInsuranceFederatedDataset:
         -----------
         output_dir : str
             Directory to save the dataset (deterministic path)
-            Default: "data/processed/european_insurance_federated"
+            Default (non-canonical legacy path): "data/synthetic/legacy_european_insurance_federated"
         save_format : str
             'parquet' or 'npy' format for saving
             Default: 'parquet'
@@ -952,7 +960,7 @@ if __name__ == "__main__":
     )
 
     # Generate and save with fixed path (using project structure)
-    output_dir = "data/processed/european_insurance_federated"
+    output_dir = "data/synthetic/legacy_european_insurance_federated"
     federated_data, centralized_data = generator.generate_dataset(
         output_dir=output_dir,
         save_format='parquet',

@@ -31,7 +31,7 @@ All experiments use **synthetic data** (5,000 samples per client) generated with
 
 | Stage | What | Why | How to run | Results link |
 |-------|------|-----|------------|--------------|
-| 1. Synthetic Data Generation | 20,000 synthetic records (5,000/client, 33 features, 5 targets) | Realistic, privacy-safe benchmark | `insurance-fl-generate --samples 5000 --output data/processed` | `docs/EIFD.md` |
+| 1. Synthetic Data Generation | 20,000 synthetic records (5,000/client, 33 features, 5 targets) | Realistic, privacy-safe benchmark | `make data` (official: `insurance-fl-generate --samples 5000 --seed 42 --output data/processed/european_insurance_federated`, backed by `insurance_fl.data.generator.EuropeanInsuranceFederatedDataset`) | `docs/EIFD.md`, `docs/evidence/dataset_manifest.json` (when present) |
 | 2. TLS Certificate Generation | CA + server + client certs via OpenSSL | Transport security for local SuperLink/SuperNode | `python generate_creds.py --output-dir certificates` | `tests/integration/test_tls.py` |
 | 3. Security (SecAgg+) | Cryptographic masking of client updates | Gradients never visible in clear | `flwr run . --stream --run-config secagg-enabled=true` | `tests/integration/test_secagg.py` (no committed end-to-end SecAgg run log) |
 | 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `tests/unit/fl/test_fairness.py` (no measured disparity artifact committed) |
@@ -113,6 +113,8 @@ make data   # generates via official CLI (see Makefile/data target)
 ```
 
 If the canonical dataset is missing, data-dependent tests skip with a clear message.
+
+> **Canonical generator:** use `insurance-fl-generate` / `insurance_fl.data.generator.EuropeanInsuranceFederatedDataset` only. `src/synthetic/data_generator.py` is legacy/deprecated (non-canonical behavior, `claim_risk` coupling) and must not be used for canonical datasets.
 
 
 - **Canonical interpreter:** use the project virtual environment at `./venv` (Python 3.11 in this checkout). Run commands as `./venv/bin/python -m ...` and `./venv/bin/pip ...` (or activate the venv). `Makefile` is venv-aware (`PYTHON ?= venv/bin/python` when present).

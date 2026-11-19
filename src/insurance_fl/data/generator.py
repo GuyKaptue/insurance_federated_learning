@@ -56,6 +56,47 @@ SPLIT_NAMES: Tuple[str, ...] = ("train", "val", "test", "site")
 _LEAKAGE_CORR_LIMIT: float = 0.90
 
 
+def _git_sha_or_unknown(cwd: "str | Path | None" = None) -> str:
+    """Best-effort git SHA of the current checkout (provenance)."""
+    import subprocess
+
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(cwd) if cwd else None,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
+def high_risk_logit(df: pd.DataFrame) -> np.ndarray:
+    """Single-source logit for ``is_high_risk`` (canonical label signal).
+
+    IMPORTANT: This is the exact formula used by ``_generate_targets`` for
+    target 4 (no claim_risk_score leakage). Exposed for Bayes/signal checks;
+    do not duplicate the formula elsewhere.
+    """
+    logit = (
+        -0.9
+        * (df["number_of_claims"] - df["number_of_claims"].mean())
+        / (df["number_of_claims"].std() + 1e-12)
+        + 1.1
+        * (df["debt_to_income_ratio"] - df["debt_to_income_ratio"].mean())
+        / (df["debt_to_income_ratio"].std() + 1e-12)
+        + (df["insurance_package"] == "Basic").astype(float) * 0.5
+        + (df["number_of_claims"] > 2).astype(float) * 1.0
+        - 1.0
+        * (df["credit_score"] - df["credit_score"].mean())
+        / (df["credit_score"].std() + 1e-12)
+        - 0.6
+        * (df["savings_balance"] - df["savings_balance"].mean())
+        / (df["savings_balance"].std() + 1e-12)
+    )
+    return np.asarray(logit, dtype=float)
+
+
 class EuropeanInsuranceFederatedDataset:
     """European Insurance Dataset Generator.
 
@@ -334,23 +375,9 @@ class EuropeanInsuranceFederatedDataset:
 
         # --- Target 4: Binary - High Risk Customer -----------------------
         # NOTE: does NOT use claim_risk_score (avoids label leakage).
-        high_risk_logit = (
-            -0.9
-            * (df["number_of_claims"] - df["number_of_claims"].mean())
-            / (df["number_of_claims"].std() + 1e-12)
-            + 1.1
-            * (df["debt_to_income_ratio"] - df["debt_to_income_ratio"].mean())
-            / (df["debt_to_income_ratio"].std() + 1e-12)
-            + (df["insurance_package"] == "Basic").astype(float) * 0.5
-            + (df["number_of_claims"] > 2).astype(float) * 1.0
-            - 1.0
-            * (df["credit_score"] - df["credit_score"].mean())
-            / (df["credit_score"].std() + 1e-12)
-            - 0.6
-            * (df["savings_balance"] - df["savings_balance"].mean())
-            / (df["savings_balance"].std() + 1e-12)
-        )
-        high_risk_prob = 1.0 / (1.0 + np.exp(-high_risk_logit))
+        # Single-source logit exposed as `high_risk_logit(df)` for signal checks.
+        hr_logit = high_risk_logit(df)
+        high_risk_prob = 1.0 / (1.0 + np.exp(-hr_logit))
         # Wider clip than original (0.05-0.95) to preserve signal while
         # maintaining class balance for small samples.
         high_risk_prob = np.clip(high_risk_prob, 0.05, 0.95)
@@ -441,8 +468,11 @@ class EuropeanInsuranceFederatedDataset:
                 df = all_data[client_id][split]
                 # to_json with sort_columns for stability
                 h.update(df.sort_index(axis=1).to_json(orient="records").encode("utf-8"))
-        # Centralized pool ── 3-way hash includes centralized (Part 2d)
-        h.update(centralized.sort_index(axis=1).to_json(orient="records").encode("utf-8"))
+        # Centralized pool ── 3-way hash includes centralized (Part 2d) when present
+        if centralized is not None:
+            h.update(centralized.sort_index(axis=1).to_json(orient="records").encode("utf-8"))
+        else:
+            h.update(b"no_centralized")
         return h.hexdigest()[:24]
 
     def _add_data_quality_issues(self, df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
@@ -506,7 +536,13 @@ class EuropeanInsuranceFederatedDataset:
         assert int(df.isna().sum().sum()) >= original_na_count
         return df
 
-    def generate_dataset(self, output_dir: str, save_format: str = "parquet") -> Dict[str, Any]:
+    def generate_dataset(
+        self,
+        output_dir: str,
+        save_format: str = "parquet",
+        include_centralized: bool = True,
+        force: bool = False,
+    ) -> Dict[str, Any]:
         """Generate federated + centralized datasets and save them to disk.
 
         Split policy (documented, tested):
@@ -514,8 +550,18 @@ class EuropeanInsuranceFederatedDataset:
           customer_segment), then holdout -> 50% val / 50% test_site,
           then 25% of test_site is reserved as the unseen ``site`` split
           (5% of total per client).
-        * ``centralized`` = random 25% subsample of every client's data.
+        * ``centralized`` = random 25% subsample of every client's data
+          (optional via ``include_centralized``).
+
+        Refuses to overwrite a non-empty output directory unless ``force=True``.
         """
+        out_path = Path(output_dir)
+        if out_path.exists() and any(out_path.iterdir()) and not force:
+            raise FileExistsError(
+                f"{out_path} is not empty. Pass force=True (CLI: --force) to overwrite "
+                "or choose another output directory."
+            )
+        out_path.mkdir(parents=True, exist_ok=True)
         all_data: Dict[str, Any] = {}
         print("=" * 60)
         print("European Insurance Dataset Generator")
@@ -581,21 +627,41 @@ class EuropeanInsuranceFederatedDataset:
                 f"Test: {len(test_df):,} | Site: {len(site_df):,}"
             )
 
-        centralized = self._create_centralized_dataset(all_data)
-        print(f"\nCentralized dataset: {len(centralized):,} total samples")
+        centralized = self._create_centralized_dataset(all_data) if include_centralized else None
+        if centralized is not None:
+            print(f"\nCentralized dataset: {len(centralized):,} total samples")
+
+        import hashlib
+
+        config_hash = hashlib.sha256(
+            json.dumps(
+                {
+                    "samples_per_client": self.samples_per_client,
+                    "random_seed": self.random_seed,
+                    "dataset_version": self.dataset_version,
+                    "inject_quality_issues": self.inject_quality_issues,
+                    "include_centralized": include_centralized,
+                    "save_format": save_format,
+                },
+                sort_keys=True,
+            ).encode("utf-8")
+        ).hexdigest()[:16]
 
         metadata = {
             "dataset_version": self.dataset_version,
+            "generator_git_sha": _git_sha_or_unknown(Path(__file__).resolve().parents[3]),
+            "config_hash": config_hash,
             "random_seed": self.random_seed,
-            "output_directory": output_dir,
+            "output_directory": str(output_dir),
             "save_format": save_format,
             "quality_issues_injected": self.inject_quality_issues,
+            "include_centralized": include_centralized,
             "generation_timestamp_utc": datetime.now().isoformat(),
             "total_clients": len(self.client_ids),
             "client_sizes": {
                 cid: all_data[cid]["metadata"]["total_samples"] for cid in self.client_ids
             },
-            "centralized_samples": len(centralized),
+            "centralized_samples": len(centralized) if centralized is not None else 0,
             "targets": TARGET_COLUMNS,
         }
         print(f"Total clients: {len(self.client_ids)}")
@@ -654,8 +720,26 @@ class EuropeanInsuranceFederatedDataset:
                 central_dir / f"all_clients.{save_format}",
             )
 
+        import hashlib
+
+        include_centralized = centralized_data is not None
+        config_hash = hashlib.sha256(
+            json.dumps(
+                {
+                    "samples_per_client": self.samples_per_client,
+                    "random_seed": self.random_seed,
+                    "dataset_version": self.dataset_version,
+                    "inject_quality_issues": self.inject_quality_issues,
+                    "include_centralized": include_centralized,
+                    "save_format": save_format,
+                },
+                sort_keys=True,
+            ).encode("utf-8")
+        ).hexdigest()[:16]
         metadata = {
             "dataset_version": self.dataset_version,
+            "generator_git_sha": _git_sha_or_unknown(Path(__file__).resolve().parents[3]),
+            "config_hash": config_hash,
             "random_seed": self.random_seed,
             "samples_per_client": self.samples_per_client,
             "total_clients": len(self.client_ids),
@@ -663,6 +747,7 @@ class EuropeanInsuranceFederatedDataset:
                 cid: int(all_data[cid]["metadata"]["total_samples"]) for cid in self.client_ids
             },
             "quality_issues_injected": self.inject_quality_issues,
+            "include_centralized": include_centralized,
             "generation_timestamp_utc": datetime.now().isoformat(),
         }
         output_path.mkdir(parents=True, exist_ok=True)
@@ -684,6 +769,7 @@ class EuropeanInsuranceFederatedDataset:
                 for cid in self.client_ids
             },
             "centralized_samples": (len(centralized_data) if centralized_data is not None else 0),
+            "has_centralized_dataset": centralized_data is not None,
         }
         (output_path / "dataset_info.json").write_text(
             json.dumps(dataset_info, indent=2), encoding="utf-8"

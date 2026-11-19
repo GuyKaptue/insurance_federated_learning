@@ -260,7 +260,24 @@ def main() -> int:
         for e in env_errs:
             print(f"ENV_ERROR: {e}", file=sys.stderr)
 
-    failed = bool(env_errs) or payload["summary"]["failed"] > 0
+
+    # Final guard: validation must never modify tracked notebook sources
+    try:
+        r = subprocess.run(
+            ["git", "diff", "--quiet", "--", "notebooks/"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if r.returncode != 0:
+            print("ERROR: notebooks/ modified during validation", file=sys.stderr)
+            failed = True
+    except Exception as e:
+        print(f"ERROR: could not verify notebooks unchanged: {e}", file=sys.stderr)
+        failed = True
+
+    failed = failed or bool(env_errs) or payload["summary"]["failed"] > 0
     return 1 if failed else 0
 
 

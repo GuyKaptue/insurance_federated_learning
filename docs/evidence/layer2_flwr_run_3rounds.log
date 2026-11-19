@@ -1,3 +1,4 @@
+# COMPUTED_ON_V1_DATA: this artifact/log was produced against v1 (pre-regeneration) data/artifacts; do not treat as v2-canonical evidence.
 ⚠️ Warning: `options.` fields in the SuperLink connection configuration are deprecated. Use `--federation-config` with `flwr run` instead. Alternatively, permanently set your simulation configuration via `flwr federation simulation-config`.
 🎊 Successfully started run 14976978259814209065
 [92mINFO [0m:      Starting logstream for run_id `14976978259814209065`

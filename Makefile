@@ -88,7 +88,11 @@ coverage: ## Run tests with branch coverage (fail under 85%)
 		--cov-fail-under=$(COVERAGE_THRESHOLD)
 
 data: ## Generate synthetic datasets into data/processed (official CLI)
-	insurance-fl-generate --samples 5000 --seed 42 --version v2 --output data/processed/european_insurance_federated
+	$(PYTHON) -m insurance_fl.scripts.generate_dataset --samples 5000 --seed 42 --version v2 --output data/processed/european_insurance_federated
+
+
+data-check: ## Run dataset label-signal sanity check (Bayes AUC)
+	$(PYTHON) scripts/check_dataset_signal.py --data-dir data/processed/european_insurance_federated
 
 # --- Causal inference targets (D2, D3) ---
 
