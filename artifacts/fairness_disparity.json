@@ -1,25 +1,56 @@
 {
-  "task": "fairness_disparity",
-  "metric": "disparity",
-  "threshold_rule": "passes",
-  "smoke": true,
-  "metrics": {
-    "Germany": 7.487331423533775,
-    "France": 10.869517583531124,
-    "Belgium": 9.543418189318732,
-    "Switzerland": 7.226098206379219
+  "task": "is_high_risk",
+  "metric": "auc",
+  "threshold_rule": "absolute gap: max(m_c) - min(m_c) <= 0.05",
+  "per_country": {
+    "Germany": 0.8346799431009958,
+    "France": 0.8625214285714284,
+    "Belgium": 0.8423233836909995,
+    "Switzerland": 0.8693964045966549
   },
-  "disparity": 3.643419377151905,
-  "max_country": "France",
-  "min_country": "Switzerland",
-  "mean": 8.781591350690713,
-  "threshold": 0.43907956753453564,
-  "passes": false,
-  "missing_countries": [],
-  "sampling": "stratified, min_per_country=1",
-  "git_sha": "6eece8c08fa8e0d555b340ef56b50e1b4c85d8f0",
+  "per_country_intervals": {
+    "Germany": {
+      "ci95_low": 0.8073375663518169,
+      "ci95_high": 0.8642655026873741,
+      "client_id": "germany_allianz"
+    },
+    "France": {
+      "ci95_low": 0.8353598084129406,
+      "ci95_high": 0.8892898128399767,
+      "client_id": "france_axa"
+    },
+    "Belgium": {
+      "ci95_low": 0.8151825649910862,
+      "ci95_high": 0.8693728405267784,
+      "client_id": "belgium_ageas"
+    },
+    "Switzerland": {
+      "ci95_low": 0.8450302184384086,
+      "ci95_high": 0.8924663375420823,
+      "client_id": "switzerland_helvetia"
+    }
+  },
+  "disparity": 0.0347164614956591,
+  "max_country": "Switzerland",
+  "min_country": "Germany",
+  "passes_threshold": true,
+  "smoke": false,
+  "rounds": 20,
+  "samples_per_client": 5000,
   "seed": 42,
-  "rounds": 1,
-  "samples_per_client": 512,
-  "note": "Smoke run disparity; not a benchmark. Use with realistic rounds for production."
+  "seeds_reported_median": [
+    42,
+    43,
+    44
+  ],
+  "source": {
+    "report": "reports/is_high_risk_auc.json",
+    "model": "in-process FedAvg+FedBN reference (median seed test AUC per client)",
+    "evaluation_split": "per-client test (750 rows)"
+  },
+  "dataset_version": "v2",
+  "config_hash": "e93bcefe91a0b25a",
+  "git_sha": "fa1927f02ee643c22727b136a51f2aca21dbcad5",
+  "git_dirty": false,
+  "note": "Disparity computed from federated per-country (per-client) test AUC on v2 data; AUC bounded in [0,1]."
 }
