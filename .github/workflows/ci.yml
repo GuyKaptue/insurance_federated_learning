@@ -84,7 +84,7 @@ jobs:
           insurance-fl-generate --samples 5000 --seed 42 --version v2 \
             --output data/processed/european_insurance_federated
       - name: Integration tests
-        run: pytest tests/integration -v --tb=short --durations=15 --timeout=300
+        run: pytest tests/integration -v --tb=short --durations=15 --timeout=300 --timeout=300
 
   artifacts:
     runs-on: ubuntu-latest
