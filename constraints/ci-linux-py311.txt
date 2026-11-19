@@ -415,7 +415,9 @@ nvidia-cusparse-cu12==12.1.0.106
     #   nvidia-cusolver-cu12
     #   torch
 nvidia-nccl-cu12==2.20.5
-    # via torch
+    # via
+    #   torch
+    #   xgboost
 nvidia-nvjitlink-cu12==12.9.86
     # via
     #   nvidia-cusolver-cu12
@@ -802,7 +804,7 @@ widgetsnbextension==4.0.16
     # via ipywidgets
 wrapt==2.5.2
     # via dm-tree
-xgboost==1.7.6
+xgboost==2.1.4
     # via insurance-federated-learning (pyproject.toml)
 zipp==4.1.2
     # via importlib-metadata

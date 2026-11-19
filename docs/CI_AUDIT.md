@@ -176,3 +176,9 @@ Verified binaries and defaults (Flower 1.31.0, `./venv`): `flower-superlink`, `f
 - `tests/unit/fl/test_privacy.py::test_state_persistence_roundtrip` gained `assert math.isfinite(eps1["epsilon"])` in commit `9344252` (strengthening assertion; noted here explicitly).
 - Local coverage (clean, `pytest -q -m "not slow" tests/unit --cov=insurance_fl --cov-report=term`): **TOTAL 77%** (2941 stmts, 675 miss). CI gate remains `--cov-fail-under=70` (measured, with headroom); ratchet upward as tests are added.
 - Docker daemon unavailable locally: Linux install remains verified by GitHub Actions.
+
+### 2026-11-19T18:40Z — CI run 44589176287 (`7201b87`) diagnosis and fix
+- **Run:** https://github.com/GuyKaptue/insurance_federated_learning/actions/runs/44589176287 (commit `7201b87`, push 2026-11-19T18:34:05Z) — **failure** (all 7 primary jobs failed at `pip check`; `ci-gate` failed upstream).
+- **Failure:** `python -m pip check` reported `xgboost 1.7.6 is not supported on this platform` on `ubuntu-latest` (x86_64, Python 3.11.18) after install from `constraints/ci-linux-py311.txt`; jobs did not reach test/scan steps.
+- **Fix:** bumped `xgboost` from `>=1.7.0,<2.0.0` to `>=2.0.0,<3.0.0` in `pyproject.toml`; updated `src/insurance_fl/fl/boosters.py::_train_xgboost` for xgboost 2.x API (removed `use_label_encoder`, constructor `early_stopping_rounds` retained); regenerated `constraints/ci-linux-py311.txt` via `uv pip compile --extra dev --extra causal --extra privacy --extra notebooks --python-version 3.11 --python-platform x86_64-unknown-linux-gnu` → `xgboost==2.1.4`.
+- **Notes:** Linux CI install-health fix only; no intentional change to training/evaluation semantics. Next run must be watched to terminal and reported with per-job results before claiming green.

@@ -148,17 +148,18 @@ def _train_xgboost(
 ):
     import xgboost as xgb
 
-    kwargs = {
+    kwargs: dict[str, Any] = {
         "n_estimators": n_estimators,
         "max_depth": max_depth,
         "learning_rate": 0.1,
         "random_state": seed,
-        "use_label_encoder": False,
     }
+    # xgboost>=2.0 removed use_label_encoder and supports early_stopping_rounds
+    # in the sklearn estimator constructor.
     if early_stopping is not None:
         kwargs["early_stopping_rounds"] = early_stopping
     if task_type == "regression":
-        model = xgb.XGBRegressor(**{k: v for k, v in kwargs.items() if k != "use_label_encoder"})
+        model = xgb.XGBRegressor(**kwargs)
     elif task_type == "binary":
         model = xgb.XGBClassifier(eval_metric="logloss", **kwargs)
     else:
