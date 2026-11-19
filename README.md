@@ -102,6 +102,19 @@ outputs in `runs/causal/transport_*.json`.
 
 ## Development environment
 
+### Setup (generated data not tracked)
+
+Canonical federated datasets under `data/processed/` are generated artifacts and are **not** tracked in git. Reproduce them locally or in CI before data-dependent tests/notebooks:
+
+```bash
+./venv/bin/python -m pip install -e ".[dev,causal]"
+make data   # generates via official CLI (see Makefile/data target)
+# or: insurance-fl-generate --samples 5000 --seed 42 --output data/processed/european_insurance_federated
+```
+
+If the canonical dataset is missing, data-dependent tests skip with a clear message.
+
+
 - **Canonical interpreter:** use the project virtual environment at `./venv` (Python 3.11 in this checkout). Run commands as `./venv/bin/python -m ...` and `./venv/bin/pip ...` (or activate the venv). `Makefile` is venv-aware (`PYTHON ?= venv/bin/python` when present).
 - **Do not rely on system/Homebrew Python for project validation:** `python3` on this machine resolves to Homebrew Python 3.13 with a different package set (e.g. Flower version/import paths differ) and can produce misleading test/notebook results.
 - **Notebook execution kernel:** `scripts/validate_notebooks.py` executes notebooks with the `insurance-fl` Jupyter kernel by default (`NB_KERNEL` overrides). Register it with `make kernel` (or `./venv/bin/python -m ipykernel install --user --name insurance-fl`) before validation; `scripts/run_notebooks.py` currently uses `kernel_name="python3"` and may need the same alignment for non-validator runs.

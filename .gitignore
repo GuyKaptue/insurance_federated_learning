@@ -504,6 +504,18 @@ oxcode.hooks.json
 data/processed/fl_task0_smoke/
 !docs/evidence/*.log
 
+
+
+# ============================================================
+# Generated data (reproduce with: make data)
+# ============================================================
+# Large generated datasets are not tracked; reproduce locally/CI via
+# `make data` (or the official insurance-fl-generate CLI) and the
+# dataset manifest in docs/evidence/ when available.
+data/processed/
+!data/processed/.gitkeep
+!data/processed/fl_task0_smoke/.gitkeep
+
 # Local/generated artifacts
 catboost_info/
 runs/

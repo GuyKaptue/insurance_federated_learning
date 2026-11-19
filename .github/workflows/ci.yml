@@ -17,6 +17,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev,causal]"
+      - name: Generate canonical dataset (untracked in git)
+        run: |
+          insurance-fl-generate --samples 5000 --seed 42 --version v2 \
+            --output data/processed/european_insurance_federated
       - name: CI
         run: make ci
       - name: flwr-guard

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from pathlib import Path
 
 import pandas as pd
@@ -22,7 +24,18 @@ ADJUSTMENT_SET = (
 )
 
 
+def _require_data() -> None:
+    sample = DATA_DIR / "federated" / "germany_allianz" / "train.parquet"
+    if not sample.exists():
+        pytest.skip(
+            f"Canonical dataset missing at {sample}. "
+            "Generate with: make data (or insurance-fl-generate --samples 5000 "
+            "--output data/processed/european_insurance_federated)"
+        )
+
+
 def _load_all_train() -> pd.DataFrame:
+    _require_data()
     client_ids = [
         "germany_allianz",
         "france_axa",
@@ -36,6 +49,7 @@ def _load_all_train() -> pd.DataFrame:
 
 
 def _load_train(client_id: str) -> pd.DataFrame:
+    _require_data()
     return pd.read_parquet(DATA_DIR / "federated" / client_id / "train.parquet")
 
 

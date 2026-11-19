@@ -1,6 +1,9 @@
 # Test for causal refute module
 
+from pathlib import Path
+
 import pandas as pd
+import pytest
 
 from insurance_fl.causal.estimands import CausalEstimand
 from insurance_fl.causal.refute import run_all_refutations
@@ -13,10 +16,16 @@ def test_refute_import():
 
 def test_refute_with_real_data():
     """Test refutation with real federated data (full dataset)."""
-
-    data = pd.read_parquet(
+    path = Path(
         "data/processed/european_insurance_federated/federated/germany_allianz/train.parquet"
     )
+    if not path.exists():
+        pytest.skip(
+            f"Canonical dataset missing at {path}. "
+            "Generate with: make data (or insurance-fl-generate --samples 5000 "
+            "--output data/processed/european_insurance_federated)"
+        )
+    data = pd.read_parquet(path)
     data["has_claims"] = (data["number_of_claims"] > 0).astype(int)
 
     estimand = CausalEstimand.from_dag(
