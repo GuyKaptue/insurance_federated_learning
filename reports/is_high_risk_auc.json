@@ -6517,7 +6517,8 @@
     "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once).",
     "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance).",
     "A3: in-process FedAvg+FedBN reference (~20 rounds), local epochs/lr chosen on validation grid (seed 42), 3 seeds 42/43/44, per-client local BN eval on own test split; validation curves recorded.",
-    "A4: isotonic calibration on validation predictions for federated reference (median seed) per client; Brier/ECE before/after, reliability diagrams, AUC unchanged up to ties; finalized summary/gap and shipped-model rule outcome."
+    "A4: isotonic calibration on validation predictions for federated reference (median seed) per client; Brier/ECE before/after, reliability diagrams, AUC unchanged up to ties; finalized summary/gap and shipped-model rule outcome.",
+    "Feature surface (v2, load_partition): 24 inputs/client = 21 base numeric features + 3 fixed missingness indicators [annual_income__missing, savings_balance__missing, medical_expenses__missing]; identical ordered list across DE/FR/BE/CH; no target/identifier/probability leakage (verified). Earlier mention of 26 was outdated."
   ],
   "summary": {
     "federated_median_test_auc_by_client": {
@@ -6743,6 +6744,160 @@
       "uniform_ship": null,
       "recommendation": "No uniform calibration shipped. Platt scaling shows statistically supported Brier improvement for belgium_ageas and switzerland_helvetia (95% CI entirely below 0) with ECE reductions; isotonic/temperature/platt worsen Brier for germany_allianz and france_axa (CIs above or crossing 0 in unfavorable direction). AUC unchanged up to ties for temperature/platt; isotonic can change due to tie handling. Retain raw probabilities as shipped default; client-specific Platt calibration may be applied only with explicit per-client validation if needed.",
       "note": "Comparison computed on median-seed federated models (DE seed 42, FR/BE/CH seed 44)."
+    }
+  },
+  "test_split_bayes": {
+    "task": "is_high_risk",
+    "dataset_version": "v2",
+    "config_hash": "e93bcefe91a0b25a",
+    "method": "Analytic Bayes proxy AUC on per-client test split using insurance_fl.data.generator.high_risk_logit (label-generating logit, no model training). Hanley-McNeil SE for ROC AUC. NaNs in Bayes-driver numeric columns imputed with per-client TRAIN medians before scoring (see per-client counts).",
+    "flag_rule": "flag CHECK if model_test_auc > bayes_test_auc + 2*SE_hanley_mcneil",
+    "checks_performed": {
+      "split_overlap_customer_id_train_val_test": "none within any client (verified)",
+      "duplicate_customer_id_or_rows_within_splits": "none (verified)",
+      "cross_client_test_customer_id_overlap": "none (verified)"
+    },
+    "per_client": {
+      "germany_allianz": {
+        "bayes_test_auc": 0.8392745376955905,
+        "se_hanley_mcneil": 0.01458944434743118,
+        "n": 750,
+        "npos": 380,
+        "nneg": 370,
+        "ci95_low": 0.8106792267746253,
+        "ci95_high": 0.8678698486165556,
+        "nan_in_drivers_test_imputed_with_train_median": {
+          "number_of_claims": 25,
+          "debt_to_income_ratio": 20,
+          "credit_score": 30,
+          "savings_balance": 21
+        },
+        "flag_threshold_gt_bayes_plus_2se": 0.8684534263904529,
+        "models": {
+          "federated_median_test_auc": {
+            "value": 0.8346799431009958,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "pooled_median_test_auc": {
+            "value": 0.8351920341394026,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "local_nn_median_test_auc": {
+            "value": 0.8210526315789475,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "gbm_test_auc": {
+            "value": 0.8239331436699857,
+            "flag_gt_bayes_plus_2se": "ok"
+          }
+        }
+      },
+      "france_axa": {
+        "bayes_test_auc": 0.8541142857142856,
+        "se_hanley_mcneil": 0.01375463259171076,
+        "n": 750,
+        "npos": 400,
+        "nneg": 350,
+        "ci95_low": 0.8271552058345325,
+        "ci95_high": 0.8810733655940387,
+        "nan_in_drivers_test_imputed_with_train_median": {
+          "number_of_claims": 16,
+          "debt_to_income_ratio": 27,
+          "credit_score": 25,
+          "savings_balance": 27
+        },
+        "flag_threshold_gt_bayes_plus_2se": 0.8816235508977072,
+        "models": {
+          "federated_median_test_auc": {
+            "value": 0.8625214285714284,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "pooled_median_test_auc": {
+            "value": 0.8626214285714287,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "local_nn_median_test_auc": {
+            "value": 0.8554214285714286,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "gbm_test_auc": {
+            "value": 0.8391428571428571,
+            "flag_gt_bayes_plus_2se": "ok"
+          }
+        }
+      },
+      "belgium_ageas": {
+        "bayes_test_auc": 0.8508414056170188,
+        "se_hanley_mcneil": 0.01383200820401194,
+        "n": 750,
+        "npos": 409,
+        "nneg": 341,
+        "ci95_low": 0.8237306695371555,
+        "ci95_high": 0.8779521416968822,
+        "nan_in_drivers_test_imputed_with_train_median": {
+          "number_of_claims": 17,
+          "debt_to_income_ratio": 23,
+          "credit_score": 22,
+          "savings_balance": 20
+        },
+        "flag_threshold_gt_bayes_plus_2se": 0.8785054220250427,
+        "models": {
+          "federated_median_test_auc": {
+            "value": 0.8423233836909995,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "pooled_median_test_auc": {
+            "value": 0.8465752246018828,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "local_nn_median_test_auc": {
+            "value": 0.834938230000932,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "gbm_test_auc": {
+            "value": 0.8259971749994623,
+            "flag_gt_bayes_plus_2se": "ok"
+          }
+        }
+      },
+      "switzerland_helvetia": {
+        "bayes_test_auc": 0.8683083968597111,
+        "se_hanley_mcneil": 0.01333519498492,
+        "n": 750,
+        "npos": 374,
+        "nneg": 376,
+        "ci95_low": 0.8421714146892678,
+        "ci95_high": 0.8944453790301543,
+        "nan_in_drivers_test_imputed_with_train_median": {
+          "number_of_claims": 20,
+          "debt_to_income_ratio": 18,
+          "credit_score": 32,
+          "savings_balance": 24
+        },
+        "flag_threshold_gt_bayes_plus_2se": 0.894978786829551,
+        "models": {
+          "federated_median_test_auc": {
+            "value": 0.8693964045966549,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "pooled_median_test_auc": {
+            "value": 0.86945329389009,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "local_nn_median_test_auc": {
+            "value": 0.8599314484014108,
+            "flag_gt_bayes_plus_2se": "ok"
+          },
+          "gbm_test_auc": {
+            "value": 0.8452753441802252,
+            "flag_gt_bayes_plus_2se": "ok"
+          }
+        }
+      }
+    },
+    "summary": {
+      "any_flagged": false,
+      "interpretation": "No federated/pooled/local/GBM test AUC exceeds test-split Bayes AUC by >2 SE for any client; observed FR/CH model AUCs above all-split Bayes proxies are not flagged against per-test-split Bayes with this uncertainty rule."
     }
   }
 }

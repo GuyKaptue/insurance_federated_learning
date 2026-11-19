@@ -55,6 +55,7 @@ def test_no_orphan_test_modules() -> None:
         Path("data/test_signal_and_generator.py"),
         Path("scripts/test_mia_script.py"),
         Path("test_artifact_provenance.py"),
+        Path("fl/test_feature_leakage.py"),
     }
     orphans = []
     for t in sorted(TESTS_ROOT.rglob("test_*.py")):

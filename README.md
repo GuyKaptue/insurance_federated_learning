@@ -34,7 +34,7 @@ All experiments use **synthetic data** (5,000 samples per client) generated with
 | 1. Synthetic Data Generation | 20,000 synthetic records (5,000/client, 33 features, 5 targets) | Realistic, privacy-safe benchmark | `make data` (official: `insurance-fl-generate --samples 5000 --seed 42 --output data/processed/european_insurance_federated`, backed by `insurance_fl.data.generator.EuropeanInsuranceFederatedDataset`) | `docs/EIFD.md`, `docs/evidence/dataset_manifest.json` (when present) |
 | 2. TLS Certificate Generation | CA + server + client certs via OpenSSL | Transport security for local SuperLink/SuperNode | `python generate_creds.py --output-dir certificates` | `tests/integration/test_tls.py` |
 | 3. Security (SecAgg+) | Cryptographic masking of client updates | Gradients never visible in clear | `flwr run . --stream --run-config secagg-enabled=true` | `tests/integration/test_secagg.py` (no committed end-to-end SecAgg run log) |
-| 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `tests/unit/fl/test_fairness.py` (no measured disparity artifact committed) |
+| 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `artifacts/fairness_disparity.json` (v2 `is_high_risk`: point 0.0347, joint 95% CI [0.0159, 0.0803], **inconclusive**) |
 | 5. MIA | Black-box shadow-model MIA on is_high_risk | Empirical leakage check | `python scripts/run_mia.py` | `reports/mia_evaluation.json` (not committed) - AUC 0.6032215647600263, TPR@1%FPR 0.03564102564102564 |
 | 6. Differential Privacy (Local DP) | Optional Gaussian noise + clipping (disabled by default) | Per-client DP when enabled | `python scripts/dp_sweep.py` | `reports/dp_utility_curve.json` (not committed); script at `scripts/dp_sweep.py` |
 | 7. DP-Counting (RDP) | Fail-closed RDP accounting with dp-accounting v0.6.0 | Quantifiable epsilon-delta budget | `pytest tests/integration/test_rdp_accounting.py` | No committed epsilon (per-run only); fail-closed test in `tests/integration/test_rdp_accounting.py` |
@@ -70,6 +70,7 @@ European insurers hold highly sensitive customer data. Regulations (GDPR) and co
 - **Privacy stack (fail-closed)**: RDP accountant, Local DP, and SecAgg+ modules present; runs halt rather than proceed without an ε guarantee when the backend is unavailable.
 - **Fairness & audit**: country-stratified FedProx, disparity metrics, JSONL audit trail (6 event types, secret redaction), MIA evaluation.
 - **Hybrid ML**: per-client XGBoost/LightGBM/CatBoost with OOF predictions, NNLS stacking, β-fusion.
+- **`is_high_risk` (v2, validated gate artifacts):** federated/pooled/local/GBM test AUCs do not exceed per-test-split Bayes AUC by >2 SE for any client (`reports/is_high_risk_auc.json:test_split_bayes`). Post-hoc calibration (isotonic/temperature/Platt, val-fit/test-eval) showed no uniform improvement; **raw probabilities remain the shipped default** (`reports/is_high_risk_auc.json:calibration_comparison`). Feature surface: 24 identical ordered inputs/client (21 base + 3 missingness indicators).
 ### ✅ Causal estimation — estimators agree
 ```
 scripts/causal_estimate.py
@@ -280,6 +281,7 @@ preview/experimental status unless noted):
   eligible country (subject to availability and budget).
 - Per-country disparity: D = max(m_c) - min(m_c).
 - 5% threshold is a configurable hypothesis, not a regulatory standard.
+- **v2 `is_high_risk` (fed reference, per-client test AUC):** point disparity 0.0347 with per-seed disparities 0.0338/0.0340/0.0375, but joint bootstrap 95% CI [0.0159, 0.0803] crosses 0.05 (conservative max−min bootstrap) — **status: inconclusive** (not a pass). See `artifacts/fairness_disparity.json`.
 
 ### TLS
 - Applies to local SuperLink/SuperNode deployments only. SuperGrid transport security is platform-managed.
