@@ -1,0 +1,235 @@
+{
+  "task": "is_high_risk",
+  "data_dir": "/Users/guykaptue/Downloads/insurance_federated_learning/data/processed/european_insurance_federated",
+  "dataset_version": "v2",
+  "config_hash": "e93bcefe91a0b25a",
+  "manifest_seed": 42,
+  "manifest_samples_per_client": 5000,
+  "git_sha": "4671b29f420d745d2278d6f9b6e42f1fbe53ec0a",
+  "git_dirty": false,
+  "clients": {
+    "germany_allianz": {
+      "splits": {
+        "train": 3000,
+        "val": 1000,
+        "test": 750
+      },
+      "pos_rate": {
+        "train": 0.5253333333333333,
+        "val": 0.525,
+        "test": 0.5066666666666667
+      },
+      "baselines": {
+        "majority": {
+          "model": "majority_baseline",
+          "auc": 0.5,
+          "ci95": [
+            0.5,
+            0.5
+          ],
+          "gate": {
+            "auc": 0.5,
+            "ci_low": 0.5,
+            "meets_target": false,
+            "status": "below"
+          },
+          "majority_class_train": 1,
+          "accuracy_constant_prob": 0.5066666666666667,
+          "note": "constant-probability predictor; AUC expected ~0.5"
+        },
+        "gbm": {
+          "model": "gbm_hist",
+          "auc": 0.8239331436699857,
+          "ci95": [
+            0.7934981062460855,
+            0.8535648712399503
+          ],
+          "gate": {
+            "auc": 0.8239331436699857,
+            "ci_low": 0.7934981062460855,
+            "meets_target": true,
+            "status": "marginal"
+          },
+          "val_auc": 0.8142556390977445,
+          "n_iter": 60,
+          "params": {
+            "max_iter": 300,
+            "learning_rate": 0.05,
+            "early_stopping": true,
+            "validation_fraction": 0.1,
+            "random_state": 42
+          },
+          "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
+        }
+      }
+    },
+    "france_axa": {
+      "splits": {
+        "train": 3000,
+        "val": 1000,
+        "test": 750
+      },
+      "pos_rate": {
+        "train": 0.5246666666666666,
+        "val": 0.518,
+        "test": 0.5333333333333333
+      },
+      "baselines": {
+        "majority": {
+          "model": "majority_baseline",
+          "auc": 0.5,
+          "ci95": [
+            0.5,
+            0.5
+          ],
+          "gate": {
+            "auc": 0.5,
+            "ci_low": 0.5,
+            "meets_target": false,
+            "status": "below"
+          },
+          "majority_class_train": 1,
+          "accuracy_constant_prob": 0.5333333333333333,
+          "note": "constant-probability predictor; AUC expected ~0.5"
+        },
+        "gbm": {
+          "model": "gbm_hist",
+          "auc": 0.8391428571428571,
+          "ci95": [
+            0.8122327436033254,
+            0.8662124054188379
+          ],
+          "gate": {
+            "auc": 0.8391428571428571,
+            "ci_low": 0.8122327436033254,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "val_auc": 0.8044585783174996,
+          "n_iter": 64,
+          "params": {
+            "max_iter": 300,
+            "learning_rate": 0.05,
+            "early_stopping": true,
+            "validation_fraction": 0.1,
+            "random_state": 42
+          },
+          "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
+        }
+      }
+    },
+    "belgium_ageas": {
+      "splits": {
+        "train": 3000,
+        "val": 1000,
+        "test": 750
+      },
+      "pos_rate": {
+        "train": 0.519,
+        "val": 0.513,
+        "test": 0.5453333333333333
+      },
+      "baselines": {
+        "majority": {
+          "model": "majority_baseline",
+          "auc": 0.5,
+          "ci95": [
+            0.5,
+            0.5
+          ],
+          "gate": {
+            "auc": 0.5,
+            "ci_low": 0.5,
+            "meets_target": false,
+            "status": "below"
+          },
+          "majority_class_train": 1,
+          "accuracy_constant_prob": 0.5453333333333333,
+          "note": "constant-probability predictor; AUC expected ~0.5"
+        },
+        "gbm": {
+          "model": "gbm_hist",
+          "auc": 0.8259971749994623,
+          "ci95": [
+            0.7974431327215628,
+            0.8547898371302014
+          ],
+          "gate": {
+            "auc": 0.8259971749994623,
+            "ci_low": 0.7974431327215628,
+            "meets_target": true,
+            "status": "marginal"
+          },
+          "val_auc": 0.8107120413399458,
+          "n_iter": 115,
+          "params": {
+            "max_iter": 300,
+            "learning_rate": 0.05,
+            "early_stopping": true,
+            "validation_fraction": 0.1,
+            "random_state": 42
+          },
+          "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
+        }
+      }
+    },
+    "switzerland_helvetia": {
+      "splits": {
+        "train": 3000,
+        "val": 1000,
+        "test": 750
+      },
+      "pos_rate": {
+        "train": 0.5316666666666666,
+        "val": 0.537,
+        "test": 0.49866666666666665
+      },
+      "baselines": {
+        "majority": {
+          "model": "majority_baseline",
+          "auc": 0.5,
+          "ci95": [
+            0.5,
+            0.5
+          ],
+          "gate": {
+            "auc": 0.5,
+            "ci_low": 0.5,
+            "meets_target": false,
+            "status": "below"
+          },
+          "majority_class_train": 1,
+          "accuracy_constant_prob": 0.49866666666666665,
+          "note": "constant-probability predictor; AUC expected ~0.5"
+        },
+        "gbm": {
+          "model": "gbm_hist",
+          "auc": 0.8452753441802252,
+          "ci95": [
+            0.8187544470059197,
+            0.8724479064233683
+          ],
+          "gate": {
+            "auc": 0.8452753441802252,
+            "ci_low": 0.8187544470059197,
+            "meets_target": true,
+            "status": "supported"
+          },
+          "val_auc": 0.8291202625577664,
+          "n_iter": 73,
+          "params": {
+            "max_iter": 300,
+            "learning_rate": 0.05,
+            "early_stopping": true,
+            "validation_fraction": 0.1,
+            "random_state": 42
+          },
+          "selection": "validation_only (HGB internal early stopping on train holdout); test evaluated once"
+        }
+      }
+    }
+  },
+  "notes": [
+    "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once)."
+  ]
+}
