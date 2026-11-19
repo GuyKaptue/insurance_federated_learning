@@ -72,16 +72,31 @@ kernel: ## Register the repo venv as the 'insurance-fl' Jupyter kernel for noteb
 	$(PYTHON) -m ipykernel install --user --name insurance-fl --display-name "insurance-fl (venv)"
 
 flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
-	@tmp=$$(mktemp); \
-	KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(PYTHON) -m flwr run . --stream --run-config num-server-rounds=1 > $$tmp 2>&1; rc=$$?; \
+	@data_dir=""; \
+	if [ -d "data/processed/european_insurance_federated/federated" ]; then \
+		data_dir="data/processed/european_insurance_federated"; \
+	elif [ -d "data/processed/fl_task0_smoke/federated" ]; then \
+		data_dir="data/processed/fl_task0_smoke"; \
+	fi; \
+	tmp=$$(mktemp); \
+	if [ -n "$$data_dir" ]; then \
+		KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(PYTHON) -m flwr run . --stream --run-config "num-server-rounds=1 data-dir=$$data_dir" > $$tmp 2>&1; rc=$$?; \
+	else \
+		KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 $(PYTHON) -m flwr run . --stream --run-config num-server-rounds=1 > $$tmp 2>&1; rc=$$?; \
+	fi; \
 	if grep -qi "backend not available" $$tmp; then \
 		echo "ERROR: dp-accounting backend not available in flwr run" >&2; \
 		cat $$tmp >&2; \
 		rm -f $$tmp; \
 		exit 1; \
 	fi; \
-	rm -f $$tmp; \
-	exit $$rc
+	if [ $$rc -ne 0 ]; then \
+		echo "ERROR: flwr-guard failed (exit $$rc)" >&2; \
+		cat $$tmp >&2; \
+		rm -f $$tmp; \
+		exit $$rc; \
+	fi; \
+	rm -f $$tmp
 
 coverage: ## Run tests with branch coverage (fail under 85%)
 	$(PYTEST) -q --cov=insurance_fl --cov-branch --cov-report=term-missing \

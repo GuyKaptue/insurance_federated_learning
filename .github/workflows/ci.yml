@@ -186,7 +186,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: pip-audit
-        run: pip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --strict
+        run: |
+          ignore_args=""
+          if [ -f security/pip-audit-ignore.txt ]; then
+            ignore_args=$(awk 'NF && $1 !~ /^#/{printf "--ignore-vuln %s ", $1}' security/pip-audit-ignore.txt)
+          fi
+          pip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --strict $ignore_args
 
   ci-gate:
     runs-on: ubuntu-latest
