@@ -5,8 +5,8 @@
   "config_hash": "e93bcefe91a0b25a",
   "manifest_seed": 42,
   "manifest_samples_per_client": 5000,
-  "git_sha": "ed6f2133ca3e741168006cd16b92259ac3845240",
-  "git_dirty": true,
+  "git_sha": "dd1958aabdf4a4bafa0d8a5c5b814eac4a03d7cb",
+  "git_dirty": false,
   "clients": {
     "germany_allianz": {
       "splits": {
@@ -1578,7 +1578,19 @@
               }
             ]
           },
-          "standardization": "per-client train statistics (fit on each client's train split)"
+          "standardization": "per-client train statistics (fit on each client's train split)",
+          "calibration": {
+            "method": "isotonic_regression_fit_on_validation",
+            "median_seed_recomputed": 42,
+            "test_auc_raw": 0.8346799431009958,
+            "test_auc_calibrated": 0.8330405405405406,
+            "auc_unchanged_up_to_ties_note": "Isotonic regression is monotonic; ROC AUC is rank-based so it is unchanged up to tie-breaking.",
+            "brier_before": 0.16620550749418658,
+            "brier_after": 0.16855404425557508,
+            "ece_before": 0.03589952960362036,
+            "ece_after": 0.03941248622039953,
+            "reliability_diagram": "reports/figures/reliability_germany_allianz_federated.png"
+          }
         }
       }
     },
@@ -3152,7 +3164,19 @@
               }
             ]
           },
-          "standardization": "per-client train statistics (fit on each client's train split)"
+          "standardization": "per-client train statistics (fit on each client's train split)",
+          "calibration": {
+            "method": "isotonic_regression_fit_on_validation",
+            "median_seed_recomputed": 44,
+            "test_auc_raw": 0.8625214285714284,
+            "test_auc_calibrated": 0.8579,
+            "auc_unchanged_up_to_ties_note": "Isotonic regression is monotonic; ROC AUC is rank-based so it is unchanged up to tie-breaking.",
+            "brier_before": 0.1504545405617881,
+            "brier_after": 0.15274533752793698,
+            "ece_before": 0.04879945879429578,
+            "ece_after": 0.024518175830443703,
+            "reliability_diagram": "reports/figures/reliability_france_axa_federated.png"
+          }
         }
       }
     },
@@ -4726,7 +4750,19 @@
               }
             ]
           },
-          "standardization": "per-client train statistics (fit on each client's train split)"
+          "standardization": "per-client train statistics (fit on each client's train split)",
+          "calibration": {
+            "method": "isotonic_regression_fit_on_validation",
+            "median_seed_recomputed": 44,
+            "test_auc_raw": 0.8423233836909995,
+            "test_auc_calibrated": 0.8412908961848152,
+            "auc_unchanged_up_to_ties_note": "Isotonic regression is monotonic; ROC AUC is rank-based so it is unchanged up to tie-breaking.",
+            "brier_before": 0.16295708916808707,
+            "brier_after": 0.16357120860899713,
+            "ece_before": 0.040988268026461196,
+            "ece_after": 0.04318376690149307,
+            "reliability_diagram": "reports/figures/reliability_belgium_ageas_federated.png"
+          }
         }
       }
     },
@@ -6300,7 +6336,19 @@
               }
             ]
           },
-          "standardization": "per-client train statistics (fit on each client's train split)"
+          "standardization": "per-client train statistics (fit on each client's train split)",
+          "calibration": {
+            "method": "isotonic_regression_fit_on_validation",
+            "median_seed_recomputed": 44,
+            "test_auc_raw": 0.8693964045966549,
+            "test_auc_calibrated": 0.8681803959494823,
+            "auc_unchanged_up_to_ties_note": "Isotonic regression is monotonic; ROC AUC is rank-based so it is unchanged up to tie-breaking.",
+            "brier_before": 0.1514260614889195,
+            "brier_after": 0.1514023876802369,
+            "ece_before": 0.05276677379881344,
+            "ece_after": 0.06367576633393765,
+            "reliability_diagram": "reports/figures/reliability_switzerland_helvetia_federated.png"
+          }
         }
       }
     }
@@ -6308,6 +6356,57 @@
   "notes": [
     "A1: majority baseline and GBM (HGB early stopping on train holdout; val/test AUC reported; test evaluated once).",
     "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance).",
-    "A3: in-process FedAvg+FedBN reference (~20 rounds), local epochs/lr chosen on validation grid (seed 42), 3 seeds 42/43/44, per-client local BN eval on own test split; validation curves recorded."
-  ]
+    "A3: in-process FedAvg+FedBN reference (~20 rounds), local epochs/lr chosen on validation grid (seed 42), 3 seeds 42/43/44, per-client local BN eval on own test split; validation curves recorded.",
+    "A4: isotonic calibration on validation predictions for federated reference (median seed) per client; Brier/ECE before/after, reliability diagrams, AUC unchanged up to ties; finalized summary/gap and shipped-model rule outcome."
+  ],
+  "summary": {
+    "federated_median_test_auc_by_client": {
+      "germany_allianz": 0.8346799431009958,
+      "france_axa": 0.8625214285714284,
+      "belgium_ageas": 0.8423233836909995,
+      "switzerland_helvetia": 0.8693964045966549
+    },
+    "best_to_worst_client_gap_federated": 0.0347164614956591,
+    "best_client": "switzerland_helvetia",
+    "worst_client": "germany_allianz",
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "split_sizes_per_client": {
+      "train": 3000,
+      "val": 1000,
+      "test": 750
+    },
+    "gate_target": 0.8,
+    "gate_note": "750-row test split => ~0.03 CI half-width typical; 'marginal' (point>=0.80, CI lower < 0.80) is common for good models; 'supported' means lower CI bound >= 0.80.",
+    "shipped_model_rule_check": {
+      "germany_allianz": {
+        "federated_status": "supported",
+        "gbm_status": "marginal",
+        "federated_misses_0_80": false,
+        "gbm_passes": true
+      },
+      "france_axa": {
+        "federated_status": "supported",
+        "gbm_status": "supported",
+        "federated_misses_0_80": false,
+        "gbm_passes": true
+      },
+      "belgium_ageas": {
+        "federated_status": "supported",
+        "gbm_status": "marginal",
+        "federated_misses_0_80": false,
+        "gbm_passes": true
+      },
+      "switzerland_helvetia": {
+        "federated_status": "supported",
+        "gbm_status": "supported",
+        "federated_misses_0_80": false,
+        "gbm_passes": true
+      }
+    },
+    "shipped_model_rule_decision": "Federated model meets >=0.80 point estimate for all clients (GBM also passes); no model-work escalation required by pre-registered miss rule. keep_5000 remains provisional pending broader evaluation."
+  }
 }
