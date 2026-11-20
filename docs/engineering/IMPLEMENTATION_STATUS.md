@@ -76,7 +76,7 @@
 - 4-client single-host simulation is not proof of multi-org/production deployment; bitwise reproducibility not guaranteed.
 
 ## Uncommitted changes
-- Incident/SecAgg+ honesty/docs/test updates pending commit: `docs/evidence/client_mapping_incident.json`, `docs/evidence/flower_path_inventory.md`, `docs/DECISIONS.md` (D-ORCH-010, D-PRIV-004), `docs/engineering/IMPLEMENTATION_STATUS.md`, `README.md`, `notebooks/security_secagg.ipynb`, `tests/unit/fl/test_server_app.py`.
+- Incident/SecAgg+ honesty/docs/test updates pending commit: `docs/evidence/client_mapping_incident.json`, `docs/evidence/flower_path_inventory.md`, `docs/DECISIONS.md` (D-ORCH-010, D-PRIV-006), `docs/engineering/IMPLEMENTATION_STATUS.md`, `README.md`, `notebooks/security_secagg.ipynb`, `tests/unit/fl/test_server_app.py`.
 
 ## Blockers
 - Ray PYSEC-2026-2273 vs `flwr[simulation]==1.31.0` pin (policy-driven resolution in Part 3).
