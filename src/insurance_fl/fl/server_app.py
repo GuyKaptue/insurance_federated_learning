@@ -35,9 +35,7 @@ from flwr.common import Context
 from flwr.server import Server, ServerApp, ServerConfig
 from flwr.server.client_manager import SimpleClientManager
 from flwr.server.compat import start_grid
-from flwr.server.compat.legacy_context import LegacyContext
 from flwr.server.serverapp_components import ServerAppComponents
-from flwr.server.workflow import SecAggPlusWorkflow
 
 try:
     from flwr.serverapp.grid import Grid  # type: ignore[no-redef]
@@ -62,6 +60,8 @@ def build_components(context: Context) -> ServerAppComponents:
     )
     audit_logger.log_config_snapshot(config=dict(rc))
 
+    secagg_enabled = str(rc.get("secagg-enabled", "false")).lower() == "true"
+    require_all_clients = str(rc.get("require-all-clients", "false")).lower() == "true"
     strategy = build_strategy(
         strategy_name=str(rc.get("strategy-type", "fedavg")),
         fraction_fit=float(rc["fraction-fit"]),
@@ -72,6 +72,8 @@ def build_components(context: Context) -> ServerAppComponents:
         accountant=accountant,
         audit_logger=audit_logger,
         run_id=str(rc.get("run-id", "fl-run")),
+        require_all_clients=require_all_clients,
+        secagg_enabled=secagg_enabled,
     )
     config = ServerConfig(num_rounds=int(rc["num-server-rounds"]))
     return ServerAppComponents(strategy=strategy, config=config)
@@ -95,28 +97,25 @@ def main(grid: Grid, context: Context) -> None:
     config = components.config
 
     client_manager = SimpleClientManager()
-    legacy_ctx = LegacyContext(
-        context, config=config, strategy=strategy, client_manager=client_manager
-    )
 
     rc = context.run_config
     secagg_enabled = str(rc.get("secagg-enabled", "false")).lower() == "true"
 
     if secagg_enabled:
-        workflow = SecAggPlusWorkflow(
-            num_shares=int(rc.get("secagg-num-shares", 4)),
-            reconstruction_threshold=int(rc.get("secagg-reconstruction-threshold", 3)),
-            max_weight=float(rc.get("secagg-max-weight", 1000.0)),
-            clipping_range=float(rc.get("secagg-clipping-range", 8.0)),
-            quantization_range=int(rc.get("secagg-quantization-range", 2**22)),
+        # SecAgg+ simulation runtime path requires proper workflow orchestration
+        # (client manager updates, init, round loop) beyond this bootstrap.
+        # Kept explicit to avoid a silently incorrect/incomplete run.
+        raise NotImplementedError(
+            "SecAgg+ runtime orchestration via server_app.main is not wired for "
+            "multi-round simulation in this patch; use SecAgg workflow integration "
+            "tests and dedicated wiring."
         )
-        workflow(grid, legacy_ctx)
-    else:
-        server = Server(client_manager=client_manager, strategy=strategy)
-        start_grid(
-            server=server,
-            config=config,
-            strategy=strategy,
-            client_manager=client_manager,
-            grid=grid,
-        )
+
+    server = Server(client_manager=client_manager, strategy=strategy)
+    start_grid(
+        server=server,
+        config=config,
+        strategy=strategy,
+        client_manager=client_manager,
+        grid=grid,
+    )

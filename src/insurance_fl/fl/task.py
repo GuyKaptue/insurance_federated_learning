@@ -44,6 +44,48 @@ CLIENT_IDS: list[str] = [
     "switzerland_helvetia",
 ]
 
+
+def resolve_client_id(context) -> str:
+    """Resolve canonical client identity from Flower simulation partition config.
+
+    Prefers ``context.node_config`` keys ``partition-id`` and ``num-partitions``
+    (Flower 1.31 simulation). The mapping is asserted to be a 1:1 assignment
+    over ``CLIENT_IDS`` and never derived from ``context.node_id`` arithmetic.
+    """
+    node_config = getattr(context, "node_config", None) or {}
+    if "partition-id" in node_config:
+        partition_id = int(node_config["partition-id"])
+        num_partitions = int(node_config.get("num-partitions", len(CLIENT_IDS)))
+        if num_partitions != len(CLIENT_IDS):
+            raise ValueError(
+                f"num-partitions={num_partitions} does not match expected "
+                f"{len(CLIENT_IDS)} clients ({CLIENT_IDS})"
+            )
+        if not (0 <= partition_id < len(CLIENT_IDS)):
+            raise ValueError(
+                f"partition-id={partition_id} out of range for {len(CLIENT_IDS)} clients"
+            )
+        client_id = CLIENT_IDS[partition_id]
+        node_id = getattr(context, "node_id", None)
+        log.info(
+            "client_mapping node_id=%s partition_id=%s num_partitions=%s client_id=%s",
+            node_id,
+            partition_id,
+            num_partitions,
+            client_id,
+        )
+        print(
+            f"CLIENT_MAPPING node_id={node_id} partition_id={partition_id} "
+            f"num_partitions={num_partitions} client_id={client_id}",
+            flush=True,
+        )
+        return client_id
+    raise ValueError(
+        "Missing partition-id in context.node_config; refusing node_id-based "
+        "client identity mapping"
+    )
+
+
 DEFAULT_DATA_DIR = Path("data/processed/fl_task0_smoke")
 DEFAULT_SAMPLES_PER_CLIENT = 512  # smallest size that satisfies stratified splits
 DEFAULT_SEED = 42

@@ -1,8 +1,8 @@
 """Flower ClientApp (Layer 2 / Task 1): local training on one insurance client.
 
 One simulated supernode maps to one of the 4 real client identities
-(``node_id % 4`` — stable within a ``flwr run`` simulation session;
-Task 11 revisits partitioning for the integration test).
+(via Flower ``partition-id`` / ``num-partitions`` in ``context.node_config``;
+server identity is learned from client-reported metrics, not node arithmetic).
 
 Each client is READ-ONLY against the pre-generated smoke dataset
 (``python -m insurance_fl.fl.task --prepare`` runs first).
@@ -56,6 +56,7 @@ class InsuranceNNClient(NumPyClient):
         batch_size: int,
         lr: float,
         state,
+        client_id: str,
     ) -> None:
         super().__init__()
         self.net = net
@@ -65,6 +66,7 @@ class InsuranceNNClient(NumPyClient):
         self.batch_size = batch_size
         self.lr = lr
         self.state = state  # RecordDict: persists across rounds on this node
+        self.client_id = client_id
 
     def get_parameters(self, config: dict[str, Scalar]) -> list[np.ndarray]:
         # FedBN wire format: non-BN parameters only
@@ -101,7 +103,12 @@ class InsuranceNNClient(NumPyClient):
         self.state["bn_local"] = ArrayRecord(torch_state_dict=torch_state)
         log.info("FedBN: saved local BN state to context.state for next round")
 
-        return self.net.get_federated_weights(), len(self.x), {"train_loss": loss}
+        print(f"CLIENT_PHASE_FIT client_id={self.client_id}", flush=True)
+        return (
+            self.net.get_federated_weights(),
+            len(self.x),
+            {"train_loss": loss, "client_id": self.client_id},
+        )
 
     def evaluate(
         self,
@@ -118,13 +125,15 @@ class InsuranceNNClient(NumPyClient):
         self.net.set_federated_weights(parameters)
 
         metrics = fl_task.evaluate(self.net, self.x, self.y)
+        metrics["client_id"] = self.client_id
+        print(f"CLIENT_PHASE_EVALUATE client_id={self.client_id}", flush=True)
         return float(metrics["loss"]), len(self.x), metrics
 
 
 def client_fn(context: Context) -> Client:
     """Build the client bound to this supernode's insurance identity."""
     rc = context.run_config
-    client_id = fl_task.CLIENT_IDS[int(context.node_id) % len(fl_task.CLIENT_IDS)]
+    client_id = fl_task.resolve_client_id(context)
     data_dir = Path(str(rc["data-dir"]))  # run_config values are Scalars
     x, y = fl_task.load_partition(data_dir, client_id, split="train")
     net = fl_task.build_model(input_dim=int(x.shape[1]))
@@ -143,6 +152,7 @@ def client_fn(context: Context) -> Client:
         batch_size=int(rc["batch-size"]),
         lr=float(rc["learning-rate"]),
         state=context.state,
+        client_id=client_id,
     ).to_client()
 
 
