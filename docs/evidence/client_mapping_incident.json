@@ -1,0 +1,78 @@
+{
+  "incident_id": "client-mapping-node-id-mod4-2026-11-20",
+  "title": "Flower simulation client identity derived via node_id % 4 collided/misassigned partitions",
+  "summary": "In 3/3 sampled Flower simulation guard runs before the fix, large/random simulation node IDs mapped via modulo-4 produced partition/client misassignments and duplicate client assignments, so at least one canonical client partition was never trained and another trained multiple times in every run. The old guard counted nodes/results, not partition identities, and could not detect this.",
+  "old_behavior_commit_range": {
+    "observed_in_code_through": "4d5ff02",
+    "last_known_baseline_context": "efc174a",
+    "notes": "client_app.py and strategy.py derived identity via node_id % len(CLIENT_IDS) before fix commits 3ee2266/31deb5e/f5043a6/6299b71."
+  },
+  "new_behavior_commits": [
+    "3ee2266",
+    "31deb5e",
+    "fec2a24",
+    "f5043a6",
+    "6299b71"
+  ],
+  "evidence_runs": [
+    {
+      "run": 1,
+      "source_log": "/tmp/guard_run2.log (local, 2026-11-20)",
+      "mappings": [
+        {"node_id": 8698011132683359632, "partition_id": 1, "client_id": "france_axa", "old_mod4": 0, "old_client_id": "germany_allianz", "misassigned_vs_partition": true},
+        {"node_id": 9082882584839880611, "partition_id": 0, "client_id": "germany_allianz", "old_mod4": 3, "old_client_id": "switzerland_helvetia", "misassigned_vs_partition": true},
+        {"node_id": 11500616774399574045, "partition_id": 3, "client_id": "switzerland_helvetia", "old_mod4": 1, "old_client_id": "france_axa", "misassigned_vs_partition": true},
+        {"node_id": 9815041917950320531, "partition_id": 2, "client_id": "belgium_ageas", "old_mod4": 3, "old_client_id": "switzerland_helvetia", "misassigned_vs_partition": true}
+      ],
+      "old_assigned_client_ids": ["germany_allianz", "switzerland_helvetia", "france_axa", "switzerland_helvetia"],
+      "old_duplicate_clients": ["switzerland_helvetia"],
+      "old_missing_clients": ["belgium_ageas"],
+      "old_mod4_values": [0, 3, 1, 3],
+      "partitions_covered_by_actual_partition_id": [0, 1, 2, 3],
+      "clients_covered_by_actual_partition_id": ["belgium_ageas", "france_axa", "germany_allianz", "switzerland_helvetia"]
+    },
+    {
+      "run": 2,
+      "source_log": "/tmp/guard_run3.log (local, 2026-11-20)",
+      "mappings": [
+        {"node_id": 11990511187559709462, "partition_id": 1, "client_id": "france_axa", "old_mod4": 2, "old_client_id": "belgium_ageas", "misassigned_vs_partition": true},
+        {"node_id": 7658913389211169539, "partition_id": 0, "client_id": "germany_allianz", "old_mod4": 3, "old_client_id": "switzerland_helvetia", "misassigned_vs_partition": true},
+        {"node_id": 15119144221899197023, "partition_id": 2, "client_id": "belgium_ageas", "old_mod4": 3, "old_client_id": "switzerland_helvetia", "misassigned_vs_partition": true},
+        {"node_id": 17565045654289941279, "partition_id": 3, "client_id": "switzerland_helvetia", "old_mod4": 3, "old_client_id": "switzerland_helvetia", "misassigned_vs_partition": false}
+      ],
+      "old_assigned_client_ids": ["belgium_ageas", "switzerland_helvetia", "switzerland_helvetia", "switzerland_helvetia"],
+      "old_duplicate_clients": ["switzerland_helvetia"],
+      "old_missing_clients": ["france_axa", "germany_allianz"],
+      "old_mod4_values": [2, 3, 3, 3],
+      "partitions_covered_by_actual_partition_id": [0, 1, 2, 3],
+      "clients_covered_by_actual_partition_id": ["belgium_ageas", "france_axa", "germany_allianz", "switzerland_helvetia"]
+    },
+    {
+      "run": 3,
+      "source_log": "/tmp/guard_run4.log (local, 2026-11-20)",
+      "mappings": [
+        {"node_id": 12870801003190853356, "partition_id": 3, "client_id": "switzerland_helvetia", "old_mod4": 0, "old_client_id": "germany_allianz", "misassigned_vs_partition": true},
+        {"node_id": 11645721963193154786, "partition_id": 0, "client_id": "germany_allianz", "old_mod4": 2, "old_client_id": "belgium_ageas", "misassigned_vs_partition": true},
+        {"node_id": 5445140917932998169, "partition_id": 2, "client_id": "belgium_ageas", "old_mod4": 1, "old_client_id": "france_axa", "misassigned_vs_partition": true},
+        {"node_id": 683488260989726934, "partition_id": 1, "client_id": "france_axa", "old_mod4": 2, "old_client_id": "belgium_ageas", "misassigned_vs_partition": true}
+      ],
+      "old_assigned_client_ids": ["germany_allianz", "belgium_ageas", "france_axa", "belgium_ageas"],
+      "old_duplicate_clients": ["belgium_ageas"],
+      "old_missing_clients": ["switzerland_helvetia"],
+      "old_mod4_values": [0, 2, 1, 2],
+      "partitions_covered_by_actual_partition_id": [0, 1, 2, 3],
+      "clients_covered_by_actual_partition_id": ["belgium_ageas", "france_axa", "germany_allianz", "switzerland_helvetia"]
+    }
+  ],
+  "theoretical_risk": "For 4 random nodes assigned to 4 modulo buckets, P(not a perfect identity assignment) = 1 - 4!/4^4 = 90.625%.",
+  "impact": {
+    "invalid": "Any result produced through the Flower simulation app path (flwr run/guard/Flower ClientApp/ServerApp) before the fix is invalid for 4-partition identity/per-client attribution claims; '4 results received' counted nodes, not distinct partitions.",
+    "unaffected": "In-process FedAvg+FedBN shipped-model reference and artifacts computed in-process (not via Flower flwr run simulation app path), including reports/is_high_risk_auc.json and artifacts/fairness_disparity.json as currently reported, are not affected by Flower simulation node_id mapping."
+  },
+  "remediation": {
+    "client": "Resolve identity from Flower node_config partition-id/num-partitions with assertions/logging; report canonical client_id in fit/eval metrics.",
+    "server": "Learn node_id->client_id from reported replies (bootstrap all when unknown), reject unknown/conflicting/duplicate identities with audit events, support dropout by default and require_all_clients only for guard/proof.",
+    "guard": "Run with require-all-clients and parse CLIENT_MAPPING/CLIENT_PHASE_FIT/CLIENT_PHASE_EVALUATE to fail unless exactly the 4 canonical clients participate once each in fit and evaluate.",
+    "tests": "Revert-fail unit tests for resolver/strategy invariants and secagg identity-inactive behavior added."
+  }
+}

@@ -36,3 +36,35 @@ def test_server_fn_builds_fedavg() -> None:
 
     assert isinstance(components.strategy, FedAvg)
     assert components.config.num_rounds == 2
+
+
+def test_server_app_main_secagg_enabled_fails_closed(monkeypatch):
+    """SecAgg+ runtime path must fail explicitly (no hang, no plaintext fallback)."""
+    from types import SimpleNamespace
+
+    from flwr.common import Context
+
+    from insurance_fl.fl import server_app
+
+    # minimal context mock
+    rc = {
+        "dp-enabled": False,
+        "dp-noise-multiplier": 0.1,
+        "dp-max-grad-norm": 1.0,
+        "audit-path": "logs/audit.jsonl",
+        "run-id": "test-secagg-fail-closed",
+        "strategy-type": "fedavg",
+        "fraction-fit": 1.0,
+        "fraction-evaluate": 0.0,
+        "min-fit-clients": 4,
+        "min-evaluate-clients": 4,
+        "min-available-clients": 4,
+        "num-server-rounds": 1,
+        "secagg-enabled": "true",
+        "require-all-clients": "false",
+    }
+    context = Context(run_id=1, node_id=0, node_config={}, state={}, run_config=rc)
+    grid = SimpleNamespace()
+
+    with pytest.raises(NotImplementedError, match=r"SecAgg\+ runtime orchestration"):
+        server_app.main(grid, context)

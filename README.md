@@ -33,12 +33,12 @@ All experiments use **synthetic data** (5,000 samples per client) generated with
 |-------|------|-----|------------|--------------|
 | 1. Synthetic Data Generation | 20,000 synthetic records (5,000/client, 33 features, 5 targets) | Realistic, privacy-safe benchmark | `make data` (official: `insurance-fl-generate --samples 5000 --seed 42 --output data/processed/european_insurance_federated`, backed by `insurance_fl.data.generator.EuropeanInsuranceFederatedDataset`) | `docs/EIFD.md`, `docs/evidence/dataset_manifest.json` (when present) |
 | 2. TLS Certificate Generation | CA + server + client certs via OpenSSL | Transport security for local SuperLink/SuperNode | `python generate_creds.py --output-dir certificates` | `tests/integration/test_tls.py` |
-| 3. Security (SecAgg+) | Cryptographic masking of client updates | Gradients never visible in clear | `flwr run . --stream --run-config secagg-enabled=true` | `tests/integration/test_secagg.py` (no committed end-to-end SecAgg run log) |
+| 3. Security (SecAgg+) | Cryptographic masking of parameter updates (partially implemented) | Parameter updates protected by protocol when correctly wired; **not end-to-end Flower-app runtime evidence** | `pytest tests/integration/test_secagg.py` (protocol-level); `server_app.main(secagg-enabled=true)` fails closed (`NotImplementedError`) | `tests/integration/test_secagg.py`, `tests/unit/fl/test_server_app.py` (see D-PRIV-006; no committed end-to-end SecAgg run log) |
 | 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `artifacts/fairness_disparity.json` (v2 `is_high_risk`: point 0.0347, joint 95% CI [0.0159, 0.0803], **inconclusive**) |
 | 5. MIA | Black-box shadow-model MIA on is_high_risk | Empirical leakage check | `python scripts/run_mia.py` | `reports/mia_evaluation.json` (not committed) - AUC 0.6032215647600263, TPR@1%FPR 0.03564102564102564 |
 | 6. Differential Privacy (Local DP) | Optional Gaussian noise + clipping (disabled by default) | Per-client DP when enabled | `python scripts/dp_sweep.py` | `reports/dp_utility_curve.json` (not committed); script at `scripts/dp_sweep.py` |
 | 7. DP-Counting (RDP) | Fail-closed RDP accounting with dp-accounting v0.6.0 | Quantifiable epsilon-delta budget | `pytest tests/integration/test_rdp_accounting.py` | No committed epsilon (per-run only); fail-closed test in `tests/integration/test_rdp_accounting.py` |
-| 8. Federated Learning with Flower | End-to-end multi-task FL (Kendall + FedBN) | Cross-market model without sharing data | `python -m insurance_fl.fl.task --prepare && flwr run . --stream --run-config num-server-rounds=2` | `docs/evidence/layer1_flwr_run_2rounds.log` (loss 19.28M to 17.33M, 3.30 s); `docs/evidence/layer2_flwr_run_3rounds.log` (16.49M / 21.41M / 10.01M, 3.84 s) |
+| 8. Federated Learning with Flower | Multi-task FL app (Kendall + FedBN) with Flower simulation path | Cross-market model without sharing raw data | `python -m insurance_fl.fl.task --prepare && flwr run . --stream --run-config num-server-rounds=2` | **Pre-fix (invalid for 4-partition identity claims, D-ORCH-010):** `docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`. **Post-fix participation proof:** `make flwr-guard` (4 distinct partitions/clients in fit+eval, see `scripts/check_flwr_guard_identity.py`). |
 
 ## 1. The Problem We Are Solving
 
@@ -66,7 +66,7 @@ European insurers hold highly sensitive customer data. Regulations (GDPR) and co
 
 ## ✅ Results (What the Platform Can Do Today)
 
-- **Federated training runs end-to-end**: `flwr run` completes 2 rounds in ~2.7s, 4/4 clients fit, loss 16,509,105 → 15,699,892 (multi-task NN with Kendall weighting + FedBN).
+- **Federated Flower app executes**: pre-fix `flwr run` logs show completed multi-round simulation runs (`docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`), but those runs are **invalid for 4-partition identity/per-client attribution claims** due to a pre-fix `node_id % 4` mapping bug (D-ORCH-010). Post-fix `make flwr-guard` proves 4 distinct partitions/clients participate once each in fit and evaluate (identity-checked).
 - **Privacy stack (fail-closed)**: RDP accountant, Local DP, and SecAgg+ modules present; runs halt rather than proceed without an ε guarantee when the backend is unavailable.
 - **Fairness & audit**: country-stratified FedProx, disparity metrics, JSONL audit trail (6 event types, secret redaction), MIA evaluation.
 - **Hybrid ML**: per-client XGBoost/LightGBM/CatBoost with OOF predictions, NNLS stacking, β-fusion.
@@ -239,7 +239,7 @@ insurance-fl-serve --host 0.0.0.0 --port 8000
 
 | Capability | Status | Evidence | Decision |
 |------------|--------|----------|----------|
-| SecAgg+ | Preview | `tests/integration/test_secagg.py` | D-PRIV-003, D-HYBRID-004 |
+| SecAgg+ | Partially implemented (protocol-level) | `tests/integration/test_secagg.py`, `tests/unit/fl/test_server_app.py`, `scripts/check_flwr_guard_identity.py` (not SecAgg runtime) | D-PRIV-003, D-HYBRID-004, D-PRIV-006 |
 | LocalDP | Preview (disabled by default) | `src/insurance_fl/fl/dp.py`, `tests/unit/fl/test_dp.py` | D-PRIV-003 |
 | RDP accounting | Preview (fail-closed) | `src/insurance_fl/fl/privacy.py`, `tests/integration/test_rdp_accounting.py` | D-PRIV-001, D-PRIV-005 |
 | Fairness | Preview | `src/insurance_fl/fl/strategy.py`, `tests/unit/fl/test_fairness.py` | D-FAIR-001 |
@@ -257,10 +257,10 @@ This release adds four security and governance capabilities (all in
 preview/experimental status unless noted):
 
 ### Secure Aggregation (SecAgg+)
-- Integrated via Flower 1.31 `SecAggPlusWorkflow` in `server_app.py`.
-- Design params: num_shares=4, reconstruction_threshold=3, max_weight=1000.0,
-  clipping_range=8.0, quantization_range=2^22.
-- Client modifier: `secaggplus_mod` (cryptographic masking before transmission).
+- Flower 1.31 `SecAggPlusWorkflow` integration and client modifier `secaggplus_mod` exist; protocol-level coverage in `tests/integration/test_secagg.py`.
+- **End-to-end Flower simulation orchestration via `server_app.main` is not verified/wired**: `secagg-enabled=true` fails closed with `NotImplementedError` (no hang, no plaintext fallback), covered by `tests/unit/fl/test_server_app.py`.
+- Design params (target): num_shares=4, reconstruction_threshold=3, max_weight=1000.0, clipping_range=8.0, quantization_range=2^22.
+- **Server visibility (D-PRIV-006):** SecAgg+ protects **parameter updates**; per-client metrics (e.g. `client_id`, train/eval metrics) and `num_examples` can remain visible to the server/strategy in the legacy-compat workflow path.
 - **Secure Aggregation alone is NOT a differential privacy guarantee.**
 
 ### Local Differential Privacy (Local DP)
