@@ -79,11 +79,12 @@ flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
 	@test -n "$(FLWR)" || { echo "ERROR: flwr CLI not found next to $(PYTHON)" >&2; exit 1; }
 	@if [ -n "$(FLWR_GUARD_DATA)" ]; then echo "flwr-guard: using FLWR_GUARD_DATA=$(FLWR_GUARD_DATA)"; fi
 	@test -d "$(GUARD_DATA)" || { echo "ERROR: canonical data dir missing: $(GUARD_DATA)" >&2; exit 1; }
-	@PATH="$(dir $(FLWR)):$$PATH" KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 FLWR_TELEMETRY_ENABLED=0 "$(FLWR)" run . --stream --run-config 'num-server-rounds=1 data-dir="$(GUARD_DATA)"' 2>&1 | tee flwr-guard.log
+	@PATH="$(dir $(FLWR)):$$PATH" KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 FLWR_TELEMETRY_ENABLED=0 "$(FLWR)" run . --stream --run-config 'num-server-rounds=1 data-dir="$(GUARD_DATA)" strategy-type="hybrid" fraction-evaluate=1.0 min-fit-clients=4 min-evaluate-clients=4 min-available-clients=4 require-all-clients=true' 2>&1 | tee flwr-guard.log
 	@echo "--- flwr-guard: last 20 lines ---"
 	@tail -20 flwr-guard.log
 	@if grep -qi "backend not available" flwr-guard.log; then echo "ERROR: dp-accounting backend not available in flwr run" >&2; exit 1; fi
 	@grep -Eq "Run finished [0-9]+ round" flwr-guard.log || { echo "ERROR: no completed round in log" >&2; exit 1; }
+	@$(PYTHON) scripts/check_flwr_guard_identity.py flwr-guard.log
 	@rm -f flwr-guard.log
 
 coverage: ## Run tests with branch coverage (fail under 85%)
