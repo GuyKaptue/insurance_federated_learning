@@ -82,3 +82,6 @@ PYSEC-2026-4383
 PYSEC-2026-4384
 PYSEC-2026-93
 PYSEC-2026-94
+
+# ray 2.55.1 pinned by flwr[simulation]==1.31.0; fix 2.56.0 conflicts with Flower pin (see D-ORCH-009, PYSEC-2026-2273)
+PYSEC-2026-2273

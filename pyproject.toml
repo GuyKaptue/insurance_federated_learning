@@ -116,6 +116,8 @@ dev = [
     "nbformat>=5.0.0",
     "nbconvert>=7.0.0",
     "ipykernel>=6.0.0",
+]
+simulation = [
     "flwr[simulation]>=1.31,<1.32",
 ]
 causal = [
