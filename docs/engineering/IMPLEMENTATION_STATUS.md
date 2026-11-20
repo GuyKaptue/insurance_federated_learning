@@ -2,8 +2,8 @@
 
 ## Snapshot
 - **PROJECT:** Insurance Federated Learning Platform
-- **CURRENT BRANCH:** `feat/task0-baseline-federation` (ahead of `origin/feat/task0-baseline-federation`; local commits include Part 1 + Part 2 A work in progress for commit/push)
-- **CURRENT COMMIT (HEAD, local):** `6299b71` (config: secagg/require-all-clients run-config defaults)
+- **CURRENT BRANCH:** `feat/task0-baseline-federation` (local commits ahead of origin include Part 1, Part 2 identity/guard, and incident/SecAgg+ honesty records; push/CI status recorded separately)
+- **CURRENT COMMIT (HEAD, local):** `51d96c7` + pending follow-up fix commit (incident/SecAgg+ honesty/docs/test records)
 - **LAST VERIFIED COMMIT (local validation):** working tree at `6299b71` + pending incident/SecAgg+ honesty/docs/test updates (not yet committed)
 - **LATEST CI (evidence):** [44609880224](https://github.com/GuyKaptue/insurance_federated_learning/actions/runs/44609880224) — `quality/unit/integration/artifacts/notebooks/privacy-invariants` success, **security failure** (`pip-audit`: `ray 2.55.1` PYSEC-2026-2273; 108 ignored via blanket policy), `ci-gate` failure. Prior: [44608982208](https://github.com/GuyKaptue/insurance_federated_learning/actions/runs/44608982208), [44595947290](https://github.com/GuyKaptue/insurance_federated_learning/actions/runs/44595947290).
 - **CURRENT STAGE:** Part 2 (identity/incident/SecAgg+ honesty) finalization before Part 3 security gate
@@ -76,7 +76,7 @@
 - 4-client single-host simulation is not proof of multi-org/production deployment; bitwise reproducibility not guaranteed.
 
 ## Uncommitted changes
-- Incident/SecAgg+ honesty/docs/test updates pending commit: `docs/evidence/client_mapping_incident.json`, `docs/evidence/flower_path_inventory.md`, `docs/DECISIONS.md` (D-ORCH-010, D-PRIV-006), `docs/engineering/IMPLEMENTATION_STATUS.md`, `README.md`, `notebooks/security_secagg.ipynb`, `tests/unit/fl/test_server_app.py`.
+- None for Part 2 incident/SecAgg+ honesty record at this checkpoint (pending commit/push may exist during active edits).
 
 ## Blockers
 - Ray PYSEC-2026-2273 vs `flwr[simulation]==1.31.0` pin (policy-driven resolution in Part 3).
@@ -93,7 +93,7 @@
 - R10: reproducibility/resume gaps. R11: hygiene/docs divergence. R12: overclaiming readiness.
 
 ## Continuation checkpoint
-- **LAST COMPLETED SUBSTEP:** Part 2 identity fix committed (`3ee2266`, `31deb5e`, `fec2a24`, `f5043a6`, `6299b71`) with local validation (unit 258 passed/4 deselected, integration 47 passed, flwr-guard identity OK, mypy clean, lint/format clean on changed files). Incident inventory and SecAgg+ honesty updates prepared.
-- **NEXT STAGE:** commit incident/SecAgg+ honesty updates (Part 2 record), push branch, then **Part 3 security gate**.
-- **EXACT NEXT ACTION:** commit pending docs/evidence/tests/notebook/status changes, `git push`, `gh run watch --exit-status`, record per-job results; proceed to Part 3 only after recording push/CI state.
+- **LAST COMPLETED SUBSTEP:** Part 2 identity fix committed (`3ee2266`, `31deb5e`, `fec2a24`, `f5043a6`, `6299b71`) and incident/SecAgg+ honesty record committed (`51d96c7`); local validation for Part 2 scope: unit 258 passed/4 deselected, integration 47 passed, flwr-guard identity OK (4 mappings, 4 fit, 4 eval), mypy clean, lint/format clean on changed files. Notebook validator failed locally due environment (validator/kernel not in repo venv), not a code regression; CI notebooks was green on 44609880224.
+- **NEXT STAGE:** push latest commits, record CI per-job state, then **Part 3 security gate**.
+- **EXACT NEXT ACTION:** push branch, `gh run watch --exit-status`, record per-job table/durations, then execute Part 3 security gate steps (simulation/runtime/full audits, ignore cleanup, fixes, PYSEC handling, negative control) and push again.
 - **FILES TO INSPECT BEFORE CONTINUING:** `docs/DECISIONS.md`, `docs/engineering/IMPLEMENTATION_STATUS.md`, `docs/evidence/client_mapping_incident.json`, `docs/evidence/flower_path_inventory.md`, `.github/workflows/ci.yml`, `pyproject.toml`, `constraints/ci-linux-py311.txt`, `security/pip-audit-ignore.txt`.
