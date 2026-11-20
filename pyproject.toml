@@ -192,6 +192,13 @@ dp-epsilon = 2.0
 dp-delta = 0.00001
 dp-clipping-norm = 1.0
 dp-noise-multiplier = 0.1
+secagg-enabled = false
+secagg-num-shares = 4
+secagg-reconstruction-threshold = 3
+secagg-max-weight = 1000.0
+secagg-clipping-range = 8.0
+secagg-quantization-range = 4194304
+require-all-clients = false
 
 
 #######################################################################
