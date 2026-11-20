@@ -1,3 +1,9 @@
+# SUPERSEDED
+
+This document is archived and superseded by `docs/engineering/IMPLEMENTATION_STATUS.md`.
+
+---
+
 # Program status (updated 2026-10-17, commit a0b1a72, data_version TBD)
 
 | Wave | Package | Prompt/phases | Branch | Gate | Status | Evidence | Commit | Stale? |

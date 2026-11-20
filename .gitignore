@@ -522,3 +522,6 @@ runs/
 reports/figures/
 reports/stale_v1/
 .ipynb_checkpoints/
+
+# Local/macOS constraints (do not commit)
+constraints/ci-py311.txt
