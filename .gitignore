@@ -191,9 +191,8 @@ wandb/*
 *.onnx
 *.pt
 *.pth
-checkpoints/
-models/
 *.model
+checkpoints/
 
 # ============================================================
 # Reports and Outputs (Keep structure, ignore generated content)
@@ -272,7 +271,6 @@ Desktop.ini
 # Docker
 # ============================================================
 docker-compose.override.yml
-*.dockerignore
 
 # ============================================================
 # Kubernetes
@@ -495,3 +493,34 @@ data/processed/**/dataset_info.json
 !**/.gitkeep
 !*.sample.csv
 !*.sample.parquet
+.oxcode-memory/
+
+# IDE agent hooks
+.oxcode-memory/
+oxcode.hooks.json
+
+# Layer 1 smoke dataset (regenerable: python -m insurance_fl.fl.task --prepare)
+data/processed/fl_task0_smoke/
+!docs/evidence/*.log
+
+
+
+# ============================================================
+# Generated data (reproduce with: make data)
+# ============================================================
+# Large generated datasets are not tracked; reproduce locally/CI via
+# `make data` (or the official insurance-fl-generate CLI) and the
+# dataset manifest in docs/evidence/ when available.
+data/processed/
+!data/processed/.gitkeep
+!data/processed/fl_task0_smoke/.gitkeep
+
+# Local/generated artifacts
+catboost_info/
+runs/
+reports/figures/
+reports/stale_v1/
+.ipynb_checkpoints/
+
+# Local/macOS constraints (do not commit)
+constraints/ci-py311.txt

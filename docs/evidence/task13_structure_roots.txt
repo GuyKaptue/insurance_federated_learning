@@ -1,0 +1,35 @@
+"""Structure enforcement: every source module must have a mirrored test.
+
+Mirror rule (docs/TEST_MATRIX.md):
+``src/insurance_fl/<pkg>/<module>.py``  ->  ``tests/unit/<pkg>/test_<module>.py``
+
+``__init__.py`` files are excluded (package plumbing, not testable units).
+This test makes the one-test-per-file rule self-enforcing: adding a source
+module without a test FAILS the suite.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "insurance_fl"
+TESTS_ROOT = Path(__file__).resolve().parents[1] / "tests" / "unit"
+
+
+def _source_modules() -> list[Path]:
+    """All non-``__init__`` .py files under src/insurance_fl."""
+    return sorted(
+        p for p in SRC_ROOT.rglob("*.py") if p.name != "__init__.py" and not p.name.startswith("._")
+    )
+
+
+def _mirrored_test(src_file: Path) -> Path:
+    rel = src_file.relative_to(SRC_ROOT)  # e.g. data/generator.py
+    pkg = rel.parts[0] if len(rel.parts) > 1 else ""
+    stem = src_file.stem
+    if pkg:
+        return TESTS_ROOT / pkg / f"test_{stem}.py"
+    return TESTS_ROOT / f"test_{stem}.py"
+
+
+def test_source_tree_not_empty() -> None:

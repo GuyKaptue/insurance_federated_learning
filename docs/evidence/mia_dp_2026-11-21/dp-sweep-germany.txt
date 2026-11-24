@@ -1,0 +1,23 @@
+
+Local DP Utility Sweep
+==================================================================
+  delta=1e-05, clipping_norm=1.0, sensitivity=1.0, accountant_noise_multiplier=1.0
+  seed=42, client=germany_allianz, data_dir=data/processed/european_insurance_federated
+
+     sigma |   train_loss |     val_loss | will_renew_acc
+  ---------+--------------+--------------+---------------
+  baseline | 10348841.000000 | 9734958.000000 |         0.7720
+      0.50 | 112398061010944.000000 | 108774308184064.000000 |         0.7720
+      1.00 | 479988536930467840.000000 | 482271397947637760.000000 |         0.7720
+      2.00 | 62489626260835139584.000000 | 48363839738982957056.000000 |         0.2280
+
+Results written to /private/tmp/task5-dp-germany.json
+  git_dirty: True
+
+## Local DP Utility Summary
+
+| noise multiplier | delta | val_loss | will_renew_acc | claim_risk_score_rmse |
+|------------------|-------|----------|----------------|-----------------------|
+| 0.5 | 1e-05 | 108774308184064.0 | 0.7720000147819519 | 11441575.0 |
+| 1.0 | 1e-05 | 4.8227139794763776e+17 | 0.7720000147819519 | 648307520.0 |
+| 2.0 | 1e-05 | 4.836383973898296e+19 | 0.2280000001192093 | 3115257856.0 |

@@ -1,0 +1,19 @@
+tests/unit/test_artifact_provenance.py:23:def test_load_artifact_rejects_stale_dataset_version(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:32:def test_load_artifact_rejects_stale_config_hash(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:41:def test_load_artifact_accepts_current_provenance(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:50:def test_provenance_fields_reads_manifest(tmp_path: Path) -> None:
+tests/unit/test_audit.py:12:def test_all_event_types_serialize() -> None:
+tests/unit/test_audit.py:37:def test_required_fields_present() -> None:
+tests/unit/test_audit.py:48:def test_timestamps_valid() -> None:
+tests/unit/test_audit.py:59:def test_secret_redaction_recursive() -> None:
+tests/unit/test_audit.py:79:def test_append_preserves_earlier() -> None:
+tests/unit/test_audit.py:94:def test_retention_days() -> None:
+tests/unit/test_audit.py:98:def test_missing_required_fields_raises() -> None:
+tests/unit/test_audit.py:109:def test_config_hash_deterministic() -> None:
+tests/unit/test_audit.py:119:def test_event_hash_present() -> None:
+src/insurance_fl/audit.py:34:_SECRET_KEYS = {"secret", "token", "password", "key"}
+src/insurance_fl/audit.py:59:            if any(s in str(k).lower() for s in _SECRET_KEYS):
+src/insurance_fl/audit.py:83:class AuditLogger:
+src/insurance_fl/audit.py:123:    def log_fl_round_start(
+src/insurance_fl/audit.py:146:    def log_fl_round_end(
+src/insurance_fl/audit.py:257:    def read_events(self) -> list[dict[str, Any]]:

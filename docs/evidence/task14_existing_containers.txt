@@ -1,0 +1,1 @@
+ai_career_assistant-ollama-1 ollama/ollama:0.40.3 Up 14 seconds (healthy)

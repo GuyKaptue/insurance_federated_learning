@@ -1,0 +1,19 @@
+  fed round 1/20 mean_val_auc=0.8045
+  fed round 5/20 mean_val_auc=0.8242
+  fed round 10/20 mean_val_auc=0.8274
+  fed round 15/20 mean_val_auc=0.8273
+  fed round 20/20 mean_val_auc=0.8275
+MIA evaluation complete. Results: reports/mia_v2/germany_allianz.json
+  Status: ok
+  ROC AUC: 0.499462
+  ROC AUC CI95: [0.46316967218723565, 0.5369292684604613]
+  TPR@1%FPR: 0.00823529411764706
+  Members: 500, Non-members: 500
+  Min resolvable FPR: 0.002
+  Shadow models: 3
+  Bootstrap: 1000
+  unique_scores=98 distinct_target_predictions=1000 pred_has_nan=False loss_threshold_auc=0.523432 rf_attack_auc=0.499462
+  target_auc=0.8288719999999999 majority_baseline_accuracy=0.5 target_has_skill=True
+  control=none target_epochs=40
+  Mode: full, data_dir: data/processed/european_insurance_federated
+  git_dirty: True

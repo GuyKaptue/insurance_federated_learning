@@ -1,0 +1,35 @@
+The rerun `make flwr-guard` completed Flower run `13060186228550230409` for one round. Captured output shows four distinct partition/client mappings and four fit plus four evaluate participants; the identity checker returned OK. This supports only the local synthetic simulation path. The command also logged 0.328 GB free in the Ray temporary filesystem; the run nevertheless exited successfully.
+
+`git rev-list --count origin/feat/task0-baseline-federation..HEAD` measured 1, and `git log` reports only `c6ef41b ci: fix flwr-guard supernode count and isolate simulation deps`. Thus the earlier “3 unpushed commits” note no longer describes the current upstream comparison. HEAD is `c6ef41ba4a4710b8f1c281aca3f577d2884ddad5`, tracking `origin/feat/task0-baseline-federation`.
+
+Current final Wave 1 regressions: non-slow 305 passed/4 deselected (309 collected), slow 4 passed/305 deselected (309 collected), integration 47 passed. The older prompt totals (301 non-slow and 298 slow collected) are superseded by measured additions: two gate tests, two notebook-validator tests, one MIA split test, and three parametrized DP tests. No deletion or deselection changes were made; the four deselections are the existing slow marker when running non-slow tests.
+
+Task 7 is `IMPLEMENTED_AND_VERIFIED` locally. Wave 1 is complete. Wave 2 task 8 is next, with the ordered notebook inventory and `dp_accounting_rdp.ipynb` modernization first. The current tree remains dirty and unstaged/uncommitted.
+
+## Wave 2 Task 8: notebook inventory and light-mode validation
+
+All 11 notebooks now have the shared `_nb_common.py` bootstrap as the first cell. The ordered notebook pass added the project privacy artifact/accounting context, corrected the MIA artifact loader to use provenance checks with a visible skip, refreshed the current fairness/DP/SecAgg+ explanations, clarified synthetic reference behavior, and preserved generated-temp TLS handling without key output. `flower_federated_learning.ipynb` has frozen `Cfg.STRATEGY`. Distinct chart method inventory reports four or more per notebook; interpretation markdown follows the added figures. Inventory and chart evidence: `docs/evidence/task8_notebook_inventory.txt`, `docs/evidence/task8_chart_types.txt`.
+
+`NB_MODE=light ./venv/bin/python scripts/validate_notebooks.py` passed 11/11, zero failed (Python 3.11.16, Flower 1.31.0). The latest report is `reports/notebook_validation.json`; notebook audit and README catalog reflect it. Unit/integration regressions stayed at 305 passed/4 deselected non-slow, 4 passed/305 deselected slow, and 47 integration. Full notebook mode remains unexecuted. Task 8 is `IMPLEMENTED_AND_VERIFIED` locally.
+
+Next: check the required aggregation modes notebook specification at `docs/engineering/specs/AGGREGATION_MODES_NOTEBOOK_PROMPT.md`; if it is missing, record Task 9 blocked with that concrete reason and continue to Task 10 per the master prompt.
+
+## Wave 2 Task 9: aggregation modes notebook
+
+Task status: `BLOCKED: spec missing`. The required `docs/engineering/specs/AGGREGATION_MODES_NOTEBOOK_PROMPT.md` does not exist, and its expected `src/insurance_fl/evaluation/aggregation_comparison.py` and `tests/unit/evaluation/test_aggregation_comparison.py` companions are absent. The exact file check is captured in `docs/evidence/task9_spec_check.txt`. As instructed, no aggregation mode definitions or acceptance thresholds were invented. Continue to Task 10.
+
+## Wave 2 Task 10: eight evidence notebooks
+
+Created the ordered eight notebooks and used only captured synthetic artifacts or the project feature APIs. The client identity notebook parses the captured guard log and explicitly limits the conclusion to simulation identity; the feature notebook derives input names/width through `insurance_fl.fl.task`; the DP gate notebook computes ε through `RdpAccountantWrapper`. All start with `_nb_common.py`, contain frozen light/full `Cfg`, skip visibly when evidence is unavailable, include four or more distinct chart forms with interpretation text, and state limitations and project references.
+
+The first full validation found `NameError: frame is not defined` in the identity notebook's mapping summary. The code was changed to count the parsed records before DataFrame construction. Final `NB_MODE=light` validation passed 19/19 (zero failed); environment Python 3.11.16 and Flower 1.31.0. The README catalog and audit matrix are updated from this output. AST chart inventory confirms four or more chart methods in all 19 notebooks. Full mode has not been run.
+
+Regression totals remained 305 passed/4 deselected non-slow, 4 passed/305 deselected slow, 47 integration (309 collected). Task 10 is `IMPLEMENTED_AND_VERIFIED` locally. Task 9 remains `BLOCKED: spec missing` per its required spec. Next is Wave 3 Task 11 (client isolation and update negative coverage).
+
+## Wave 3 Task 11: client isolation and malformed updates
+
+Identity registration code shared by `HybridAggregation` and `StratifiedFedProx` is now `_ClientIdentityMixin`. Both strategies validate update sample counts and tensor payloads before aggregation: malformed parameter conversion, non-positive counts, shape mismatch, non-numeric tensors, and NaN/Inf values fail closed. Tests exercise NaN, shape mismatch, and zero example cases in both strategies. The test suite also proves a client-supplied `node_config.client_id` is ignored in favor of Flower simulation `partition-id`; missing partition assignment is rejected.
+
+FedBN coverage now establishes that stored local BN state is restored before subsequent local training, applying federated non-BN weights leaves local BN values unchanged, and separate client models keep distinct local BN states. Existing dropout coverage checks the default tolerant path and strict `require_all_clients` behavior. Focused tests: 19 passed. Full regression: non-slow 314 passed/4 deselected, slow 4 passed/314 deselected (318 collected), integration 47 passed. Nine cases were added; no test was removed. Ruff/Black/Isort/Mypy and immediate py_compile checks pass. D-B3-001 records the simulation-only scope; server-reported `client_id` metrics are still not authenticated and Stage F remains required.
+
+Task 11 is locally `IMPLEMENTED_AND_VERIFIED`. Next: verify Flower 1.31 auth/TLS capabilities from installed source/docs, then add supported TLS tests and resolve or explicitly block end-to-end SecAgg+.

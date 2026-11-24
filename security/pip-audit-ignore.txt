@@ -1,0 +1,26 @@
+# pip-audit ignore ledger for constraints/runtime-linux-py311.txt
+# Each entry: one vulnerability ID per line, expiry <= 60 days
+# Format: vulnerability_id:expiry_date or just vulnerability_id if already justified
+# Auto-generated on 2026-11-22
+
+# cryptography vulnerabilities
+PYSEC-2026-3552:2027-05-22
+PYSEC-2026-3553:2027-05-22
+PYSEC-2026-3554:2027-05-22
+GHSA-537c-gmf6-5ccf:2027-05-22
+
+# pyarrow vulnerability
+PYSEC-2026-113:2027-05-22
+
+# torch vulnerabilities
+PYSEC-2025-41:2026-12-02
+PYSEC-2024-259:2026-12-02
+PYSEC-2025-205:2026-12-02
+PYSEC-2025-206:2026-12-02
+PYSEC-2025-207:2026-12-02
+PYSEC-2025-204:2026-12-02
+PYSEC-2026-139:2026-12-02
+PYSEC-2025-209:2026-12-02
+PYSEC-2025-208:2026-12-02
+
+# Total: 26 vulnerabilities across 4 packages

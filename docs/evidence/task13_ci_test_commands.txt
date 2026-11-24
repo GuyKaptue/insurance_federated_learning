@@ -1,0 +1,81 @@
+Makefile-13-	elif [ -x .venv/bin/python ]; then echo .venv/bin/python; \
+Makefile-14-	else echo python3; fi)
+Makefile:15:PYTEST ?= $(PYTHON) -m pytest
+Makefile-16-PIP ?= $(PYTHON) -m pip
+Makefile-17-FLWR := $(shell $(PYTHON) -c "import os,shutil,sys; p=shutil.which('flwr', path=os.path.dirname(sys.executable) or None); print(p or '')")
+--
+Makefile-21-.DEFAULT_GOAL := help
+Makefile-22-
+Makefile:23:.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-sim flwr-guard notebooks kernel \
+Makefile:24:	test-integration test-slow coverage data train fl-all evaluate serve \
+Makefile-25-	docker-build docker-run docker-test compose-up compose-down ci clean \
+Makefile-26-	_check_causal_deps
+--
+Makefile-62-	$(PYTEST) -q -m "not slow"
+Makefile-63-
+Makefile:64:test-unit: ## Run unit tests only
+Makefile-65-	$(PYTEST) -q tests/unit tests/test_structure.py
+Makefile-66-
+Makefile:67:test-integration: ## Run integration tests only
+Makefile:68:	$(PYTEST) -q -m integration
+Makefile-69-
+Makefile-70-test-slow: ## Run slow tests (cross-process determinism, full generation)
+--
+Makefile-146-
+Makefile-147-docker-test: ## Run container tests
+Makefile:148:	docker run --rm insurance-fl:latest python -m pytest -q -m "not slow"
+Makefile-149-
+Makefile-150-compose-up: ## Start the federated docker-compose stack
+--
+Makefile-162-
+Makefile-163-clean: ## Remove caches and build artifacts
+Makefile:164:	rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov dist build
+Makefile-165-	find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
+Makefile-166-	find . -name '._*' -not -path './.git/*' -delete 2>/dev/null || true
+--
+.github/workflows/ci.yml-57-      - name: Unit tests (not slow) with coverage
+.github/workflows/ci.yml-58-        run: |
+.github/workflows/ci.yml:59:          pytest -v --tb=short --cov=insurance_fl --cov-fail-under=70 -m "not slow" tests/unit
+.github/workflows/ci.yml-60-
+.github/workflows/ci.yml:61:  integration:
+.github/workflows/ci.yml-62-    runs-on: ubuntu-latest
+.github/workflows/ci.yml-63-    timeout-minutes: 20
+--
+.github/workflows/ci.yml-85-            --output data/processed/european_insurance_federated
+.github/workflows/ci.yml-86-      - name: Integration tests
+.github/workflows/ci.yml:87:        run: pytest tests/integration -v --tb=short --durations=15 --timeout=300 --timeout=300
+.github/workflows/ci.yml-88-
+.github/workflows/ci.yml-89-  artifacts:
+--
+.github/workflows/ci.yml-110-        run: make data-check
+.github/workflows/ci.yml-111-      - name: Artifact/provenance tests
+.github/workflows/ci.yml:112:        run: pytest -q --tb=short tests/unit/test_artifact_provenance.py
+.github/workflows/ci.yml-113-      - name: flwr-guard
+.github/workflows/ci.yml-114-        run: make flwr-guard
+--
+.github/workflows/ci.yml-160-      - name: Privacy extra installed check
+.github/workflows/ci.yml-161-        run: python -c "import dp_accounting; print('dp_accounting ok')"
+.github/workflows/ci.yml:162:      - name: Privacy unit/integration checks
+.github/workflows/ci.yml-163-        run: |
+.github/workflows/ci.yml:164:          pytest -q --tb=short tests/unit/fl/test_privacy.py tests/unit/test_artifact_provenance.py
+.github/workflows/ci.yml:165:          pytest -q --tb=short tests/integration/test_rdp_accounting.py
+.github/workflows/ci.yml-166-
+.github/workflows/ci.yml-167-  security:
+--
+.github/workflows/ci.yml-224-  ci-gate:
+.github/workflows/ci.yml-225-    runs-on: ubuntu-latest
+.github/workflows/ci.yml:226:    needs: [quality, unit, integration, artifacts, notebooks, privacy-invariants, security]
+.github/workflows/ci.yml-227-    if: always()
+.github/workflows/ci.yml-228-    timeout-minutes: 5
+--
+.github/workflows/ci.yml-232-          echo "quality=${{ needs.quality.result }}"
+.github/workflows/ci.yml-233-          echo "unit=${{ needs.unit.result }}"
+.github/workflows/ci.yml:234:          echo "integration=${{ needs.integration.result }}"
+.github/workflows/ci.yml-235-          echo "artifacts=${{ needs.artifacts.result }}"
+.github/workflows/ci.yml-236-          echo "notebooks=${{ needs.notebooks.result }}"
+--
+.github/workflows/ci.yml-239-          test "${{ needs.quality.result }}" = "success" && \
+.github/workflows/ci.yml-240-          test "${{ needs.unit.result }}" = "success" && \
+.github/workflows/ci.yml:241:          test "${{ needs.integration.result }}" = "success" && \
+.github/workflows/ci.yml-242-          test "${{ needs.artifacts.result }}" = "success" && \
+.github/workflows/ci.yml-243-          test "${{ needs.notebooks.result }}" = "success" && \

@@ -26,6 +26,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 keywords = [
     "federated-learning",
@@ -42,20 +43,27 @@ dependencies = [
     "scipy>=1.10.0,<2.0.0",
 
     # Data Handling & Storage
-    "pyarrow>=12.0.0,<15.0.0",
+    "pyarrow>=17.0.0,<18.0.0",  # accepted trial: PYSEC-2024-161 fix (17.0.0); logical data identity verified
     "Faker>=18.0.0,<25.0.0",
 
     # Machine Learning
     "scikit-learn>=1.2.0,<1.6.0",
-    "xgboost>=1.7.0,<2.0.0",
+    "xgboost>=2.0.0,<3.0.0",
     "lightgbm>=4.0.0,<5.0.0",
+    "catboost>=1.2.0,<2.0.0",
+
+    # Model Interpretability (imported unconditionally by
+    # src/core/explainability/shap_explainer.py, so it is a hard runtime
+    # dependency, not optional)
+    "shap>=0.42.0,<1.0.0",
 
     # PyTorch (Replaces TensorFlow)
     "torch>=2.0.0,<3.0.0",
     "torchvision>=0.15.0,<0.20.0",
 
     # Federated Learning Frameworks (PyTorch Compatible)
-    "flwr>=1.4.0,<2.0.0",
+    # D-ORCH-004: tested on flwr 1.31.0 in project venv (2026-11-18); pin to tested range.
+    "flwr>=1.31,<1.32",
 
     # Visualization
     "matplotlib>=3.7.0,<4.0.0",
@@ -67,8 +75,9 @@ dependencies = [
     "uvicorn[standard]>=0.21.0,<0.30.0",
     "pydantic>=2.0.0,<3.0.0",
 
-    # Experiment Tracking
-    "mlflow>=2.2.0,<3.0.0",
+    # Privacy / RDP accounting (required by the FL runtime path so Ray workers
+    # installed from this package have the backend; do not rely on system Python)
+    "dp-accounting>=0.6.0,<1.0.0",
 
     # Utilities
     "python-dotenv>=1.0.0,<2.0.0",
@@ -80,25 +89,163 @@ dependencies = [
     "joblib>=1.2.0,<2.0.0",
 ]
 
+[project.scripts]
+insurance-fl-generate = "insurance_fl.scripts.generate_dataset:main"
+insurance-fl-train = "insurance_fl.scripts.run_federated_training:main"
+insurance-fl-evaluate = "insurance_fl.scripts.evaluate_models:main"
+insurance-fl-serve = "insurance_fl.scripts.deploy_api:main"
+insurance-fl-analyze = "insurance_fl.scripts.analyze_data:main"
+
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.2.0,<9.0.0",
-    "pytest-cov>=4.0.0,<5.0.0",
+    "pytest>=7.2.0,<10.0.0",
+    "pytest-cov>=4.0.0,<8.0.0",
     "black>=23.0.0,<25.0.0",
     "flake8>=6.0.0,<8.0.0",
     "isort>=5.12.0,<6.0.0",
     "pre-commit>=3.0.0,<4.0.0",
     "jupyter>=1.0.0,<2.0.0",
+    "hypothesis>=6.0.0,<9.0.0",
+    "ruff>=0.8.0,<1.0.0",
+    "pytest-timeout>=2.3.0,<3.0.0",
+    "mypy==1.10.0",  # pinned: flwr requires pathspec<0.13; mypy>1.10 fails to start on this dep graph
+    "types-PyYAML>=6.0.0",
+    "nbformat>=5.0.0",
+    "nbconvert>=7.0.0",
+    "ipykernel>=6.0.0",
 ]
+simulation = [
+    "flwr[simulation]>=1.31,<1.32",
+]
+causal = [
+    "statsmodels>=0.14,<0.15",
+    "pgmpy>=0.1.25,<0.2",
+]
+train = [
+    "dp-accounting>=0.6.0,<1.0.0",
+]
+rdp = [
+    "dp-accounting>=0.6.0,<1.0.0",
+]
+
+# Privacy-specific dependencies (genuine RDP accounting via dp-accounting)
+privacy = [
+    "dp-accounting>=0.6.0,<1.0.0",
+]
+
+# Notebook execution and visualization dependencies
+notebooks = [
+    "matplotlib>=3.7.0,<4.0.0",
+    "seaborn>=0.12.0,<0.14.0",
+    "plotly>=5.14.0,<6.0.0",
+    "nbformat>=5.0.0",
+    "nbclient>=0.5.0",
+    "ipykernel>=6.0.0",
+    "networkx>=3.0.0",
+]
+
+# Experiment tracking (optional; strategy raises clear error if requested but missing)
+tracking = [
+    "mlflow>=2.2.0,<3.0.0",
+]
+
+[tool.flwr.app]
+publisher = "GuyKaptue"
+
+# NOTE: previously missing entirely (Wave 1 intake). Without this, `flwr run`
+# / the Flower CLI has no way to find the ServerApp/ClientApp objects - it
+# does not infer them from file location. Format is "<module>:<attribute>".
+# Layer 1 / Task 0: points at the REAL package (src/insurance_fl/fl/); the
+# previous "src.core.federated.*" target never existed (suspect #10).
+[tool.flwr.app.components]
+serverapp = "insurance_fl.fl.server_app:app"
+clientapp = "insurance_fl.fl.client_app:app"
+
+# Default run configuration, exposed to ClientApp/ServerApp via
+# `context.run_config`. These are plain scalars (str/int/float/bool) because
+# Flower's Context only carries scalar values across the SuperLink/SuperNode
+# boundary - dataclasses such as FederatedConfig cannot be placed here and
+# must instead be *built* inside client_fn/server_fn from these values.
+[tool.flwr.app.config]
+dataset-name = "european_insurance_federated"
+# Layer 1 / Task 0: consumed by client_app.client_fn (see fl/task.py;
+# generated beforehand via `python -m insurance_fl.fl.task --prepare`).
+data-dir = "data/processed/fl_task0_smoke"
+num-server-rounds = 10
+strategy-type = "fedavg"
+fraction-fit = 1.0
+fraction-evaluate = 0.5
+min-fit-clients = 2
+min-evaluate-clients = 2
+min-available-clients = 2
+local-epochs = 5
+batch-size = 32
+learning-rate = 0.001
+nn-dropout = 0.3
+nn-weight-decay = 0.0001
+ensemble-alpha = 0.5
+optimize-alpha = true
+use-ensemble-features = true
+early-stopping-patience = 20
+validation-split = 0.2
+proximal-mu = 0.1
+server-learning-rate = 0.01
+dp-enabled = false
+dp-type = "none"
+dp-epsilon = 2.0
+dp-delta = 0.00001
+dp-clipping-norm = 1.0
+dp-noise-multiplier = 0.1
+# Privacy budget gate (Stage C): enabled via privacy-enabled. When true, all of
+# privacy-local-dp-clip-norm, privacy-local-dp-noise-std, privacy-delta,
+# privacy-max-epsilon must be present and positive (fail-closed). When false,
+# setting any privacy-* value raises at start-up.
+privacy-enabled = false
+privacy-local-dp-clip-norm = 1.0
+privacy-local-dp-noise-std = 1.0
+privacy-delta = 1e-5
+privacy-max-epsilon = 8.0
+privacy-state-path = "runs/privacy_state.json"
+privacy-resume = false
+secagg-enabled = false
+secagg-num-shares = 4
+secagg-reconstruction-threshold = 3
+secagg-max-weight = 1000.0
+secagg-clipping-range = 8.0
+secagg-quantization-range = 4194304
+require-all-clients = false
+
+
 
 
 [tool.setuptools]
-packages = {find = {where = ["src"]}}
+packages = {find = {where = ["src"], include = ["insurance_fl*"]}}
 package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+insurance_fl = ["py.typed"]
+
+# Legacy tree kept until Phase-2 scripts migration completes; excluded from
+# lint so `make ci` measures only the new package (decision: docs/DECISIONS.md).
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["src/core", "src/synthetic", "venv", "data", "outputs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "RUF"]
+ignore = [
+    "E501",    # line length — handled by black
+    "B905",    # zip strict — py311 ok but noisy in tests
+    "RUF012",  # mutable class attrs (pydantic models need them)
+]
 
 [tool.black]
 line-length = 100
 target-version = ['py311']
+
+[tool.ruff.lint.isort]
+known-first-party = ["insurance_fl"]
 
 [tool.isort]
 profile = "black"
@@ -108,9 +255,32 @@ line_length = 100
 python_version = "3.11"
 warn_return_any = true
 ignore_missing_imports = true
+mypy_path = "src"
+explicit_package_bases = true
+namespace_packages = true
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = "insurance_fl.data.generator"
+disable_error_code = ["no-any-return"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+markers = [
+    "slow: long-running tests (determinism across processes, full generation)",
+    "integration: end-to-end pipeline tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:typer.*",
+    "ignore::DeprecationWarning:click.*",
+    "ignore::DeprecationWarning:mlflow.*",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince212",
+    "ignore::RuntimeWarning:numpy.*",
+    "ignore::FutureWarning:lightgbm.*",
+    "error::DeprecationWarning:insurance_fl.*",
+]

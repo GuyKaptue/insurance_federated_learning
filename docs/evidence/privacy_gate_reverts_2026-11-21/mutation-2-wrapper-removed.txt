@@ -1,0 +1,36 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+__________________ test_every_strategy_type_is_gated[fedavg] ___________________
+tests/unit/fl/test_privacy_gate.py:490: in test_every_strategy_type_is_gated
+    assert results == [True, True, False, False, False]
+E   assert [True, True, True, True, True] == [True, True, ... False, False]
+E     
+E     At index 2 diff: True != False
+E     Use -v to get more diff
+__________________ test_every_strategy_type_is_gated[fedprox] __________________
+tests/unit/fl/test_privacy_gate.py:490: in test_every_strategy_type_is_gated
+    assert results == [True, True, False, False, False]
+E   assert [True, True, True, True, True] == [True, True, ... False, False]
+E     
+E     At index 2 diff: True != False
+E     Use -v to get more diff
+__________________ test_every_strategy_type_is_gated[qfedavg] __________________
+tests/unit/fl/test_privacy_gate.py:490: in test_every_strategy_type_is_gated
+    assert results == [True, True, False, False, False]
+E   assert [True, True, True, True, True] == [True, True, ... False, False]
+E     
+E     At index 2 diff: True != False
+E     Use -v to get more diff
+__________________ test_every_strategy_type_is_gated[hybrid] ___________________
+tests/unit/fl/test_privacy_gate.py:490: in test_every_strategy_type_is_gated
+    assert results == [True, True, False, False, False]
+E   assert [True, True, True, True, True] == [True, True, ... False, False]
+E     
+E     At index 2 diff: True != False
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/fl/test_privacy_gate.py::test_every_strategy_type_is_gated[fedavg]
+FAILED tests/unit/fl/test_privacy_gate.py::test_every_strategy_type_is_gated[fedprox]
+FAILED tests/unit/fl/test_privacy_gate.py::test_every_strategy_type_is_gated[qfedavg]
+FAILED tests/unit/fl/test_privacy_gate.py::test_every_strategy_type_is_gated[hybrid]
+4 failed, 24 deselected in 4.44s

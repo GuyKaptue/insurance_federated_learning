@@ -1,0 +1,27 @@
+artifacts	flwr-guard	2026-11-20T08:44:38.9241761Z make: *** [Makefile:86: flwr-guard] Error 1
+artifacts	flwr-guard	2026-11-20T08:44:38.9259568Z ##[error]Process completed with exit code 2.
+security	pip-audit	﻿2026-11-20T08:43:56.6581681Z ##[group]Run ignore_args=""
+security	pip-audit	2026-11-20T08:43:56.6582081Z ^[[36;1mignore_args=""^[[0m
+security	pip-audit	2026-11-20T08:43:56.6582385Z ^[[36;1mif [ -f security/pip-audit-ignore.txt ]; then^[[0m
+security	pip-audit	2026-11-20T08:43:56.6582877Z ^[[36;1m  ignore_args=$(awk 'NF && $1 !~ /^#/{printf "--ignore-vuln %s ", $1}' security/pip-audit-ignore.txt)^[[0m
+security	pip-audit	2026-11-20T08:43:56.6583390Z ^[[36;1mfi^[[0m
+security	pip-audit	2026-11-20T08:43:56.6583810Z ^[[36;1mpip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --strict $ignore_args^[[0m
+security	pip-audit	2026-11-20T08:43:56.6604307Z shell: /usr/bin/bash -e {0}
+security	pip-audit	2026-11-20T08:43:56.6604719Z env:
+security	pip-audit	2026-11-20T08:43:56.6605015Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.18/x64
+security	pip-audit	2026-11-20T08:43:56.6605468Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib/pkgconfig
+security	pip-audit	2026-11-20T08:43:56.6605877Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+security	pip-audit	2026-11-20T08:43:56.6606281Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+security	pip-audit	2026-11-20T08:43:56.6606676Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.18/x64
+security	pip-audit	2026-11-20T08:43:56.6607163Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.18/x64/lib
+security	pip-audit	2026-11-20T08:43:56.6607495Z ##[endgroup]
+security	pip-audit	2026-11-20T08:43:57.3348525Z WARNING:pip_audit._cli:--no-deps is supported, but users are encouraged to fully hash their pinned dependencies
+security	pip-audit	2026-11-20T08:43:57.3349964Z WARNING:pip_audit._cli:Consider using a tool like `pip-compile`: https://pip-tools.readthedocs.io/en/latest/#using-hashes
+security	pip-audit	2026-11-20T08:43:58.3660949Z Found 2 known vulnerabilities, ignored 108 in 1 package
+security	pip-audit	2026-11-20T08:43:58.3661814Z Name Version ID              Fix Versions
+security	pip-audit	2026-11-20T08:43:58.3662288Z ---- ------- --------------- ------------
+security	pip-audit	2026-11-20T08:43:58.3662638Z ray  2.55.1  PYSEC-2026-2273 2.56.0
+security	pip-audit	2026-11-20T08:43:58.3662952Z ray  2.55.1  PYSEC-2026-2273 2.56.0
+security	pip-audit	2026-11-20T08:43:58.4129040Z ##[error]Process completed with exit code 1.
+ci-gate	Check required jobs	﻿2026-11-20T08:46:00.6116569Z ##[group]Run echo "quality=success"
+ci-gate	Check required jobs	2026-11-20T08:46:00.6117265Z ^[[36;1mecho "quality=success"^[[0m

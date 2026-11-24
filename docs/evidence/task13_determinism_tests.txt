@@ -1,0 +1,29 @@
+tests/unit/test_dataset_logical_hash.py:20:def test_logical_hash_changes_when_parquet_value_changes(tmp_path: Path) -> None:
+tests/unit/test_dataset_logical_hash.py:57:def test_logical_hash_json_stable_and_value_sensitive(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:23:def test_load_artifact_rejects_stale_dataset_version(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:32:def test_load_artifact_rejects_stale_config_hash(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:41:def test_load_artifact_accepts_current_provenance(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:50:def test_provenance_fields_reads_manifest(tmp_path: Path) -> None:
+tests/unit/models/test_multi_task_nn.py:43:def test_default_five_tasks(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:48:def test_forward_returns_raw_logits_shapes(model: MultiTaskNN, inputs: torch.Tensor) -> None:
+tests/unit/models/test_multi_task_nn.py:57:def test_predict_applies_activations(model: MultiTaskNN, inputs: torch.Tensor) -> None:
+tests/unit/models/test_multi_task_nn.py:65:def test_invalid_constructor_args() -> None:
+tests/unit/models/test_multi_task_nn.py:75:def test_losses_finite_and_backward(model: MultiTaskNN, inputs: torch.Tensor) -> None:
+tests/unit/models/test_multi_task_nn.py:88:def test_total_loss_respects_weights(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:94:def test_get_losses_skips_missing_targets(model: MultiTaskNN, inputs: torch.Tensor) -> None:
+tests/unit/models/test_multi_task_nn.py:101:def test_get_set_weights_roundtrip(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:111:def test_set_weights_count_and_shape_mismatch_raise(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:120:def test_weights_are_numpy_copies(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:128:def test_save_load_roundtrip(model: MultiTaskNN, inputs: torch.Tensor, tmp_path) -> None:
+tests/unit/models/test_multi_task_nn.py:140:def test_same_seed_same_weights() -> None:
+tests/unit/models/test_multi_task_nn.py:150:def test_spec_hidden_dims_constant() -> None:
+tests/unit/models/test_multi_task_nn.py:154:def test_spec_encoder_33_features_five_outputs() -> None:
+tests/unit/models/test_multi_task_nn.py:167:def test_kendall_zero_init_equals_equal_weight_sum(
+tests/unit/models/test_multi_task_nn.py:179:def test_kendall_loss_changes_with_log_vars(model: MultiTaskNN, inputs: torch.Tensor) -> None:
+tests/unit/models/test_multi_task_nn.py:191:def test_kendall_uncertainty_weights(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:202:def test_federated_weights_exclude_batchnorm(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:215:def test_set_federated_weights_leaves_bn_untouched(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:227:def test_local_bn_state_roundtrip(model: MultiTaskNN) -> None:
+tests/unit/models/test_multi_task_nn.py:244:def test_nn_checkpoint_roundtrip() -> None:
+tests/unit/models/test_multi_task_nn.py:281:def test_nn_checkpoint_missing_fails() -> None:
+tests/unit/models/test_multi_task_nn.py:289:def test_nn_checkpoint_metadata() -> None:

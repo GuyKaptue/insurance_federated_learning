@@ -1,0 +1,8 @@
+Makefile:91:	@if grep -qi "backend not available" flwr-guard.log; then echo "ERROR: dp-accounting backend not available in flwr run" >&2; exit 1; fi
+README.md:69:- **Federated Flower app executes**: pre-fix `flwr run` logs show completed multi-round simulation runs (`docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`), but those runs are **invalid for 4-partition identity/per-client attribution claims** due to a pre-fix `node_id % 4` mapping bug (D-ORCH-010). Post-fix `make flwr-guard` proves 4 distinct partitions/clients participate once each in fit and evaluate (identity-checked). Use the canonical simulation entry point `make flwr-sim` / `scripts/flwr_sim.sh` (or `make flwr-guard`) so Flower 1.31 always receives `--federation-config num-supernodes=$(N_CLIENTS)` and runs with an isolated `FLWR_HOME` (no writes to real `~/.flwr`, no `pyproject.toml` migration side effects).
+pyproject.toml:155:# NOTE: previously missing entirely (Wave 1 intake). Without this, `flwr run`
+pyproject.toml:156:# / the Flower CLI has no way to find the ServerApp/ClientApp objects - it
+pyproject.toml:161:serverapp = "insurance_fl.fl.server_app:app"
+pyproject.toml:162:clientapp = "insurance_fl.fl.client_app:app"
+pyproject.toml:164:# Default run configuration, exposed to ClientApp/ServerApp via
+scripts/launch_tls.py:3:Generates the appropriate flwr run/launch commands with TLS flags.

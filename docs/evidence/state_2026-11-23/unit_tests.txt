@@ -1,0 +1,113 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-8.4.2, pluggy-1.7.0
+rootdir: /Users/guykaptue/Downloads/insurance_federated_learning
+configfile: pyproject.toml
+plugins: hypothesis-6.170.1, cov-7.1.0, timeout-2.4.0, anyio-4.14.2, Faker-24.14.1, platformdirs-4.13.3
+collected 327 items / 4 deselected / 323 selected
+
+tests/unit/causal/test_dag_check.py ..                                   [  0%]
+tests/unit/causal/test_dag_post_injection.py ...                         [  1%]
+tests/unit/causal/test_estimands.py .                                    [  1%]
+tests/unit/causal/test_library_contract.py ...                           [  2%]
+tests/unit/causal/test_preflight.py ....                                 [  4%]
+tests/unit/causal/test_refute.py ..                                      [  4%]
+tests/unit/causal/test_truth.py ......                                   [  6%]
+tests/unit/causal/test_truth_leakage.py ....                             [  7%]
+tests/unit/config/test_loader.py .........                               [ 10%]
+tests/unit/data/test_country_profiles.py ......                          [ 12%]
+tests/unit/data/test_generator.py ...........                            [ 15%]
+tests/unit/data/test_partition.py .............                          [ 19%]
+tests/unit/data/test_preprocess.py ...........                           [ 23%]
+tests/unit/data/test_quality.py .....                                    [ 24%]
+tests/unit/data/test_readiness.py ..........                             [ 27%]
+tests/unit/data/test_signal_and_generator.py ........                    [ 30%]
+tests/unit/evaluation/test_aggregation_comparison.py .....               [ 31%]
+tests/unit/evaluation/test_mia.py .........                              [ 34%]
+tests/unit/fl/test_boosters.py .                                         [ 34%]
+tests/unit/fl/test_client_app.py .....                                   [ 36%]
+tests/unit/fl/test_client_identity.py ..............                     [ 40%]
+tests/unit/fl/test_diagnose.py ...                                       [ 41%]
+tests/unit/fl/test_dp.py ...........                                     [ 45%]
+tests/unit/fl/test_dp_warning_visible.py ..                              [ 45%]
+tests/unit/fl/test_fairness.py ...                                       [ 46%]
+tests/unit/fl/test_feature_leakage.py .                                  [ 47%]
+tests/unit/fl/test_flower_node_auth.py ...                               [ 47%]
+tests/unit/fl/test_hybrid.py ..........................                  [ 56%]
+tests/unit/fl/test_privacy.py ..........................                 [ 64%]
+tests/unit/fl/test_privacy_gate.py ............................          [ 72%]
+tests/unit/fl/test_protocol.py .                                         [ 73%]
+tests/unit/fl/test_server_app.py .....                                   [ 74%]
+tests/unit/fl/test_stacking.py .........                                 [ 77%]
+tests/unit/fl/test_strategy.py ....                                      [ 78%]
+tests/unit/fl/test_task.py ......                                        [ 80%]
+tests/unit/models/test_multi_task_nn.py .......................          [ 87%]
+tests/unit/scripts/test_analyze_data.py ..                               [ 88%]
+tests/unit/scripts/test_check_audit_ignores.py ......                    [ 90%]
+tests/unit/scripts/test_deploy_api.py ..                                 [ 90%]
+tests/unit/scripts/test_dp_sweep.py ...                                  [ 91%]
+tests/unit/scripts/test_evaluate_models.py ..                            [ 92%]
+tests/unit/scripts/test_generate_dataset.py ..                           [ 92%]
+tests/unit/scripts/test_mia_membership_splits.py .                       [ 93%]
+tests/unit/scripts/test_run_federated_training.py ...                    [ 94%]
+tests/unit/scripts/test_validate_notebooks.py ..                         [ 94%]
+tests/unit/test_artifact_provenance.py ....                              [ 95%]
+tests/unit/test_audit.py ..........                                      [ 99%]
+tests/unit/test_dataset_logical_hash.py ..                               [ 99%]
+tests/unit/transport/test_transport.py .                                 [100%]
+
+--------- coverage: platform darwin, python 3.11.16-final-0 ----------
+Name                                                    Stmts   Miss  Cover
+---------------------------------------------------------------------------
+src/insurance_fl/__init__.py                                1      0   100%
+src/insurance_fl/audit.py                                 132      8    94%
+src/insurance_fl/causal/__init__.py                         0      0   100%
+src/insurance_fl/causal/dag_check.py                       71     18    75%
+src/insurance_fl/causal/dag_post_injection.py               3      3     0%
+src/insurance_fl/causal/estimands.py                       96      2    98%
+src/insurance_fl/causal/library_contract.py                 3      3     0%
+src/insurance_fl/causal/preflight.py                       10      2    80%
+src/insurance_fl/causal/refute.py                          63      6    90%
+src/insurance_fl/causal/truth.py                           52      8    85%
+src/insurance_fl/causal/truth_leakage.py                    3      3     0%
+src/insurance_fl/config/__init__.py                         2      0   100%
+src/insurance_fl/config/loader.py                         141      5    96%
+src/insurance_fl/data/__init__.py                           2      0   100%
+src/insurance_fl/data/country_profiles.py                  28      0   100%
+src/insurance_fl/data/generator.py                        260     29    89%
+src/insurance_fl/data/partition.py                         76     11    86%
+src/insurance_fl/data/preprocess.py                       121      1    99%
+src/insurance_fl/data/quality.py                           86      4    95%
+src/insurance_fl/data/readiness.py                        131     26    80%
+src/insurance_fl/evaluation/__init__.py                     0      0   100%
+src/insurance_fl/evaluation/aggregation_comparison.py     240     27    89%
+src/insurance_fl/evaluation/mia.py                         84     37    56%
+src/insurance_fl/fl/__init__.py                             0      0   100%
+src/insurance_fl/fl/boosters.py                           144     63    56%
+src/insurance_fl/fl/client_app.py                         184    124    33%
+src/insurance_fl/fl/diagnose.py                            50      8    84%
+src/insurance_fl/fl/dp.py                                  27      0   100%
+src/insurance_fl/fl/dp_warning_visible.py                   3      0   100%
+src/insurance_fl/fl/fairness.py                            70     14    80%
+src/insurance_fl/fl/hybrid.py                             142     33    77%
+src/insurance_fl/fl/privacy.py                            215     27    87%
+src/insurance_fl/fl/protocol.py                            11      0   100%
+src/insurance_fl/fl/server_app.py                          54      5    91%
+src/insurance_fl/fl/stacking.py                            63     22    65%
+src/insurance_fl/fl/strategy.py                           452    143    68%
+src/insurance_fl/fl/task.py                               148     15    90%
+src/insurance_fl/models/__init__.py                         2      0   100%
+src/insurance_fl/models/multi_task_nn.py                  168      5    97%
+src/insurance_fl/scripts/__init__.py                        1      0   100%
+src/insurance_fl/scripts/analyze_data.py                   10      0   100%
+src/insurance_fl/scripts/deploy_api.py                     11      0   100%
+src/insurance_fl/scripts/evaluate_models.py                10      0   100%
+src/insurance_fl/scripts/generate_dataset.py               25      0   100%
+src/insurance_fl/scripts/run_federated_training.py         73     37    49%
+src/insurance_fl/transport/__init__.py                      0      0   100%
+src/insurance_fl/transport/transport.py                    72     48    33%
+---------------------------------------------------------------------------
+TOTAL                                                    3540    737    79%
+
+Required test coverage of 70% reached. Total coverage: 79.18%
+
+====================== 323 passed, 4 deselected in 28.06s ======================

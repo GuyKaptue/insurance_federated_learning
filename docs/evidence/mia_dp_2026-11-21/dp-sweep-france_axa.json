@@ -1,0 +1,91 @@
+{
+  "dataset_version": "v2",
+  "config_hash": "e93bcefe91a0b25a",
+  "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+  "delta": 1e-05,
+  "clipping_norm": 1.0,
+  "sensitivity": 1.0,
+  "mechanism": "Flower LocalDpMod Gaussian update clipping/noise helpers",
+  "accountant": {
+    "noise_multiplier": 1.0,
+    "delta": 1e-05,
+    "rounds_spent": 2,
+    "config_fingerprint": "b828305653972ff98adb4cf297e86ac5e48f174acc74cb8c3e5049973f9d213c"
+  },
+  "accountant_noise_multiplier": 1.0,
+  "noise_multipliers": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "seed": 42,
+  "client": "france_axa",
+  "data_dir": "data/processed/european_insurance_federated",
+  "n_train": 3000,
+  "n_val": 1000,
+  "epochs": 5,
+  "post_dp_epochs": 0,
+  "batch_size": 32,
+  "lr": 0.001,
+  "mechanism_epsilons": [
+    9.689610525210778,
+    4.844805262605389,
+    2.4224026313026945
+  ],
+  "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+  "git_dirty": true,
+  "note": "Local DP utility sweep (model-update clip + Gaussian noise). Empirical utility measurements, not a formal DP guarantee report.",
+  "baseline": {
+    "epsilon": null,
+    "train_loss": 7255340.0,
+    "val_metrics": {
+      "loss": 8719856.0,
+      "claim_risk_score_rmse": 11.090641021728516,
+      "customer_lifetime_value_rmse": 3643.819091796875,
+      "will_renew_acc": 0.6919999718666077,
+      "is_high_risk_acc": 0.550000011920929,
+      "customer_segment_acc": 0.6399999856948853
+    }
+  },
+  "configurations": [
+    {
+      "noise_multiplier": 0.5,
+      "epsilon": 9.689610525210778,
+      "train_loss": 97181360979968.0,
+      "val_metrics": {
+        "loss": 99315506741248.0,
+        "claim_risk_score_rmse": 10827404.0,
+        "customer_lifetime_value_rmse": 3142909.75,
+        "will_renew_acc": 0.6909999847412109,
+        "is_high_risk_acc": 0.4830000102519989,
+        "customer_segment_acc": 0.2879999876022339
+      }
+    },
+    {
+      "noise_multiplier": 1.0,
+      "epsilon": 4.844805262605389,
+      "train_loss": 4.0915078232408064e+17,
+      "val_metrics": {
+        "loss": 4.3666454898068685e+17,
+        "claim_risk_score_rmse": 614993600.0,
+        "customer_lifetime_value_rmse": 228280576.0,
+        "will_renew_acc": 0.6919999718666077,
+        "is_high_risk_acc": 0.4740000069141388,
+        "customer_segment_acc": 0.6370000243186951
+      }
+    },
+    {
+      "noise_multiplier": 2.0,
+      "epsilon": 2.4224026313026945,
+      "train_loss": 6.615869216467714e+19,
+      "val_metrics": {
+        "loss": 5.324093906826245e+19,
+        "claim_risk_score_rmse": 3299865344.0,
+        "customer_lifetime_value_rmse": 6637691392.0,
+        "will_renew_acc": 0.30799999833106995,
+        "is_high_risk_acc": 0.5270000100135803,
+        "customer_segment_acc": 0.5550000071525574
+      }
+    }
+  ]
+}

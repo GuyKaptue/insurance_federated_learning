@@ -1,0 +1,795 @@
+{
+  "history": [
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.600756635299875,
+      "mode": "fedavg",
+      "round": 1,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6075964358554773,
+      "mode": "fedavg",
+      "round": 2,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6051538848837692,
+      "mode": "fedavg",
+      "round": 3,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5912209389049918,
+      "mode": "fedavg",
+      "round": 1,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5842189850035502,
+      "mode": "fedavg",
+      "round": 2,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6001217557930689,
+      "mode": "fedavg",
+      "round": 3,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6097378803982829,
+      "mode": "fedavg",
+      "round": 1,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6080325364688989,
+      "mode": "fedavg",
+      "round": 2,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6067092501826743,
+      "mode": "fedavg",
+      "round": 3,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5945323749000382,
+      "mode": "fedprox",
+      "round": 1,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6049069413893982,
+      "mode": "fedprox",
+      "round": 2,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6110160633119162,
+      "mode": "fedprox",
+      "round": 3,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5912209389049918,
+      "mode": "fedprox",
+      "round": 1,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5842189850035502,
+      "mode": "fedprox",
+      "round": 2,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6001217557930689,
+      "mode": "fedprox",
+      "round": 3,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6097378803982829,
+      "mode": "fedprox",
+      "round": 1,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6080325364688989,
+      "mode": "fedprox",
+      "round": 2,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6067074644683885,
+      "mode": "fedprox",
+      "round": 3,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5945323749000383,
+      "mode": "hybrid",
+      "round": 1,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6049069413893982,
+      "mode": "hybrid",
+      "round": 2,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6110160633119162,
+      "mode": "hybrid",
+      "round": 3,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5912209389049918,
+      "mode": "hybrid",
+      "round": 1,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5842189850035502,
+      "mode": "hybrid",
+      "round": 2,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6001217557930689,
+      "mode": "hybrid",
+      "round": 3,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6097378803982829,
+      "mode": "hybrid",
+      "round": 1,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6080325364688989,
+      "mode": "hybrid",
+      "round": 2,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6067074644683885,
+      "mode": "hybrid",
+      "round": 3,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5945323749000382,
+      "mode": "qfedavg",
+      "round": 1,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6049069413893982,
+      "mode": "qfedavg",
+      "round": 2,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6110160633119162,
+      "mode": "qfedavg",
+      "round": 3,
+      "seed": 0
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6017310654791258,
+      "mode": "qfedavg",
+      "round": 1,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6045083585274311,
+      "mode": "qfedavg",
+      "round": 2,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.6138284267402376,
+      "mode": "qfedavg",
+      "round": 3,
+      "seed": 1
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5892409755770899,
+      "mode": "qfedavg",
+      "round": 1,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.582681944661909,
+      "mode": "qfedavg",
+      "round": 2,
+      "seed": 2
+    },
+    {
+      "dispatched": true,
+      "epsilon": null,
+      "global_auc": 0.5931277316824712,
+      "mode": "qfedavg",
+      "round": 3,
+      "seed": 2
+    }
+  ],
+  "per_client": [
+    {
+      "auc": 0.5958179231863442,
+      "client": "germany_allianz",
+      "loss": 77208289280.0,
+      "mode": "fedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.6163785714285714,
+      "client": "france_axa",
+      "loss": 62105944064.0,
+      "mode": "fedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.5772465565824664,
+      "client": "belgium_ageas",
+      "loss": 52459061248.0,
+      "mode": "fedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.6311724883376948,
+      "client": "switzerland_helvetia",
+      "loss": 130067832832.0,
+      "mode": "fedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.5935419630156472,
+      "client": "germany_allianz",
+      "loss": 86511058944.0,
+      "mode": "fedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.6078928571428571,
+      "client": "france_axa",
+      "loss": 69255847936.0,
+      "mode": "fedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.5718761875398835,
+      "client": "belgium_ageas",
+      "loss": 57767608320.0,
+      "mode": "fedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.6271760154738878,
+      "client": "switzerland_helvetia",
+      "loss": 145752899584.0,
+      "mode": "fedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.5973470839260313,
+      "client": "germany_allianz",
+      "loss": 77984432128.0,
+      "mode": "fedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.6142571428571428,
+      "client": "france_axa",
+      "loss": 61951815680.0,
+      "mode": "fedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.5808602628541109,
+      "client": "belgium_ageas",
+      "loss": 52597571584.0,
+      "mode": "fedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.6343725110934122,
+      "client": "switzerland_helvetia",
+      "loss": 132299161600.0,
+      "mode": "fedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.6041038406827881,
+      "client": "germany_allianz",
+      "loss": 67439173632.0,
+      "mode": "fedprox",
+      "seed": 0
+    },
+    {
+      "auc": 0.6187285714285715,
+      "client": "france_axa",
+      "loss": 55303163904.0,
+      "mode": "fedprox",
+      "seed": 0
+    },
+    {
+      "auc": 0.5813908467114556,
+      "client": "belgium_ageas",
+      "loss": 45603831808.0,
+      "mode": "fedprox",
+      "seed": 0
+    },
+    {
+      "auc": 0.6398409944248493,
+      "client": "switzerland_helvetia",
+      "loss": 115465797632.0,
+      "mode": "fedprox",
+      "seed": 0
+    },
+    {
+      "auc": 0.5935419630156472,
+      "client": "germany_allianz",
+      "loss": 86511026176.0,
+      "mode": "fedprox",
+      "seed": 1
+    },
+    {
+      "auc": 0.6078928571428571,
+      "client": "france_axa",
+      "loss": 69255823360.0,
+      "mode": "fedprox",
+      "seed": 1
+    },
+    {
+      "auc": 0.5718761875398835,
+      "client": "belgium_ageas",
+      "loss": 57767583744.0,
+      "mode": "fedprox",
+      "seed": 1
+    },
+    {
+      "auc": 0.6271760154738878,
+      "client": "switzerland_helvetia",
+      "loss": 145752883200.0,
+      "mode": "fedprox",
+      "seed": 1
+    },
+    {
+      "auc": 0.5973470839260313,
+      "client": "germany_allianz",
+      "loss": 77984432128.0,
+      "mode": "fedprox",
+      "seed": 2
+    },
+    {
+      "auc": 0.61425,
+      "client": "france_axa",
+      "loss": 61951811584.0,
+      "mode": "fedprox",
+      "seed": 2
+    },
+    {
+      "auc": 0.5808602628541109,
+      "client": "belgium_ageas",
+      "loss": 52597559296.0,
+      "mode": "fedprox",
+      "seed": 2
+    },
+    {
+      "auc": 0.6343725110934122,
+      "client": "switzerland_helvetia",
+      "loss": 132299137024.0,
+      "mode": "fedprox",
+      "seed": 2
+    },
+    {
+      "auc": 0.6041038406827881,
+      "client": "germany_allianz",
+      "loss": 67439173632.0,
+      "mode": "hybrid",
+      "seed": 0
+    },
+    {
+      "auc": 0.6187285714285715,
+      "client": "france_axa",
+      "loss": 55303163904.0,
+      "mode": "hybrid",
+      "seed": 0
+    },
+    {
+      "auc": 0.5813908467114556,
+      "client": "belgium_ageas",
+      "loss": 45603831808.0,
+      "mode": "hybrid",
+      "seed": 0
+    },
+    {
+      "auc": 0.6398409944248493,
+      "client": "switzerland_helvetia",
+      "loss": 115465797632.0,
+      "mode": "hybrid",
+      "seed": 0
+    },
+    {
+      "auc": 0.5935419630156472,
+      "client": "germany_allianz",
+      "loss": 86511026176.0,
+      "mode": "hybrid",
+      "seed": 1
+    },
+    {
+      "auc": 0.6078928571428571,
+      "client": "france_axa",
+      "loss": 69255823360.0,
+      "mode": "hybrid",
+      "seed": 1
+    },
+    {
+      "auc": 0.5718761875398835,
+      "client": "belgium_ageas",
+      "loss": 57767583744.0,
+      "mode": "hybrid",
+      "seed": 1
+    },
+    {
+      "auc": 0.6271760154738878,
+      "client": "switzerland_helvetia",
+      "loss": 145752883200.0,
+      "mode": "hybrid",
+      "seed": 1
+    },
+    {
+      "auc": 0.5973470839260313,
+      "client": "germany_allianz",
+      "loss": 77984432128.0,
+      "mode": "hybrid",
+      "seed": 2
+    },
+    {
+      "auc": 0.61425,
+      "client": "france_axa",
+      "loss": 61951811584.0,
+      "mode": "hybrid",
+      "seed": 2
+    },
+    {
+      "auc": 0.5808602628541109,
+      "client": "belgium_ageas",
+      "loss": 52597559296.0,
+      "mode": "hybrid",
+      "seed": 2
+    },
+    {
+      "auc": 0.6343725110934122,
+      "client": "switzerland_helvetia",
+      "loss": 132299137024.0,
+      "mode": "hybrid",
+      "seed": 2
+    },
+    {
+      "auc": 0.6041038406827881,
+      "client": "germany_allianz",
+      "loss": 67439161344.0,
+      "mode": "qfedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.6187285714285715,
+      "client": "france_axa",
+      "loss": 55303139328.0,
+      "mode": "qfedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.5813908467114556,
+      "client": "belgium_ageas",
+      "loss": 45603819520.0,
+      "mode": "qfedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.6398409944248493,
+      "client": "switzerland_helvetia",
+      "loss": 115465773056.0,
+      "mode": "qfedavg",
+      "seed": 0
+    },
+    {
+      "auc": 0.6034281650071124,
+      "client": "germany_allianz",
+      "loss": 84840235008.0,
+      "mode": "qfedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.6229571428571428,
+      "client": "france_axa",
+      "loss": 68148436992.0,
+      "mode": "qfedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.5877291727910863,
+      "client": "belgium_ageas",
+      "loss": 57478803456.0,
+      "mode": "qfedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.6411992263056092,
+      "client": "switzerland_helvetia",
+      "loss": 143082651648.0,
+      "mode": "qfedavg",
+      "seed": 1
+    },
+    {
+      "auc": 0.5891109530583214,
+      "client": "germany_allianz",
+      "loss": 78853562368.0,
+      "mode": "qfedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.5994714285714287,
+      "client": "france_axa",
+      "loss": 63094689792.0,
+      "mode": "qfedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.5625694598799733,
+      "client": "belgium_ageas",
+      "loss": 53343535104.0,
+      "mode": "qfedavg",
+      "seed": 2
+    },
+    {
+      "auc": 0.6213590852201616,
+      "client": "switzerland_helvetia",
+      "loss": 134111068160.0,
+      "mode": "qfedavg",
+      "seed": 2
+    }
+  ],
+  "provenance": {
+    "config": {
+      "clip_norm": 1.0,
+      "data_dir": null,
+      "delta": 1e-05,
+      "executor": "inprocess",
+      "max_epsilon": 8.0,
+      "modes": [
+        "fedavg",
+        "fedprox",
+        "hybrid",
+        "qfedavg"
+      ],
+      "n_rows_per_client": 2000,
+      "noise_std": 1.1,
+      "privacy_enabled": false,
+      "rounds": 3,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "config_hash": "2e5d0e59a5db99b6fc160ee4834ebefbf2febe3d1f7d0014ae42499b9767e28b",
+    "dataset_hash_files_content_sha256": "7b5906c7c4346d2435b1be051fd8e03b81bc2288bd05df53240c95ceffa0149a",
+    "executor": "inprocess",
+    "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+    "versions": {
+      "python": "Python 3.13.10"
+    }
+  },
+  "runs": [
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "fedavg",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 0,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 1.1049356250005076
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "fedavg",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 1,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.6616395410019322
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "fedavg",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 2,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.6694707499991637
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "fedprox",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 0,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.6844540410020272
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "fedprox",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 1,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.6799002500010829
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "fedprox",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 2,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.6849060000022291
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "hybrid",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 0,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.6947339590005868
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "hybrid",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 1,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.7731617079989519
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "hybrid",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 2,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.702575290997629
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "qfedavg",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 0,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.7169785000005504
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "qfedavg",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 1,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.714822792000632
+    },
+    {
+      "epsilon_final": null,
+      "error": "",
+      "mode": "qfedavg",
+      "rounds_skipped": 0,
+      "rounds_trained": 3,
+      "seed": 2,
+      "status": "OK",
+      "stopped_for_budget": false,
+      "wall_s": 0.7173458750003192
+    }
+  ]
+}

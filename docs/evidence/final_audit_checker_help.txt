@@ -1,0 +1,10 @@
+usage: check_audit_ignores.py [-h] --ignores IGNORES --runtime-report
+                              RUNTIME_REPORT --full-report FULL_REPORT
+                              [--today TODAY]
+
+options:
+  -h, --help            show this help message and exit
+  --ignores IGNORES
+  --runtime-report RUNTIME_REPORT
+  --full-report FULL_REPORT
+  --today TODAY         YYYY-MM-DD override for tests

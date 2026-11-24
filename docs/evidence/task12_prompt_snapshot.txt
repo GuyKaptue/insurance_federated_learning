@@ -1,0 +1,79 @@
+# RUN-TO-THE-END PROMPT v2 (current state, replaces all earlier versions)
+
+CONTINUE THE PROJECT. Continuation mode: `docs/engineering/IMPLEMENTATION_STATUS.md` exists, so this is not a first session. Do not repeat Stage 0 and do not stop at its approval gate; the roadmap below is approved. Read the status file and `docs/engineering/DIAGNOSIS_2026-11-21.md` first, refresh them from measurements, then work through the waves.
+
+## 1. Hard rules
+
+- Never run `git commit`, `git push`, `git add`, `git stash`, `git reset`, `git rebase`, `git restore`, or any `checkout`/`switch` that changes files. No `gh run watch`. Read-only `gh run list` and `gh run view --log-failed` are allowed. Leave every edit uncommitted and unstaged. Do not discard the dirty worktree.
+- Synthetic data only. Never put keys, tokens or real data in files or logs.
+- Edit with the Edit tool; run `./venv/bin/python -m py_compile <file>` after every `.py` edit. Python longer than one line goes into a scratchpad file, never a heredoc.
+- Shell hygiene: `export PAGER=cat TERM=dumb NO_COLOR=1`, use `git --no-pager`, and write command output to a file with `| cat -v > <file>`; paste that file unedited. Never retype, summarise or reconstruct output. If a command fails, paste its exact error text.
+- No closing summary, no hand-back, until the end condition (section 5) holds. One-line progress notes after each task are fine and are not a reason to stop.
+
+## 2. Backups (verify them; a backup that was not checked does not count)
+
+Before the first edit and after every third completed task:
+1. `git --no-pager diff --binary > ~/Desktop/wip-$(date +%H%M).patch`
+2. Check it: `wc -c <patch>`; `grep -c '^diff --git' <patch>` must equal the number of modified files in `git status --short`; `tail -c 150 <patch> | cat -v`. A patch of exactly 16384 bytes is truncated: redo it by another route and say which.
+3. Untracked files: `git ls-files --others --exclude-standard | tar czf ~/Desktop/wip-untracked-$(date +%H%M).tgz -T -`; check `tar tzf <tgz> | wc -l` against the file list.
+Paste the numbers.
+
+## 3. Anti-gaming rules (a green obtained by breaking these does not count)
+
+- Never delete, skip, `xfail`, `skipif`, deselect or loosen a test or assertion. Never change a threshold, the notebook validator's purpose, CI, or a checker to make something pass. If a test is wrong, explain why in `DECISIONS.md` first and show the corrected test is at least as strict.
+- The test count must not drop. Paste totals before and after every task and explain any decrease.
+- Never fabricate or hard-code a result. Metrics come from a run, and artifacts carry provenance (git SHA, real `git_dirty` value, config hash, dataset hash). A claim from memory is `UNVERIFIED`.
+- A privacy, fairness or security claim is written only if code and a test exist that would fail without it (revert demonstrations for enforcement paths).
+- No blanket ignores in the security ignore file; each entry is per ID with a reason, reachability note and expiry of at most 60 days.
+
+## 3b. Known state to re-verify (not to trust)
+
+The latest audit reported: `GatedStrategy` exists in `strategy.py` and wraps fedavg, fedprox, qfedavg and hybrid; non-slow unit 297 passed; integration 47 passed; ruff, black, isort, mypy, `make data-check` and clean-HOME `make flwr-guard` passed; MIA positive control at 250/250 gave AUC 0.6503; C6 smoke showed 2 rounds allowed and 3 refused; notebook validator executed 11/11 but exits nonzero; local pip-audit found 6 uncovered findings and 7 stale ignore entries; venv has xgboost 1.7.6 while the project declares 2.x; `pip check` fails; gitleaks not installed; Docker installed, Podman not. Re-measure each before relying on it.
+
+## 4. Working loop
+
+1. Pick the next task by wave order; within a wave, the smallest task whose dependencies are `IMPLEMENTED_AND_VERIFIED`. Announce it with its done-criteria command.
+2. Small edits; compile after each; narrowest test first, then the unit suite.
+3. When the done criteria hold: paste the proving output, update the status file and the diagnosis row from measurements, mark the task complete, run the regression check (unit and integration totals). A previously passing test that now fails becomes the next task.
+4. Stuck rule: after 3 genuinely different attempts, paste the errors, set the task `BLOCKED` with the concrete reason, move on, and return after the other tasks of the wave. Never repeat the same attempt; if you re-read the same code twice, run a command instead.
+5. The status file is updated after every task (current task, done, open, next exact action) so a restart loses nothing. If the disk is full: delete `/tmp/ray*` and `/tmp/flwr*`.
+
+## 5. End condition (all must hold, with pasted output)
+
+1. Unit tests (not slow and slow), integration tests, the privacy-invariant commands, ruff, black, isort, mypy, `pip check`, the pip-audit ignore checker against the Linux lock, `make data-check`, clean-HOME `make flwr-guard`, and the notebook validator (`NB_MODE=light`, exit code 0): 0 failures, 0 errors. Use the exact commands from `ci.yml` for the CI-equivalent jobs.
+2. Every task is `IMPLEMENTED_AND_VERIFIED` (output pasted) or `BLOCKED` with the concrete reason and evidence (for example: needs a Linux runner or a push; `which podman` shows it is missing). Items that can only be checked on a runner stay `IMPLEMENTED_BUT_UNVERIFIED`; that is not a failure.
+3. Status file, diagnosis file and `DECISIONS.md` match the measurements. `git status --short` and `git diff --stat` are pasted; nothing staged.
+
+## 6. Waves (do not start a wave before the previous one is fully verified)
+
+### Wave 1: enforcement evidence, environment, security, evidence artifacts, wording
+
+1. **Gate verification.** The four revert demonstrations, each failing a test and then restored: remove the `project_epsilon(additional_releases=1)` check; remove the gate call; step the accountant again in `aggregate_fit`; persist after dispatch instead of before. Parametrized gate test over the four strategy types (`[True, True, False, False, False]`, `rounds_spent == 2`, exhausted event exactly once), privacy-disabled test, and fail-closed for an ungatable type. Only then `IMPLEMENTED_AND_VERIFIED`. C6 evidence under `docs/evidence/c6_run_<date>/`: log, state file, the single `privacy_budget_exhausted` line, projected epsilon at round 3, run summary (`stopped_for_budget`, `rounds_trained`, `rounds_skipped`), and one `privacy-resume=true` run. Rerun if any piece is missing. Confirm the 20,000-sample noise test is in the suite and passes.
+2. **Environment drift.** Align xgboost with the declared requirement (2.x per `pyproject.toml` and the lock); make `pip check` clean; rerun the booster tests; produce the D-XGB-002 evidence (which GBM comparator the gate uses, with the lines that prove it) and an xgboost parity test for `boosters.py`. Use the least disk-heavy route (earlier disk-full incidents came from hard-linked venv trials).
+3. **Security.** Run pip-audit against the Linux lock (`constraints/runtime-linux-py311.txt`), not the local venv. Paste the uncovered and stale IDs. For each uncovered ID: package, locked version, fix version, reachability from this code, decision. Add per-ID entries with reason and expiry (at most 60 days); remove stale entries; run the negative control. Install gitleaks or mark `BLOCKED` with the reason. Read-only: `gh run list --branch feat/task0-baseline-federation -L 5` and `gh run view <id> --log-failed`; paste the failing step of the last recorded run.
+4. **Notebook validator guard.** Compare notebook hashes before and after the validation run, not against `HEAD`, so a dirty worktree does not fail it; add tests (unchanged passes, changed by the run fails). Result: 11 of 11 executed and exit code 0.
+5. **MIA and DP artifacts.** State whether the 250/250 interval is analytic or bootstrap (it is exactly ±0.0500 around 0.6503, which looks analytic); relabel or compute a bootstrap percentile interval and report both. Report two separate verdicts: the pre-registered rule (CI lower bound above 0.55) and the master-prompt target (attack AUC at least 0.75, currently not met). Then the ordinary v2 MIA on the federated model across the four clients (AUC, TPR at low FPR, interval, power statement, `target_has_skill`, provenance, real `git_dirty`), and `reports/dp_utility_curve.json` on v2 with `dp_sweep.py` using the real mechanism and the accountant's multiplier.
+6. **Diagnosis and wording.** Round-1 loss diagnosis (per-task losses, target scales; the roughly 8e6 to 1e7 round-1 loss suggests an unscaled CLV target; report the effect on clipping and fix only if a test shows the problem). Wording sweep: raw calibration default, 24 features (and why not 26), fairness `inconclusive` with the Bayes decomposition (spread 0.0290, federated 0.0347, about 0.0057 model-attributable) in `artifacts/fairness_disparity.json`, README and notebooks. Privacy-math document: clip, noise, multiplier, adjacency convention, conservative q=1, no amplification claim, local versus central DP, four-client limits.
+7. **Reconcile.** Unit collection totals (non-slow run: 301 collected; slow run: 298; explain), `git log origin/feat/task0-baseline-federation..HEAD --oneline` against the earlier "3 unpushed commits", and the status and diagnosis files from measurements only.
+
+### Wave 2: notebooks
+
+Rules for every notebook: real `insurance_fl` code instead of re-implemented logic; no invented numbers (anything not computed is labelled illustrative or removed); no hard-coded machine paths; `notebooks/_nb_common.py` first cell; frozen `Cfg` dataclass; light/full mode via `NB_MODE`; at least 4 chart types; a markdown interpretation after each figure; artifacts via `load_artifact` with a printed skip message if absent; limitations and references; the README catalog and `notebooks/AUDIT.md` updated from validator output only. A notebook that was not executed is "not executed".
+
+8. Inventory all notebooks and fix, in this order: `dp_accounting_rdp`, `membership_inference`, `fairness_evaluation`, `security_secagg` (SecAgg+ is not wired end-to-end; say so), `transportability_quickstart` (currently a copy of another notebook), `tls_credentials` (no hard-coded temp path, never print keys), `flower_federated_learning` (add `STRATEGY` to `Cfg`), then the rest.
+9. `federated_aggregation_modes.ipynb`: all modes `build_strategy` supports, seed intervals, paired differences against FedAvg, the gate on every mode. Spec file `AGGREGATION_MODES_NOTEBOOK_PROMPT.md` (expected at `docs/engineering/specs/`; if it is not in the repository, mark this task `BLOCKED: spec missing` and continue). Includes `src/insurance_fl/evaluation/aggregation_comparison.py` and its tests.
+10. New notebooks, in this order: `privacy_budget_gate`, `mia_power_analysis`, `round1_loss_diagnosis`, `dp_utility_tradeoff`, `client_identity_and_isolation`, `test_split_bayes_sanity`, `feature_surface_and_leakage`, `calibration_comparison`; each only after its dependency is verified.
+
+### Wave 3: hardening
+
+11. Stage B: client-isolation negative tests (B3), FedBN invariance, malformed-update and dropout tests, identity not taken from untrusted config. Deduplicate the identity logic copied between `HybridAggregation` and `StratifiedFedProx`, behind the existing identity tests.
+12. Stage F: first verify what authentication mechanism Flower 1.31 actually offers, then TLS positive and negative tests (wrong CA, expired, wrong hostname, unauthorised client, no plaintext fallback). SecAgg+: implement end-to-end with evidence, or keep the explicit `NotImplementedError` and mark `BLOCKED` with the reason.
+13. Stage I and K: determinism audit, a clean-clone check script run locally, artifact integrity tests; audit-event ordering, secret redaction, restart continuity and tamper tests.
+
+### Wave 4: infrastructure
+
+14. Docker (installed) and a four-client Compose topology validated locally; Podman is not installed, so Podman rootless stays `IMPLEMENTED_BUT_UNVERIFIED` (show `which podman`). CI additions (container build and scan, nightly, release) are written but stay unverified until a runner exists. Cloud deployment as provider-neutral documentation. A local four-container run is never presented as multi-organisation proof.
+
+## 7. Final report (only when the end condition holds)
+
+The master prompt's continuation checkpoint (branch, commit, last verified commit, stages done and open, tests executed with commands and results, artifacts, open issues, known limitations, uncommitted changes, blockers, next exact action, files to inspect), the full diagnosis table with final statuses, before and after test totals, and a list of every `BLOCKED` and `IMPLEMENTED_BUT_UNVERIFIED` item with its reason.

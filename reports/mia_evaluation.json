@@ -1,0 +1,111 @@
+{
+  "dataset_version": "v2",
+  "config_hash": "e93bcefe91a0b25a",
+  "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+  "status": "ok",
+  "task": "is_high_risk",
+  "client": "germany_allianz",
+  "roc_auc": 0.650336,
+  "roc_auc_ci95": [
+    0.6003363786296816,
+    0.7003958088487857
+  ],
+  "roc_auc_ci95_method": "percentile bootstrap over fixed attack scores",
+  "roc_auc_ci95_width": 0.10005943021910413,
+  "tpr_at_1pct_fpr": 0.015813953488372095,
+  "min_resolvable_fpr": 0.004,
+  "power_statement": "With 250 nonmembers, empirical FPR resolution is 1/250=0.004000; the bootstrap interval describes uncertainty conditional on these fixed scores and is not a prospective power guarantee.",
+  "member_count": 250,
+  "nonmember_count": 250,
+  "n_members": 250,
+  "n_non_members": 250,
+  "requested_n_members": 250,
+  "requested_n_nonmembers": 250,
+  "member_nonmember_disjoint": true,
+  "mean_member_loss": 0.13227276609228814,
+  "mean_nonmember_loss": 2.5698031505375303,
+  "loss_gap_nonmember_minus_member": 2.437530384445242,
+  "mia_score_direction": "higher scores indicate member",
+  "one_minus_roc_auc": 0.349664,
+  "shadow_model_count": 3,
+  "shadow_models": 3,
+  "shadow_clients": [
+    "france_axa",
+    "belgium_ageas",
+    "switzerland_helvetia"
+  ],
+  "n_shadow_member_total": 750,
+  "n_shadow_nonmember_total": 750,
+  "dp_config": {
+    "enabled": false,
+    "epsilon": null
+  },
+  "accounting_status": "unavailable",
+  "seed": 42,
+  "epochs": 10,
+  "shadow_epochs": 10,
+  "requested_shadow_epochs": 10,
+  "bootstrap": 1000,
+  "mode": "full",
+  "data_dir": "data/processed/european_insurance_federated",
+  "target_source": "local",
+  "target_model_scope": "single-client local model",
+  "membership_sampling": "members from target train split; nonmembers from held-out test+validation",
+  "federated_reference_config": null,
+  "federated_reference_final_mean_val_auc": null,
+  "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+  "git_dirty": true,
+  "control": "overfit",
+  "target_epochs": 1000,
+  "target_training_count": 250,
+  "control_model": {
+    "hidden_dims": [
+      512,
+      256,
+      128
+    ],
+    "dropout_rate": 0.0,
+    "batch_norm": false,
+    "learning_rate": 0.01,
+    "weight_decay": 0.0,
+    "early_stopping": false
+  },
+  "target_auc": 0.8601401958901479,
+  "majority_baseline_accuracy": 0.507999986410141,
+  "target_has_skill": true,
+  "control_verdicts": {
+    "preregistered_ci_lower_above_0_55": {
+      "threshold": 0.55,
+      "observed_lower_bound": 0.6003363786296816,
+      "passed": true
+    },
+    "master_prompt_auc_at_least_0_75": {
+      "threshold": 0.75,
+      "observed_auc": 0.650336,
+      "passed": false
+    }
+  },
+  "diagnostics": {
+    "unique_scores": 135,
+    "target_label_balance": 0.492,
+    "member_label_mean": 0.504,
+    "nonmember_label_mean": 0.48,
+    "distinct_target_predictions": 264,
+    "pred_has_nan": false,
+    "loss_threshold_auc": 0.650336,
+    "rf_attack_auc": 0.537256,
+    "feature_nans": false,
+    "feature_infs": false,
+    "majority_baseline_accuracy": 0.507999986410141,
+    "target_auc": 0.8601401958901479,
+    "target_has_skill": true
+  },
+  "note": "Empirical attack result, not a privacy guarantee (D-MIA-001).",
+  "limitations": [
+    "Empirical attack result, not a formal privacy guarantee.",
+    "Depends on attack strength, sample size, model access, and data distribution.",
+    "AUC near 0.5 does not prove zero leakage.",
+    "TPR@1%FPR may be below resolution when min_resolvable_fpr > 0.01.",
+    "If ROC AUC CI includes 0.5, the attack is not distinguishable from chance at this sample size."
+  ]
+}

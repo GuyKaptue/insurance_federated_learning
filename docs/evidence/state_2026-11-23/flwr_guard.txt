@@ -1,0 +1,36 @@
+  [36mhelp                [0m Show this help message
+  [36minstall             [0m Create venv and install the package
+  [36minstall-dev         [0m Install package with dev extras (tests, linters)
+  [36minstall-causal      [0m Install causal inference + transportability dependencies
+  [36m_check_causal_deps  [0m Verify statsmodels and pgmpy are importable (fails with actionable message)
+  [36mlint                [0m Run ruff + black --check + isort --check
+  [36mformat              [0m Auto-format with black + isort + ruff
+  [36mtypecheck           [0m Run mypy over the new package (MYPY_OPTS for e.g. --cache-dir)
+  [36mtest                [0m Run the full test suite (excludes slow)
+  [36mtest-unit           [0m Run unit tests only
+  [36mtest-integration    [0m Run integration tests only
+  [36mtest-slow           [0m Run slow tests (cross-process determinism, full generation)
+  [36mnotebooks           [0m Execute all notebooks in notebooks/
+  [36mkernel              [0m Register the repo venv as the 'insurance-fl' Jupyter kernel for notebook validation
+  [36mflwr-sim            [0m Run Flower simulation (canonical entry point: 4 supernodes via --federation-config, isolated FLWR_HOME)
+  [36mflwr-guard          [0m Run 1-round Flower smoke and fail if dp backend unavailable
+  [36mcoverage            [0m Run tests with branch coverage (fail under 85%)
+  [36mdata                [0m Generate synthetic datasets into data/processed (official CLI)
+  [36mdata-check          [0m Run dataset label-signal sanity check (Bayes AUC)
+  [36mdag-validate        [0m Validate the causal DAG (docs/causal/dag.yaml)
+  [36mcausal-estimate     [0m Estimate the default causal estimand (backdoor + DR)
+  [36mcausal-refute       [0m Run refutation tests: make causal-refute ESTIMAND=<name>
+  [36mcausal-all          [0m Run all causal steps on default estimand
+  [36mtransport           [0m Transport outcome model: make transport SOURCE=de,fr TARGET=ch TASK=claim_risk_score
+  [36mtransport-all       [0m Run all-pairs transport matrix (4 clients x 3 targets = 12 pairs)
+  [36mtrain               [0m Run one FL training round-set from config
+  [36mfl-all              [0m Run every FL experiment (config/experiments.yaml)
+  [36mevaluate            [0m Evaluate models and write reports/
+  [36mserve               [0m Run the FastAPI service locally
+  [36mdocker-build        [0m Build the Docker image
+  [36mdocker-run          [0m Run the built image
+  [36mdocker-test         [0m Run container tests
+  [36mcompose-up          [0m Start the federated docker-compose stack
+  [36mcompose-down        [0m Stop the federated docker-compose stack
+  [36mci                  [0m What CI runs locally: lint, typecheck, tests, coverage, flwr smoke
+  [36mclean               [0m Remove caches and build artifacts

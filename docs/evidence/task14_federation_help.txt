@@ -1,0 +1,20 @@
+                                                                                
+ Usage: flwr federation [OPTIONS] COMMAND [ARGS]...                             
+                                                                                
+ Manage Federations                                                             
+                                                                                
+‚M-^UM--‚M-^TM-^@ Options ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B --help  -h        Show this message and exit.                                ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+‚M-^UM--‚M-^TM-^@ Commands ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B list                List available federations or details of a specific      ‚M-^TM-^B
+‚M-^TM-^B                     federation (alias: ls).                                  ‚M-^TM-^B
+‚M-^TM-^B archive             Archive an existing federation.                          ‚M-^TM-^B
+‚M-^TM-^B create              Create a new federation.                                 ‚M-^TM-^B
+‚M-^TM-^B add-supernode       Add a SuperNode to a federation.                         ‚M-^TM-^B
+‚M-^TM-^B remove-supernode    Remove a SuperNode from a federation.                    ‚M-^TM-^B
+‚M-^TM-^B remove-account      Remove an account from an existing federation.           ‚M-^TM-^B
+‚M-^TM-^B simulation-config   Configure a Federation using the Simulation Runtime.     ‚M-^TM-^B
+‚M-^TM-^B invite              Manage Federation Invitations                            ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+

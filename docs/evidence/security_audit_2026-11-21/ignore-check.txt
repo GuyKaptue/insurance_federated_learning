@@ -1,0 +1,2 @@
+pip-audit ignores: OK (27 entries covering all 27 runtime findings)
+  warn: FULL-LOCK findings not covered by ignores (56): GHSA-6655-6qjp-jx7x, GHSA-7g44-g9rc-x53w, GHSA-c678-jfcj-6jmf, GHSA-cg8m-r9f2-5wm2, GHSA-f4hp-rmr7-r7v8, GHSA-gqvg-gmmx-x4hm, GHSA-j7qq-vr8c-xvw3, GHSA-mmhr-3c5m-f64f, GHSA-qfhq-4f3w-5fph, GHSA-rrmf-rvhw-rf47, GHSA-vgrw-7cvw-pwgx, GHSA-wqmh-qccw-pqwf, GHSA-x3gm-94wq-g975, PYSEC-2025-52, PYSEC-2026-1639, PYSEC-2026-1656, PYSEC-2026-1660, PYSEC-2026-1845, PYSEC-2026-195, PYSEC-2026-2120 ... (36 more)

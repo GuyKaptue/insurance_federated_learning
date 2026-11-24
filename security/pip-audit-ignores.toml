@@ -1,0 +1,220 @@
+# Justified, time-boxed pip-audit ignores for vulnerabilities that cannot be
+# remediated within current dependency bounds (see docs/DECISIONS.md).
+# One entry per advisory ID (no wildcards). Validated by scripts/ci/check_audit_ignores.py.
+# Added 2026-11-20. Expiry window <= 60 days.
+
+[[ignore]]
+id = "GHSA-537c-gmf6-5ccf"
+package = "cryptography"
+reason = "cryptography 46.0.7 pinned by flwr==1.31.0 (>=46.0.7,<47.0.0); fix 48.0.1 outside range."
+exploitability_here = "Statically linked OpenSSL in wheels < 48.0.1 vulnerable (CWE-125/CWE-1395). cryptography used by flwr (mTLS/TLS SuperLink/SuperNode) and google-auth. Reachable whenever flwr establishes TLS connections; remediation deferred to flwr upgrade."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-3552"
+package = "cryptography"
+reason = "cryptography 46.0.7 pinned by flwr==1.31.0 (<47.0.0); fix 50.0.0 outside range."
+exploitability_here = "PKCS#7 EnvelopedData decryption Bleichenbacher oracle (GHSA-g6cj-pr64-35w5/CVE-2026-69247). Reachable only if repo decrypts attacker-supplied EnvelopedData and reflects outcomes — not present in src (no pkcs7_decrypt). Low reachability; advisory applies because cryptography is installed."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-3553"
+package = "cryptography"
+reason = "cryptography 46.0.7 pinned by flwr==1.31.0 (<47.0.0); fix 49.0.0 outside range."
+exploitability_here = "Duplicate self-signed intermediates cause exponential cert path-building DoS (GHSA-jwv3-5hgf-82ww/CVE-2026-69249). Reachable if flwr mTLS verification processes attacker-controlled certificate chains; cryptography used by flwr and google-auth. Remediation deferred to flwr upgrade."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-3554"
+package = "cryptography"
+reason = "cryptography 46.0.7 pinned by flwr==1.31.0 (<47.0.0); fix 49.0.0 outside range."
+exploitability_here = "Verifier accepts wildcard DNS names escaping permittedSubtrees (GHSA-m2h6-j472-rp4c/CVE-2026-69248). Reachable if flwr mTLS verification processes constrained CA chains with wildcard leaf SANs; cryptography used by flwr and google-auth. Remediation deferred to flwr upgrade."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-113"
+package = "pyarrow"
+reason = "pyarrow 17.0.0 accepted (logical data identity verified vs 14.0.2) but itself carries PYSEC-2026-113 fix 23.0.1 — another major jump requiring a separate trial."
+exploitability_here = "pyarrow used for parquet read/write in dataset generation and check_dataset_signal. Advisory reachable via parquet I/O. Fix 23.0.1 is a major jump outside current bound; defer to a dedicated trial."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2024-259"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True (src/insurance_fl/models/multi_task_nn.py:369); torch.save writes own state_dict only (line 345). No torch.jit/torch.distributed/torch.save-of-untrusted usage. Deserialization advisories not reachable; other torch advisories (CUDA/jit/distributed) not exercised by repo. Trial inconclusive on macOS arm64; unverified on Linux x86_64."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-189"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-190"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-191"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-192"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-193"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-194"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-195"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-198"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-203"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-204"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-205"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-206"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-207"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-208"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-209"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2025-41"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-139"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-1856"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-1970"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-2286"
+package = "torch"
+reason = "torch 2.4.1; trial bump to 2.13.0 segfaulted (RC=139) on macOS arm64 and full gate comparison incomplete due to disk. Rejected for now."
+exploitability_here = "torch used for multi-task NN training/inference. torch.load uses weights_only=True; torch.save writes own state_dict only. No torch.jit/torch.distributed usage. Deserialization advisories not reachable; most torch advisories (CUDA/jit/distributed/multiprocessing) not exercised by repo (basic nn.Module/Adam/linear). Trial inconclusive on macOS arm64; unverified on Linux x86_64. Defer to Linux CI or torch upgrade investigation."
+added = "2026-11-20"
+expires = "2027-01-19"
+
+[[ignore]]
+id = "PYSEC-2026-4321"
+package = "uv"
+reason = "uv 0.11.33 is a hard runtime dependency of flwr==1.31.0 (declared uv>=0.11.15,<0.12.0); fix 0.13.4 outside range."
+exploitability_here = "uv is used by flwr run to install/run the app in simulation mode. Compromised emSign ECC root in uv's vendored webpki CA bundle enables MITM during TLS-verified app installation. Reachable via make flwr-guard / artifacts job. Cannot remediate without flwr upgrade beyond 1.31."
+added = "2026-11-20"
+expires = "2027-01-19"

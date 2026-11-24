@@ -1,0 +1,7 @@
+catboost_info/
+certificates/
+data/
+logs/
+outputs/
+runs/
+venv/

@@ -1,0 +1,450 @@
+pyproject.toml:274:    "slow: long-running tests (determinism across processes, full generation)",
+tests/golden/baseline_v0.json:125:  "seed": 42
+src/synthetic/data_generator.py:35:    def __init__(self, samples_per_client=5000, random_seed=42, dataset_version="v1.0"):
+src/synthetic/data_generator.py:38:        self.random_seed = random_seed
+src/synthetic/data_generator.py:40:        np.random.seed(random_seed)
+src/synthetic/data_generator.py:616:        centralized_train = centralized_train.sample(frac=1, random_state=self.random_seed).reset_index(drop=True)
+src/synthetic/data_generator.py:617:        centralized_val = centralized_val.sample(frac=1, random_state=self.random_seed).reset_index(drop=True)
+src/synthetic/data_generator.py:618:        centralized_test = centralized_test.sample(frac=1, random_state=self.random_seed).reset_index(drop=True)
+src/synthetic/data_generator.py:638:            Directory to save the dataset (deterministic path)
+src/synthetic/data_generator.py:656:        print(f"🔢 Random seed: {self.random_seed}")
+src/synthetic/data_generator.py:661:        # Create deterministic output directory using pathlib
+src/synthetic/data_generator.py:678:                data, test_size=0.4, random_state=self.random_seed, stratify=data['customer_segment']
+src/synthetic/data_generator.py:681:                temp_data, test_size=0.5, random_state=self.random_seed, stratify=temp_data['customer_segment']
+src/synthetic/data_generator.py:731:        """Save dataset in parquet or npy format with deterministic paths"""
+src/synthetic/data_generator.py:780:        # Save global metadata with deterministic version
+src/synthetic/data_generator.py:784:            'random_seed': self.random_seed,
+src/synthetic/data_generator.py:868:        """Load saved dataset with deterministic paths"""
+src/synthetic/data_generator.py:955:    # Generate dataset with deterministic paths
+src/synthetic/data_generator.py:958:        random_seed=42,
+scripts/diagnose_is_high_risk.py:18:    p.add_argument("--seed", type=int, default=0)
+scripts/diagnose_is_high_risk.py:55:        X, y, test_size=0.3, stratify=y, random_state=args.seed
+scripts/diagnose_is_high_risk.py:77:            Xc, yc, test_size=0.5, stratify=yc, random_state=args.seed
+scripts/diagnose_is_high_risk.py:89:        X2, y2, test_size=0.3, stratify=y2, random_state=args.seed
+scripts/eval_is_high_risk.py:72:def provenance() -> dict[str, Any]:
+scripts/eval_is_high_risk.py:78:            "manifest_seed": m.get("seed"),
+scripts/eval_is_high_risk.py:96:def bootstrap_auc_ci(y_true: np.ndarray, y_score: np.ndarray, seed: int, n_boot: int = 1000) -> tuple[float, float, float]:
+scripts/eval_is_high_risk.py:102:    rng = np.random.default_rng(seed)
+scripts/eval_is_high_risk.py:127:def majority_baseline(train_y: np.ndarray, test_y: np.ndarray, seed: int) -> dict[str, Any]:
+scripts/eval_is_high_risk.py:129:    auc, lo, hi = bootstrap_auc_ci(test_y, p, seed=seed)
+scripts/eval_is_high_risk.py:143:def gbm_baseline(train_xy, val_xy, test_xy, seed: int) -> dict[str, Any]:
+scripts/eval_is_high_risk.py:152:        random_state=seed,
+scripts/eval_is_high_risk.py:158:    auc, lo, hi = bootstrap_auc_ci(y_te, test_p, seed=seed + 1000)
+scripts/eval_is_high_risk.py:171:            "random_state": seed,
+scripts/eval_is_high_risk.py:177:def set_seeds(seed: int) -> None:
+scripts/eval_is_high_risk.py:178:    random.seed(seed)
+scripts/eval_is_high_risk.py:179:    np.random.seed(seed)
+scripts/eval_is_high_risk.py:180:    torch.manual_seed(seed)
+scripts/eval_is_high_risk.py:214:    x_tr, y_tr_dict, x_va, y_va_binary, *, seed: int, hidden_dims, dropout, lr, weight_decay,
+scripts/eval_is_high_risk.py:217:    set_seeds(seed)
+scripts/eval_is_high_risk.py:281:    return {"task": TASK, "data_dir": str(DATA_DIR), **provenance(), **git_state(), "clients": {}, "notes": []}
+scripts/eval_is_high_risk.py:291:    report.update({"task": TASK, "data_dir": str(DATA_DIR), **provenance(), **git_state()})
+scripts/eval_is_high_risk.py:306:                "majority": majority_baseline(y_tr, y_te, seed=42),
+scripts/eval_is_high_risk.py:307:                "gbm": gbm_baseline((x_tr, y_tr), (x_va, y_va), (x_te, y_te), seed=42),
+scripts/eval_is_high_risk.py:340:    report.update({**provenance(), **git_state()})
+scripts/eval_is_high_risk.py:344:    seeds = [42, 43, 44]
+scripts/eval_is_high_risk.py:369:                seed=42,
+scripts/eval_is_high_risk.py:375:            entry = {"cfg_id": i, **cfg, "selection_seed": 42, "val_auc": val_auc, **info}
+scripts/eval_is_high_risk.py:380:        # evaluate best with 3 seeds
+scripts/eval_is_high_risk.py:382:        preds_by_seed = {}
+scripts/eval_is_high_risk.py:383:        for s in seeds:
+scripts/eval_is_high_risk.py:386:                seed=s,
+scripts/eval_is_high_risk.py:392:            auc, lo, hi = bootstrap_auc_ci(d["y_ted"][TASK], p, seed=2000 + s)
+scripts/eval_is_high_risk.py:394:            preds_by_seed[str(s)] = p.tolist()
+scripts/eval_is_high_risk.py:395:        median_seed = sorted(seeds, key=lambda s: runs[str(s)]["test_auc"])[1]
+scripts/eval_is_high_risk.py:396:        med = runs[str(median_seed)]
+scripts/eval_is_high_risk.py:401:            "selection": "grid search on validation AUC (seed 42); test evaluated once per seed",
+scripts/eval_is_high_risk.py:403:            "seeds": seeds,
+scripts/eval_is_high_risk.py:405:            "median_seed": median_seed,
+scripts/eval_is_high_risk.py:423:            seed=42,
+scripts/eval_is_high_risk.py:429:        entry = {"cfg_id": i, **cfg, "selection_seed": 42, "val_auc_pooled": val_auc, **info}
+scripts/eval_is_high_risk.py:437:        for s in seeds:
+scripts/eval_is_high_risk.py:440:                seed=s,
+scripts/eval_is_high_risk.py:446:            auc, lo, hi = bootstrap_auc_ci(d["y_ted"][TASK], p, seed=3000 + s)
+scripts/eval_is_high_risk.py:448:        median_seed = sorted(seeds, key=lambda s: runs[str(s)]["test_auc"])[1]
+scripts/eval_is_high_risk.py:449:        med = runs[str(median_seed)]
+scripts/eval_is_high_risk.py:454:            "selection": "grid search on pooled validation AUC (seed 42); evaluated on each client's test split once per seed",
+scripts/eval_is_high_risk.py:456:            "seeds": seeds,
+scripts/eval_is_high_risk.py:458:            "median_seed": median_seed,
+scripts/eval_is_high_risk.py:466:    note = "A2: local-only and pooled NN (train-std, val-AUC early stopping, single vs multi-task head grid, 3 seeds 42/43/44; class weighting skipped ~0.52 balance)."
+scripts/eval_is_high_risk.py:475:    data: dict[str, dict], *, rounds: int, local_epochs: int, lr: float, seed: int,
+scripts/eval_is_high_risk.py:478:    set_seeds(seed)
+scripts/eval_is_high_risk.py:502:                single_task=single_task, seed=seed * 1000 + r * 10 + CLIENT_IDS.index(cid),
+scripts/eval_is_high_risk.py:535:        "seed": seed,
+scripts/eval_is_high_risk.py:542:def _train_nn_epochs_inplace(model, x_tr, y_tr_dict, *, epochs: int, lr: float, batch_size: int, single_task: bool, seed: int):
+scripts/eval_is_high_risk.py:543:    set_seeds(seed)
+scripts/eval_is_high_risk.py:565:    report.update({**provenance(), **git_state()})
+scripts/eval_is_high_risk.py:569:    seeds = [42, 43, 44]
+scripts/eval_is_high_risk.py:571:    # Config chosen on validation: small grid on seed 42 using pooled-best architecture family
+scripts/eval_is_high_risk.py:602:            data, rounds=rounds, local_epochs=cfg["local_epochs"], lr=cfg["lr"], seed=42,
+scripts/eval_is_high_risk.py:606:        entry = {"cfg_id": i, **cfg, "rounds": rounds, "hidden_dims": base_hidden, "dropout": base_dropout, "single_task": single_task, "selection_seed": 42, "final_mean_val_auc": val}
+scripts/eval_is_high_risk.py:618:    # run best config for 3 seeds and collect per-client results
+scripts/eval_is_high_risk.py:619:    per_seed_models = {}
+scripts/eval_is_high_risk.py:620:    per_seed_info = {}
+scripts/eval_is_high_risk.py:621:    for s in seeds:
+scripts/eval_is_high_risk.py:622:        print(f"A3 federated run seed={s}", flush=True)
+scripts/eval_is_high_risk.py:624:            data, rounds=rounds, local_epochs=best_fed["local_epochs"], lr=best_fed["lr"], seed=s,
+scripts/eval_is_high_risk.py:627:        per_seed_models[s] = models
+scripts/eval_is_high_risk.py:628:        per_seed_info[s] = info
+scripts/eval_is_high_risk.py:632:        for s in seeds:
+scripts/eval_is_high_risk.py:633:            m = per_seed_models[s][cid]
+scripts/eval_is_high_risk.py:636:            auc, lo, hi = bootstrap_auc_ci(d["y_ted"][TASK], p, seed=4000 + s)
+scripts/eval_is_high_risk.py:641:                "final_mean_val_auc": per_seed_info[s]["final_mean_val_auc"],
+scripts/eval_is_high_risk.py:643:        median_seed = sorted(seeds, key=lambda s: runs[str(s)]["test_auc"])[1]
+scripts/eval_is_high_risk.py:644:        med = runs[str(median_seed)]
+scripts/eval_is_high_risk.py:648:            "selection": "small grid on mean client validation AUC at final round (seed 42); test evaluated once per seed",
+scripts/eval_is_high_risk.py:650:            "seeds": seeds,
+scripts/eval_is_high_risk.py:652:            "median_seed": median_seed,
+scripts/eval_is_high_risk.py:656:            "validation_curves_by_seed": {str(s): per_seed_info[s]["validation_curve"] for s in seeds},
+scripts/eval_is_high_risk.py:661:    note = "A3: in-process FedAvg+FedBN reference (~20 rounds), local epochs/lr chosen on validation grid (seed 42), 3 seeds 42/43/44, per-client local BN eval on own test split; validation curves recorded."
+scripts/eval_is_high_risk.py:708:def _recompute_federated_median_model(data, best_cfg, median_seed, rounds=20):
+scripts/eval_is_high_risk.py:709:    # single run to recover median-seed model per client
+scripts/eval_is_high_risk.py:715:        seed=median_seed,
+scripts/eval_is_high_risk.py:743:    # calibration for federated reference (median seed) per client
+scripts/eval_is_high_risk.py:747:        median_seed = int(fed["median_seed"])
+scripts/eval_is_high_risk.py:748:        models, info = _recompute_federated_median_model(data, best_cfg, median_seed, rounds=int(best_cfg.get("rounds", 20)))
+scripts/eval_is_high_risk.py:769:        save_reliability_diagram(y_te, test_raw, test_cal, fig_path, f"Reliability: {cid} (federated, median seed {median_seed})")
+scripts/eval_is_high_risk.py:773:            "median_seed_recomputed": median_seed,
+scripts/eval_is_high_risk.py:785:    # finalize summary/gap/provenance
+scripts/eval_is_high_risk.py:797:        "seeds": [42, 43, 44],
+scripts/eval_is_high_risk.py:821:    report.update({**provenance(), **git_state()})
+scripts/eval_is_high_risk.py:823:    note = "A4: isotonic calibration on validation predictions for federated reference (median seed) per client; Brier/ECE before/after, reliability diagrams, AUC unchanged up to ties; finalized summary/gap and shipped-model rule outcome."
+tests/integration/test_e2e_pipeline.py:51:        samples_per_client=300, random_seed=11, inject_quality_issues=True
+tests/integration/test_e2e_pipeline.py:71:    torch.manual_seed(0)
+tests/integration/test_e2e_pipeline.py:120:def test_deterministic_pipeline_same_seed(tmp_path) -> None:
+tests/integration/test_e2e_pipeline.py:121:    """Same seed => identical preprocessed tensors (reproducibility gate)."""
+tests/integration/test_e2e_pipeline.py:124:        gen = EuropeanInsuranceFederatedDataset(samples_per_client=200, random_seed=5)
+scripts/run_e2e.py:26:    parser.add_argument("--seed", type=int, default=42)
+scripts/run_e2e.py:35:        prepare_dataset(output_dir=data_dir, samples_per_client=256, seed=42)
+scripts/run_e2e.py:66:            seed=42,
+scripts/ci/check_audit_ignores.py:2:"""Validate security/pip-audit-ignores.toml against pip-audit JSON reports.
+scripts/ci/check_audit_ignores.py:101:            errors.append(f"entry[{i}] {vid}/{pkg} stale (not present in audit reports)")
+scripts/ci/check_audit_ignores.py:121:        print("pip-audit ignores: FAIL", file=sys.stderr)
+scripts/ci/check_audit_ignores.py:130:        f"pip-audit ignores: OK ({len(entries)} entries covering all {len(runtime_ids)} runtime findings)"
+tests/integration/test_fairness.py:25:    selected, uncovered = stratified_sample(clients, num_clients=4, seed=42)
+tests/integration/test_fairness.py:35:    selected, _ = stratified_sample(clients, num_clients=4, seed=42)
+tests/integration/test_fairness.py:41:    s1, _ = stratified_sample(clients, num_clients=4, seed=42)
+tests/integration/test_fairness.py:42:    s2, _ = stratified_sample(clients, num_clients=4, seed=42)
+tests/integration/test_fairness.py:49:    selected, uncovered = stratified_sample(clients, num_clients=2, seed=42)
+tests/integration/test_fairness.py:57:    selected, uncovered = stratified_sample(clients, num_clients=2, seed=42, available=available)
+tests/integration/test_fairness.py:65:    selected, _uncovered = stratified_sample(clients, num_clients=1, seed=42)
+scripts/generate_dataset.py:5:  insurance-fl-generate --samples 5000 --seed 42 --output data/processed/european_insurance_federated
+scripts/analyze_data.py:4:Analyzes federated and centralized datasets with deterministic outputs
+scripts/analyze_data.py:100:    Setup deterministic output directory structure
+scripts/analyze_data.py:124:def get_deterministic_filename(base_name: str, extension: str, suffix: Optional[str] = None) -> str:
+scripts/analyze_data.py:126:    Generate deterministic filename without timestamps
+scripts/analyze_data.py:195:    # Save client report with deterministic filename
+scripts/analyze_data.py:196:    report_file = client_output_dir / get_deterministic_filename(
+scripts/analyze_data.py:277:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:299:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:315:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:352:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:415:    report_file = central_output_dir / get_deterministic_filename(
+scripts/analyze_data.py:437:    summary_file = central_output_dir / get_deterministic_filename(
+scripts/analyze_data.py:503:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:540:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:564:        plt.savefig(output_dir / get_deterministic_filename(
+scripts/analyze_data.py:626:    summary_json_path = output_dir / get_deterministic_filename("summary_report", "json")
+scripts/analyze_data.py:658:    md_path = output_dir / get_deterministic_filename("summary_report", "md")
+scripts/analyze_data.py:711:        f.write("_All filenames are deterministic and reproducible_\n")
+scripts/dp_sweep.py:38:def _dataset_provenance():
+scripts/dp_sweep.py:86:    p.add_argument("--seed", type=int, default=42)
+scripts/dp_sweep.py:116:    data_dir: Path, client_id: str, seed: int, epochs: int, batch_size: int, lr: float
+scripts/dp_sweep.py:123:    torch.manual_seed(seed)
+scripts/dp_sweep.py:124:    np.random.seed(seed)
+scripts/dp_sweep.py:207:            seed=args.seed,
+scripts/dp_sweep.py:220:    ) = _train_local(data_dir, args.client, args.seed, args.epochs, args.batch_size, args.lr)
+scripts/dp_sweep.py:224:    prov = _dataset_provenance()
+scripts/dp_sweep.py:237:        "seed": args.seed,
+scripts/dp_sweep.py:266:        print(f"  seed={args.seed}, client={args.client}, data_dir={data_dir}")
+src/core/loader/data_quality_analyzer.py:317:            # Save as JSON with deterministic filename
+scripts/check_dataset_signal.py:2:"""Dataset label-signal and provenance/content-hash sanity check.
+src/insurance_fl/data/generator.py:11:Each client draws from its own RNG seeded with
+src/insurance_fl/data/generator.py:12:``np.random.SeedSequence([random_seed, crc32(client_id)])``.
+src/insurance_fl/data/generator.py:14:runs in separate processes produce identical output for the same seed.
+src/insurance_fl/data/generator.py:64:    """Best-effort git SHA of the current checkout (provenance)."""
+src/insurance_fl/data/generator.py:119:    random_seed : int
+src/insurance_fl/data/generator.py:120:        Master seed. Client streams derive from it deterministically.
+src/insurance_fl/data/generator.py:134:        random_seed: int = 42,
+src/insurance_fl/data/generator.py:140:        self.random_seed = random_seed
+src/insurance_fl/data/generator.py:326:        return np.random.default_rng(np.random.SeedSequence([self.random_seed, stable_key]))
+src/insurance_fl/data/generator.py:460:    def _deterministic_hash(self, all_data: Dict[str, Any], centralized: pd.DataFrame) -> str:
+src/insurance_fl/data/generator.py:464:        value is identical across separate Python processes for the same seed.
+src/insurance_fl/data/generator.py:473:        h.update(str(self.random_seed).encode("utf-8"))
+src/insurance_fl/data/generator.py:475:        # Federated splits ── sorted for deterministic ordering
+src/insurance_fl/data/generator.py:603:                random_state=self.random_seed,
+src/insurance_fl/data/generator.py:609:                random_state=self.random_seed,
+src/insurance_fl/data/generator.py:615:                random_state=self.random_seed,
+src/insurance_fl/data/generator.py:652:                    "random_seed": self.random_seed,
+src/insurance_fl/data/generator.py:668:            "random_seed": self.random_seed,
+src/insurance_fl/data/generator.py:682:        print(f"Random seed: {self.random_seed} (per-client crc32 streams)")
+src/insurance_fl/data/generator.py:690:        """Pool a deterministic 25% sample of every client's data."""
+src/insurance_fl/data/generator.py:696:            sample = client_train.sample(n=n_take, random_state=self.random_seed).copy()
+src/insurance_fl/data/generator.py:744:                    "random_seed": self.random_seed,
+src/insurance_fl/data/generator.py:759:            "random_seed": self.random_seed,
+tests/unit/data/test_signal_and_generator.py:27:        samples_per_client=400, random_seed=123, dataset_version="test", inject_quality_issues=False
+tests/unit/data/test_signal_and_generator.py:46:        samples_per_client=400, random_seed=42, dataset_version="test", inject_quality_issues=False
+tests/unit/data/test_signal_and_generator.py:60:    gen = EuropeanInsuranceFederatedDataset(samples_per_client=400, random_seed=1)
+tests/unit/data/test_signal_and_generator.py:76:        "--seed",
+tests/unit/data/test_signal_and_generator.py:89:    # metadata provenance fields
+tests/unit/data/test_signal_and_generator.py:131:        "--seed",
+tests/unit/data/test_signal_and_generator.py:157:        legacy.EuropeanInsuranceFederatedDataset(samples_per_client=10, random_seed=1)
+tests/unit/data/test_signal_and_generator.py:169:    # generate small valid dataset, then tamper stored label_logic_sha
+tests/unit/data/test_signal_and_generator.py:171:        samples_per_client=400, random_seed=42, dataset_version="test", inject_quality_issues=False
+tests/unit/evaluation/test_mia.py:73:    np.random.seed(42)
+tests/unit/evaluation/test_mia.py:122:    np.random.seed(42)
+scripts/run_mia.py:41:def _dataset_provenance():
+scripts/run_mia.py:57:def _federated_reference_models(data_dir: Path, seed: int):
+scripts/run_mia.py:96:        seed=seed,
+scripts/run_mia.py:108:    p.add_argument("--seed", type=int, default=42)
+scripts/run_mia.py:186:            output_dir=DEFAULT_DATA_DIR, samples_per_client=args.samples_per_client, seed=args.seed
+scripts/run_mia.py:196:        output_dir=DEFAULT_DATA_DIR, samples_per_client=args.samples_per_client, seed=args.seed
+scripts/run_mia.py:220:def _stable_seed(base: int, token: str) -> int:
+scripts/run_mia.py:225:def _set_global_seeds(seed: int) -> None:
+scripts/run_mia.py:229:    random.seed(seed)
+scripts/run_mia.py:230:    np.random.seed(seed)
+scripts/run_mia.py:231:    torch.manual_seed(seed)
+scripts/run_mia.py:233:        torch.cuda.manual_seed_all(seed)
+scripts/run_mia.py:235:        torch.use_deterministic_algorithms(False)
+scripts/run_mia.py:276:def _auc_ci(y_true, y_scores, seed: int, n_boot: int = 1000):
+scripts/run_mia.py:284:    rng = np.random.default_rng(seed)
+scripts/run_mia.py:330:        fed_models, fed_data, fed_cfg, fed_info = _federated_reference_models(data_dir, args.seed)
+scripts/run_mia.py:373:        _set_global_seeds(args.seed)
+scripts/run_mia.py:436:        sm_seed = _stable_seed(args.seed, cid)
+scripts/run_mia.py:437:        _set_global_seeds(sm_seed)
+scripts/run_mia.py:511:    _set_global_seeds(args.seed)
+scripts/run_mia.py:523:    attack_clf = RandomForestClassifier(n_estimators=100, random_state=args.seed)
+scripts/run_mia.py:629:    ci = _auc_ci(y_target, y_scores, seed=args.seed, n_boot=args.bootstrap)
+scripts/run_mia.py:644:    prov = _dataset_provenance()
+scripts/run_mia.py:691:        "seed": args.seed,
+tests/unit/fl/test_client_identity.py:196:    random.seed(12345)
+tests/unit/fl/test_client_identity.py:206:        "sampling_seed": 7,
+tests/unit/fl/test_client_identity.py:237:def test_conflicting_identity_rejected_and_audit_emitted_unknown_rejected():
+tests/unit/fl/test_client_identity.py:240:    audit = _Audit()
+tests/unit/fl/test_client_identity.py:247:        audit_logger=audit,
+tests/unit/fl/test_client_identity.py:269:        audit_logger=audit,
+tests/unit/fl/test_client_identity.py:276:    assert any(et == "client_identity_conflict" for et, _ in audit.events)
+tests/unit/fl/test_client_identity.py:285:        audit_logger=audit,
+tests/unit/fl/test_client_identity.py:293:    assert any(p.get("reason") == "unknown_client_id" for _, p in audit.events)
+tests/unit/fl/test_client_identity.py:315:    # seed mapping
+tests/unit/data/test_generator.py:1:"""Tests for insurance_fl.data.generator (schema, determinism, no-leakage)."""
+tests/unit/data/test_generator.py:25:    kw.setdefault("random_seed", 42)
+tests/unit/data/test_generator.py:100:# --- determinism (suspect #4 guard) ---------------------------------------
+tests/unit/data/test_generator.py:101:def test_same_seed_same_output_same_process() -> None:
+tests/unit/data/test_generator.py:117:def test_determinism_across_processes() -> None:
+tests/unit/data/test_generator.py:118:    """Two separate processes with same seed produce identical data.
+tests/unit/data/test_generator.py:120:    Guards against PYTHONHASHSEED-salted hash() seeding (suspect #4).
+tests/unit/data/test_generator.py:126:        "g = G(samples_per_client=300, random_seed=7);"
+tests/unit/data/test_generator.py:145:    assert len(hashes) == 1, f"Non-deterministic generation: {hashes}"
+tests/unit/data/test_generator.py:148:def test_different_seed_different_output() -> None:
+tests/unit/data/test_generator.py:150:        _small_gen(random_seed=1).generate_dataset(d1)
+tests/unit/data/test_generator.py:151:        _small_gen(random_seed=2).generate_dataset(d2)
+tests/unit/fl/test_fairness.py:16:    selected, uncovered = stratified_sample(clients, num_clients=4, seed=42)
+tests/unit/data/test_partition.py:24:    np.random.seed(42)
+tests/unit/data/test_partition.py:35:    np.random.seed(42)
+tests/unit/data/test_partition.py:113:    def test_deterministic_with_seed(self, small_partition_df: pd.DataFrame, tmp_path) -> None:
+tests/unit/data/test_partition.py:123:    def test_different_seed_different_splits(
+tests/unit/data/test_partition.py:133:        assert different, "Different seeds produced identical splits"
+tests/unit/data/test_readiness.py:20:    np.random.seed(42)
+tests/unit/scripts/test_generate_dataset.py:15:    assert args.seed == 42
+tests/unit/scripts/test_generate_dataset.py:23:        ["--samples", "100", "--seed", "7", "--format", "npy", "--no-centralized"]
+tests/unit/scripts/test_generate_dataset.py:26:    assert args.seed == 7
+tests/unit/fl/test_privacy.py:57:    np.random.seed(20261121)
+src/insurance_fl/data/partition.py:13:  deterministic per-customer split as ``BY_CUSTOMER_ID``.
+src/insurance_fl/data/partition.py:15:All split computations are deterministic given a fixed ``random_state``
+src/insurance_fl/data/partition.py:40:    """Normalise the seed into a ``np.random.Generator`` for reproducibility."""
+src/insurance_fl/data/partition.py:125:    # Order: train first, then val, then test (deterministic).
+src/insurance_fl/data/partition.py:151:    The split is deterministic for a fixed ``random_state``.
+src/insurance_fl/data/partition.py:221:    deterministic customer-based split.
+src/insurance_fl/fl/privacy.py:19:    tampered, schema-invalid, or would be silently reset by a fresh run."""
+src/insurance_fl/fl/privacy.py:153:        # be persisted and audited.
+src/insurance_fl/fl/privacy.py:216:                "privacy state integrity check failed (file truncated or tampered)"
+src/insurance_fl/fl/privacy.py:244:        resume can detect truncation or tampering.
+src/insurance_fl/fl/privacy.py:303:        truncation or tampering is detected on resume.
+src/insurance_fl/evaluation/mia.py:139:    seed: int = 42,
+src/insurance_fl/evaluation/mia.py:145:    np.random.seed(seed)
+src/insurance_fl/evaluation/mia.py:166:    attack_clf = RandomForestClassifier(n_estimators=100, random_state=seed)
+src/insurance_fl/evaluation/mia.py:196:        "seed": seed,
+tests/unit/fl/test_server_app.py:44:    audit_path = tmp_path / "audit.jsonl"
+tests/unit/fl/test_server_app.py:60:        "audit-path": str(audit_path),
+tests/unit/fl/test_server_app.py:70:    assert '"accounting_status": "resumed"' in audit_path.read_text()
+tests/unit/fl/test_server_app.py:91:        "audit-path": "logs/audit.jsonl",
+tests/unit/scripts/test_check_audit_ignores.py:8:CHECKER = Path(__file__).resolve().parents[3] / "scripts" / "ci" / "check_audit_ignores.py"
+tests/unit/fl/test_hybrid.py:55:def test_optimize_beta_deterministic() -> None:
+tests/unit/fl/test_boosters.py:37:            seed=42,
+src/insurance_fl/fl/stacking.py:82:    seed: int = 42,
+src/insurance_fl/fl/stacking.py:87:    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+src/insurance_fl/fl/server_app.py:47:from insurance_fl.audit import AuditLogger
+src/insurance_fl/fl/server_app.py:100:    audit_logger = AuditLogger(
+src/insurance_fl/fl/server_app.py:101:        path=__import__("pathlib").Path(str(rc.get("audit-path", "logs/audit.jsonl"))),
+src/insurance_fl/fl/server_app.py:104:    audit_logger.log_config_snapshot(config=dict(rc))
+src/insurance_fl/fl/server_app.py:106:        audit_logger.log_privacy_event(
+src/insurance_fl/fl/server_app.py:125:        audit_logger=audit_logger,
+src/insurance_fl/scripts/run_federated_training.py:12:9. Privacy, fairness, audit, and experiment-report finalization.
+src/insurance_fl/scripts/run_federated_training.py:105:                seed=42,
+tests/unit/fl/test_privacy_gate.py:9:  * corrupt / truncated / tampered state fail closed;
+tests/unit/fl/test_privacy_gate.py:61:    """Collects audit logger log_event calls."""
+tests/unit/fl/test_privacy_gate.py:236:    audit = _AuditSpy()
+tests/unit/fl/test_privacy_gate.py:243:        audit_logger=audit,
+tests/unit/fl/test_privacy_gate.py:251:    events = [e for e, _ in audit.events if e == "privacy_budget_exhausted"]
+tests/unit/fl/test_privacy_gate.py:253:    payload = audit.events[0][1]
+tests/unit/fl/test_privacy_gate.py:260:# C5-6: corrupt / truncated / tampered state fail closed
+tests/unit/fl/test_privacy_gate.py:286:def test_tampered_state_fails_closed(tmp_path: Path) -> None:
+tests/unit/fl/test_privacy_gate.py:291:    data["rounds_spent"] = 999  # tamper without recomputing sha256
+src/insurance_fl/causal/truth.py:40:    seed: int = 42,
+src/insurance_fl/causal/truth.py:49:    The five ML targets are unchanged. The injected effect is deterministic
+src/insurance_fl/causal/truth.py:50:    for a fixed seed and country modifiers.
+src/insurance_fl/causal/truth.py:65:    out.attrs["truth_seed"] = seed
+src/insurance_fl/causal/truth.py:101:    seed: int = 42,
+src/insurance_fl/causal/truth.py:111:        "seed": seed,
+src/insurance_fl/fl/diagnose.py:27:    seed: int = 0,
+src/insurance_fl/fl/diagnose.py:41:    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, stratify=y, random_state=seed)
+src/insurance_fl/fl/diagnose.py:60:        Xa, Xb, ya, yb = train_test_split(Xc, yc, test_size=0.5, stratify=yc, random_state=seed)
+src/insurance_fl/fl/diagnose.py:68:    Xtr2, Xte2, ytr2, yte2 = train_test_split(Xs, ys, test_size=0.3, stratify=ys, random_state=seed)
+tests/unit/test_audit.py:1:"""Unit tests for the audit logger."""
+tests/unit/test_audit.py:9:from insurance_fl.audit import AUDIT_RETENTION_DAYS, AuditLogger
+tests/unit/test_audit.py:14:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:26:        logger.log_config_snapshot(config={"max-epsilon": 10.0, "secret": "hidden"})
+tests/unit/test_audit.py:39:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:52:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:59:def test_secret_redaction_recursive() -> None:
+tests/unit/test_audit.py:61:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:64:            "secret": "hidden",
+tests/unit/test_audit.py:66:            "list": [{"secret": "x"}],
+tests/unit/test_audit.py:71:        assert ev["sanitized_config"]["secret"] == "<REDACTED>"
+tests/unit/test_audit.py:75:        assert ev["sanitized_config"]["list"][0]["secret"] == "<REDACTED>"
+tests/unit/test_audit.py:81:        path = Path(tmpdir) / "audit.jsonl"
+tests/unit/test_audit.py:100:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:109:def test_config_hash_deterministic() -> None:
+tests/unit/test_audit.py:111:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:121:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/scripts/test_mia_script.py:35:def test_run_mia_is_deterministic(tmp_path):
+tests/unit/scripts/test_mia_script.py:69:        "seed",
+src/insurance_fl/scripts/generate_dataset.py:16:    parser.add_argument("--seed", type=int, default=42)
+src/insurance_fl/scripts/generate_dataset.py:51:        random_seed=args.seed,
+tests/unit/test_artifact_provenance.py:41:def test_load_artifact_accepts_current_provenance(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:50:def test_provenance_fields_reads_manifest(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py:52:    p = nb.provenance_fields(manifest_path=mp)
+src/insurance_fl/audit.py:1:"""Structured, append-only JSONL audit trail logger.
+src/insurance_fl/audit.py:11:Security: redacts secret-bearing config keys (case-insensitive: secret,
+src/insurance_fl/audit.py:14:tamper-proof; deployment-level controls are required.
+src/insurance_fl/audit.py:34:_SECRET_KEYS = {"secret", "token", "password", "key"}
+src/insurance_fl/audit.py:52:def _redact(obj: Any, depth: int = 0) -> Any:
+src/insurance_fl/audit.py:53:    """Recursively redact secret-bearing keys (case-insensitive)."""
+src/insurance_fl/audit.py:62:                result[k] = _redact(v, depth + 1)
+src/insurance_fl/audit.py:65:        return [_redact(item, depth + 1) for item in obj]
+src/insurance_fl/audit.py:84:    """Append-only JSONL audit logger."""
+src/insurance_fl/audit.py:110:        # Redact secrets
+src/insurance_fl/audit.py:111:        event = _redact(event)
+src/insurance_fl/audit.py:247:            "sanitized_config": _redact(config),
+src/insurance_fl/models/multi_task_nn.py:232:        """Return model parameters as a deterministic list of numpy arrays.
+src/insurance_fl/models/multi_task_nn.py:280:        Same determinism as :meth:`get_weights`: identical architectures
+src/insurance_fl/fl/boosters.py:35:    seed: int = 42,
+src/insurance_fl/fl/boosters.py:56:        xgb_model = _train_xgboost(x_train, y_tr, x_val, y_v, task_type, seed)
+src/insurance_fl/fl/boosters.py:57:        lgbm_model = _train_lightgbm(x_train, y_tr, x_val, y_v, task_type, seed)
+src/insurance_fl/fl/boosters.py:58:        cat_model = _train_catboost(x_train, y_tr, x_val, y_v, task_type, seed)
+src/insurance_fl/fl/boosters.py:61:        oof_preds = _generate_oof(x_train, y_tr, task_type, n_folds, seed)
+src/insurance_fl/fl/boosters.py:83:            seed,
+src/insurance_fl/fl/boosters.py:94:            seed,
+src/insurance_fl/fl/boosters.py:100:            x_train, y_tr, x_val, y_v, task_type, seed, early_stopping=20, depth=3, iterations=200
+src/insurance_fl/fl/boosters.py:144:    seed,
+src/insurance_fl/fl/boosters.py:155:        "random_state": seed,
+src/insurance_fl/fl/boosters.py:180:    seed,
+src/insurance_fl/fl/boosters.py:192:            random_state=seed,
+src/insurance_fl/fl/boosters.py:200:            random_state=seed,
+src/insurance_fl/fl/boosters.py:225:    seed,
+src/insurance_fl/fl/boosters.py:237:        random_seed=seed,
+src/insurance_fl/fl/boosters.py:265:def _generate_oof(x_train, y_train, task_type, n_folds, seed):
+src/insurance_fl/fl/boosters.py:285:        kf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
+src/insurance_fl/fl/boosters.py:288:            kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+src/insurance_fl/fl/boosters.py:290:            kf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
+src/insurance_fl/fl/boosters.py:305:            seed,
+src/insurance_fl/fl/boosters.py:316:            seed,
+src/insurance_fl/fl/boosters.py:327:            seed,
+src/insurance_fl/fl/boosters.py:352:    """Return the deterministic artifact directory for a client."""
+src/insurance_fl/fl/strategy.py:10:- Structured audit events.
+src/insurance_fl/fl/strategy.py:36:def _audit_identity_conflict(audit_logger: Any, run_id: str | None, **details: Any) -> None:
+src/insurance_fl/fl/strategy.py:37:    if audit_logger is None or run_id is None:
+src/insurance_fl/fl/strategy.py:41:        if hasattr(audit_logger, "log_event"):
+src/insurance_fl/fl/strategy.py:42:            audit_logger.log_event(_CLIENT_ID_CONFLICT_EVENT, payload)
+src/insurance_fl/fl/strategy.py:47:        log_fn = getattr(audit_logger, "log", None)
+src/insurance_fl/fl/strategy.py:54:        getattr(audit_logger, "logger", None)  # keep audit logger referenced
+src/insurance_fl/fl/strategy.py:55:        log_fn = getattr(getattr(audit_logger, "logger", None), "warning", None)
+src/insurance_fl/fl/strategy.py:57:            log_fn("audit_event=%s payload=%s", _CLIENT_ID_CONFLICT_EVENT, payload)
+src/insurance_fl/fl/strategy.py:116:        audit_logger = getattr(self, "audit_logger", None)
+src/insurance_fl/fl/strategy.py:120:            _audit_identity_conflict(
+src/insurance_fl/fl/strategy.py:121:                audit_logger,
+src/insurance_fl/fl/strategy.py:134:            _audit_identity_conflict(
+src/insurance_fl/fl/strategy.py:135:                audit_logger,
+src/insurance_fl/fl/strategy.py:147:            _audit_identity_conflict(
+src/insurance_fl/fl/strategy.py:148:                audit_logger,
+src/insurance_fl/fl/strategy.py:162:            _audit_identity_conflict(
+src/insurance_fl/fl/strategy.py:163:                audit_logger,
+src/insurance_fl/fl/strategy.py:211:        sampling_seed: int | None = 42,
+src/insurance_fl/fl/strategy.py:213:        audit_logger: Any = None,
+src/insurance_fl/fl/strategy.py:234:        self.sampling_seed = sampling_seed
+src/insurance_fl/fl/strategy.py:236:        self.audit_logger = audit_logger
+src/insurance_fl/fl/strategy.py:289:        if self.audit_logger is not None and self.run_id is not None:
+src/insurance_fl/fl/strategy.py:291:                self.audit_logger.log_fl_round_start(
+src/insurance_fl/fl/strategy.py:352:                    seed=(
+src/insurance_fl/fl/strategy.py:353:                        self.sampling_seed + server_round
+src/insurance_fl/fl/strategy.py:354:                        if self.sampling_seed is not None
+src/insurance_fl/fl/strategy.py:398:                if self.audit_logger is not None and self.run_id is not None:
+src/insurance_fl/fl/strategy.py:400:                        self.audit_logger.log_privacy_event(
+src/insurance_fl/fl/strategy.py:518:        if self.audit_logger is not None and self.run_id is not None:
+src/insurance_fl/fl/strategy.py:523:                self.audit_logger.log_fl_round_end(
+src/insurance_fl/fl/strategy.py:553:        audit_logger: Any = None,
+src/insurance_fl/fl/strategy.py:562:        self.audit_logger = audit_logger
+src/insurance_fl/fl/strategy.py:586:                if self.audit_logger is not None:
+src/insurance_fl/fl/strategy.py:588:                        self.audit_logger.log_privacy_event(
+src/insurance_fl/fl/strategy.py:597:                            self.audit_logger.log_event(
+src/insurance_fl/fl/strategy.py:639:        sampling_seed: int | None = 42,
+src/insurance_fl/fl/strategy.py:642:        audit_logger: Any = None,
+src/insurance_fl/fl/strategy.py:649:        self.sampling_seed = sampling_seed
+src/insurance_fl/fl/strategy.py:652:        self.audit_logger = audit_logger
+src/insurance_fl/fl/strategy.py:700:                    seed=(
+src/insurance_fl/fl/strategy.py:701:                        self.sampling_seed + server_round
+src/insurance_fl/fl/strategy.py:702:                        if self.sampling_seed is not None
+src/insurance_fl/fl/strategy.py:808:    sampling_seed: int | None = 42,
+src/insurance_fl/fl/strategy.py:810:    audit_logger: Any = None,
+src/insurance_fl/fl/strategy.py:847:            audit_logger=audit_logger,
+src/insurance_fl/fl/strategy.py:860:            sampling_seed=sampling_seed,
+src/insurance_fl/fl/strategy.py:863:            audit_logger=audit_logger,
+src/insurance_fl/fl/strategy.py:872:            audit_logger=audit_logger,
+src/insurance_fl/fl/strategy.py:891:            audit_logger=audit_logger,
+src/insurance_fl/fl/strategy.py:905:            sampling_seed=sampling_seed,
+src/insurance_fl/fl/strategy.py:907:            audit_logger=audit_logger,
+src/insurance_fl/fl/strategy.py:921:            audit_logger=audit_logger,
+src/insurance_fl/fl/fairness.py:72:    seed: int | None = None,
+src/insurance_fl/fl/fairness.py:87:        seed: Random seed for reproducibility.
+src/insurance_fl/fl/fairness.py:105:    rng = random.Random(seed) if seed is not None else random.Random()
+src/insurance_fl/fl/fairness.py:109:        # Shuffle candidates deterministically
+tests/unit/models/test_multi_task_nn.py:21:    torch.manual_seed(0)
+tests/unit/models/test_multi_task_nn.py:27:    torch.manual_seed(1)
+tests/unit/models/test_multi_task_nn.py:32:    torch.manual_seed(2)
+tests/unit/models/test_multi_task_nn.py:139:# --- determinism -----------------------------------------------------------
+tests/unit/models/test_multi_task_nn.py:140:def test_same_seed_same_weights() -> None:
+tests/unit/models/test_multi_task_nn.py:141:    torch.manual_seed(123)
+tests/unit/models/test_multi_task_nn.py:143:    torch.manual_seed(123)
+tests/unit/models/test_multi_task_nn.py:171:    torch.manual_seed(0)
+tests/unit/models/test_multi_task_nn.py:181:    torch.manual_seed(0)
+tests/unit/causal/test_truth_leakage.py:45:    df = inject_truth(_sample_df(), seed=7, base_effect=5.0)
+tests/unit/causal/test_truth_leakage.py:52:    df = inject_truth(_sample_df(), seed=7, base_effect=5.0)
+tests/unit/causal/test_truth_leakage.py:62:    df = inject_truth(_sample_df(), seed=7, base_effect=5.0)
+src/insurance_fl/config/loader.py:23:    random_seed: int = 42
+src/insurance_fl/config/loader.py:171:    enable_audit: bool = True
+src/insurance_fl/fl/task.py:115:    seed: int = DEFAULT_SEED,
+src/insurance_fl/fl/task.py:121:    (injection is owned by the generator's flag, audited under B2).
+src/insurance_fl/fl/task.py:130:        random_seed=seed,
+src/insurance_fl/fl/task.py:162:    # If a column is entirely NaN in train, fall back to 0.0 deterministically.
+src/insurance_fl/fl/task.py:312:    parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
+src/insurance_fl/fl/task.py:316:    out = prepare_dataset(Path(args.output_dir), args.samples_per_client, args.seed)
+tests/test_structure.py:57:        Path("test_artifact_provenance.py"),
+tests/unit/causal/test_truth.py:36:    out = inject_truth(df, seed=7, base_effect=5.0)
+tests/unit/causal/test_truth.py:43:def test_inject_truth_deterministic() -> None:
+tests/unit/causal/test_truth.py:45:    a = inject_truth(df, seed=7, base_effect=5.0)
+tests/unit/causal/test_truth.py:46:    b = inject_truth(df, seed=7, base_effect=5.0)
+tests/unit/causal/test_truth.py:51:    df = inject_truth(_sample_df(), seed=7, base_effect=5.0)
+tests/unit/causal/test_truth.py:56:    df = inject_truth(_sample_df(), seed=7, base_effect=5.0)
+tests/unit/causal/test_truth.py:63:    df = inject_truth(_sample_df(), seed=7, base_effect=5.0)
+tests/unit/causal/test_truth.py:64:    path = write_ground_truth(tmp_path, df, seed=7, base_effect=5.0)
