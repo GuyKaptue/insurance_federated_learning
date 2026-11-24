@@ -8,7 +8,12 @@ from pathlib import Path
 
 import pytest
 
-from insurance_fl.fl.privacy import PrivacyBackendUnavailable, PrivacyConfig, RdpAccountantWrapper
+from insurance_fl.fl.privacy import (
+    PrivacyBackendUnavailable,
+    PrivacyConfig,
+    PrivacyStateError,
+    RdpAccountantWrapper,
+)
 
 
 def _make(noise_multiplier: float = 1.0, **kw) -> RdpAccountantWrapper:
@@ -25,8 +30,8 @@ def test_backend_available_and_accountant_constructible() -> None:
 
 def test_compose_records_rounds_and_events() -> None:
     acc = _make(1.0)
-    acc.compose({"round": 1, "mechanism": "gaussian"})
-    acc.compose({"round": 2, "mechanism": "gaussian"})
+    acc.step()
+    acc.step()
     assert acc.rounds == 2
     assert len(acc.events) == 2
     eps = acc.epsilon()
@@ -37,8 +42,8 @@ def test_compose_records_rounds_and_events() -> None:
 
 def test_get_epsilon_returns_finite() -> None:
     acc = _make(1.0)
-    acc.compose({"round": 1})
-    eps = acc.get_epsilon()
+    acc.step()
+    eps = acc.epsilon()["epsilon"]
     assert isinstance(eps, float)
     assert eps >= 0
     assert math.isfinite(eps)
@@ -46,39 +51,39 @@ def test_get_epsilon_returns_finite() -> None:
 
 def test_get_epsilon_monotonic() -> None:
     acc = _make(1.0)
-    acc.compose({"round": 1})
-    eps1 = acc.get_epsilon()
-    acc.compose({"round": 2})
-    eps2 = acc.get_epsilon()
+    acc.step()
+    eps1 = acc.epsilon()["epsilon"]
+    acc.step()
+    eps2 = acc.epsilon()["epsilon"]
     assert eps2 >= eps1
 
 
 def test_would_exceed_over_budget() -> None:
     acc = _make(noise_multiplier=0.1, max_epsilon=0.01)
-    acc.compose({"round": 1})
+    acc.step()
     assert acc.would_exceed() is True
 
 
 def test_would_exceed_under_budget() -> None:
     acc = _make(noise_multiplier=10.0, max_epsilon=100.0)
-    acc.compose({"round": 1})
+    acc.step()
     assert acc.would_exceed() is False
 
 
 def test_project_epsilon_does_not_mutate_state() -> None:
     acc = _make(noise_multiplier=1.0, max_epsilon=10.0)
-    acc.compose({"round": 1})
+    acc.step()
     rounds_before = acc.rounds
-    eps_before = acc.get_epsilon()
+    eps_before = acc.epsilon()["epsilon"]
     projected = acc.project_epsilon(additional_releases=1)
     assert acc.rounds == rounds_before
-    assert acc.get_epsilon() == pytest.approx(eps_before)
+    assert acc.epsilon()["epsilon"] == pytest.approx(eps_before)
     assert projected >= eps_before
 
 
 def test_would_exceed_is_non_mutating() -> None:
     acc = _make(noise_multiplier=0.1, max_epsilon=0.01)
-    acc.compose({"round": 1})
+    acc.step()
     rounds_before = acc.rounds
     _ = acc.would_exceed()
     assert acc.rounds == rounds_before
@@ -89,14 +94,14 @@ def test_state_persistence_roundtrip() -> None:
         state_path = Path(tmpdir) / "state.json"
         cfg = PrivacyConfig(noise_multiplier=1.0, max_epsilon=10.0)
         a1 = RdpAccountantWrapper(cfg, state_path=state_path)
-        a1.compose({"round": 1})
-        a1.compose({"round": 2})
-        eps1 = a1.get_epsilon()
+        a1.step()
+        a1.step()
+        eps1 = a1.epsilon()["epsilon"]
         a1.save_state(state_path)
 
         a2 = RdpAccountantWrapper(cfg, state_path=state_path)
         assert a2.rounds == 2
-        assert a2.get_epsilon() == pytest.approx(eps1)
+        assert a2.epsilon()["epsilon"] == pytest.approx(eps1)
 
 
 def test_state_not_counted_twice() -> None:
@@ -104,12 +109,12 @@ def test_state_not_counted_twice() -> None:
         state_path = Path(tmpdir) / "state.json"
         cfg = PrivacyConfig(noise_multiplier=1.0)
         a1 = RdpAccountantWrapper(cfg, state_path=state_path)
-        a1.compose({"round": 1})
+        a1.step()
         a1.save_state(state_path)
 
         a2 = RdpAccountantWrapper(cfg, state_path=state_path)
         assert a2.rounds == 1
-        a2.compose({"round": 2})
+        a2.step()
         assert a2.rounds == 2
 
 
@@ -117,7 +122,7 @@ def test_corrupted_state_raises() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         state_path = Path(tmpdir) / "state.json"
         state_path.write_text("not valid json")
-        with pytest.raises(ValueError):
+        with pytest.raises(PrivacyStateError):
             RdpAccountantWrapper(PrivacyConfig(noise_multiplier=1.0), state_path=state_path)
 
 
@@ -127,9 +132,9 @@ def test_composition_matches_backend() -> None:
 
     cfg = PrivacyConfig(noise_multiplier=2.0, delta=1e-5, target_delta=1e-5)
     accountant = RdpAccountantWrapper(cfg)
-    accountant.compose({"round": 1})
-    accountant.compose({"round": 2})
-    eps_wrapper = accountant.get_epsilon()
+    accountant.step()
+    accountant.step()
+    eps_wrapper = accountant.epsilon()["epsilon"]
 
     direct = RdpAccountant()
     gd = GaussianDpEvent(noise_multiplier=2.0)
@@ -154,8 +159,8 @@ def test_get_epsilon_delta_sensitivity() -> None:
             PrivacyConfig(noise_multiplier=1.0, delta=d, target_delta=d, max_epsilon=1e9)
         )
         for _ in range(3):
-            acc.compose({"round": 1})
-        return acc.get_epsilon()
+            acc.step()
+        return acc.epsilon()["epsilon"]
 
     assert eps_for_delta(1e-7) > eps_for_delta(1e-5)
 
@@ -165,12 +170,12 @@ def test_rejected_release_projection_does_not_commit() -> None:
     acc = _make(noise_multiplier=0.1, max_epsilon=0.01)
     # Current state is empty/under budget in terms of committed rounds; project over budget.
     rounds_before = acc.rounds
-    eps_before = acc.get_epsilon()
+    eps_before = acc.epsilon()["epsilon"]
     projected = acc.project_epsilon(additional_releases=1)
     assert projected > 0.01 or math.isinf(projected) or acc.would_exceed() in (True, False)
     # Projection/check must not commit events.
     assert acc.rounds == rounds_before
-    assert acc.get_epsilon() == pytest.approx(eps_before)
+    assert acc.epsilon()["epsilon"] == pytest.approx(eps_before)
 
 
 def test_backend_unavailable_raises(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -1,0 +1,27 @@
+tests/unit/test_audit.py:1:"""Unit tests for the audit logger."""
+tests/unit/test_audit.py:9:from insurance_fl.audit import AUDIT_RETENTION_DAYS, AuditLogger
+tests/unit/test_audit.py:14:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:39:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:52:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:61:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:81:        path = Path(tmpdir) / "audit.jsonl"
+tests/unit/test_audit.py:100:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:111:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+tests/unit/test_audit.py:121:        logger = AuditLogger(path=Path(tmpdir) / "audit.jsonl", run_id="test-run")
+.github/workflows/ci.yml:186:          python -m pip install "pip-audit==2.10.1"
+.github/workflows/ci.yml:193:      - name: pip-audit (runtime, blocking)
+.github/workflows/ci.yml:197:          pip-audit -r constraints/runtime-linux-py311.txt --no-deps --disable-pip --format json -o artifacts/security/pip-audit-runtime.json
+.github/workflows/ci.yml:200:          echo "$rc" > artifacts/security/pip-audit-runtime.exitcode
+.github/workflows/ci.yml:202:          # time-boxed ignore in security/pip-audit-ignores.toml (one entry per id,
+.github/workflows/ci.yml:203:          # expiry <= 60 days, validated by scripts/ci/check_audit_ignores.py).
+.github/workflows/ci.yml:204:          python scripts/ci/check_audit_ignores.py             --ignores security/pip-audit-ignores.toml             --runtime-report artifacts/security/pip-audit-runtime.json             --full-report artifacts/security/pip-audit-full.json             --today "$(date +%F)"
+.github/workflows/ci.yml:205:      - name: pip-audit (full lock, report-only)
+.github/workflows/ci.yml:210:          pip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --format json -o artifacts/security/pip-audit-full.json
+.github/workflows/ci.yml:213:          echo "$rc" > artifacts/security/pip-audit-full.exitcode
+.github/workflows/ci.yml:214:          echo "Full-lock audit is report-only (exit code recorded: $(cat artifacts/security/pip-audit-full.exitcode)); runtime gate above is blocking."
+.github/workflows/ci.yml:215:      - name: Upload pip-audit report
+.github/workflows/ci.yml:219:          name: pip-audit-report
+scripts/ci/check_audit_ignores.py:2:"""Validate security/pip-audit-ignores.toml against pip-audit JSON reports.
+scripts/ci/check_audit_ignores.py:101:            errors.append(f"entry[{i}] {vid}/{pkg} stale (not present in audit reports)")
+scripts/ci/check_audit_ignores.py:121:        print("pip-audit ignores: FAIL", file=sys.stderr)
+scripts/ci/check_audit_ignores.py:130:        f"pip-audit ignores: OK ({len(entries)} entries covering all {len(runtime_ids)} runtime findings)"

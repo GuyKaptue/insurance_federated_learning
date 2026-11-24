@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -10,6 +12,11 @@ from typing import Any
 
 class PrivacyBackendUnavailable(RuntimeError):
     """Raised instead of returning a fabricated epsilon."""
+
+
+class PrivacyStateError(RuntimeError):
+    """Raised when persisted privacy accounting state is missing, corrupt,
+    tampered, schema-invalid, or would be silently reset by a fresh run."""
 
 
 # Try to import dp_accounting backend
@@ -45,6 +52,49 @@ class PrivacyConfig:
 
 
 _ORDERS = [1 + x / 10.0 for x in range(1, 100)] + list(range(12, 64))
+
+# Privacy budget gate keys (Stage C). When privacy-enabled=true all four must be
+# present and positive; when false any deviation from these defaults raises.
+PRIVACY_KEYS = (
+    "privacy-local-dp-clip-norm",
+    "privacy-local-dp-noise-std",
+    "privacy-delta",
+    "privacy-max-epsilon",
+)
+PRIVACY_DEFAULTS = {
+    "privacy-local-dp-clip-norm": 1.0,
+    "privacy-local-dp-noise-std": 1.0,
+    "privacy-delta": 1e-5,
+    "privacy-max-epsilon": 8.0,
+}
+
+
+def read_privacy_values(
+    rc: dict[str, Any],
+) -> tuple[dict[str, float], bool]:
+    """Read and validate privacy values from run_config.
+
+    Returns ``(values, enabled)`` where ``enabled`` is the parsed
+    ``privacy-enabled`` flag. Raises ``ValueError`` when
+    ``privacy-enabled=false`` but a privacy value deviates from its default.
+    When ``privacy-enabled=true``, callers must additionally check that each
+    value is positive (fail-closed).
+    """
+    enabled = str(rc.get("privacy-enabled", "false")).lower() == "true"
+    values: dict[str, float] = {}
+    for key in PRIVACY_KEYS:
+        raw = rc.get(key, PRIVACY_DEFAULTS[key])
+        try:
+            values[key] = float(raw)
+        except (TypeError, ValueError):
+            values[key] = PRIVACY_DEFAULTS[key]
+    any_set = any(values[key] != PRIVACY_DEFAULTS[key] for key in PRIVACY_KEYS)
+    if not enabled and any_set:
+        raise ValueError(
+            "privacy-enabled=false but privacy-* value(s) set; remove them or "
+            "set privacy-enabled=true"
+        )
+    return values, enabled
 
 
 def build_privacy_config(run_config: dict[str, Any] | None = None) -> PrivacyConfig:
@@ -86,7 +136,8 @@ class RdpAccountantWrapper:
     """
 
     STATE_VERSION = 1
-    _REQUIRED = {"version", "delta", "events"}
+    # Keys that must be present in a persisted state document.
+    _REQUIRED = {"version", "delta", "noise_multiplier", "max_epsilon", "rounds_spent", "events"}
 
     def __init__(self, cfg: PrivacyConfig, state_path: str | Path | None = None):
         self.cfg = cfg
@@ -98,9 +149,25 @@ class RdpAccountantWrapper:
         self._amplified = None
         # Track per-round events for round-trip
         self.events: list[dict[str, Any]] = []
+        # Round we resumed from (None for a fresh run); set on resume so it can
+        # be persisted and audited.
+        self.resumed_from_round: int | None = None
         # Load state if state_path is provided
         if self._state_path is not None and self._state_path.exists():
             self._load_state()
+
+    def _config_fingerprint(self) -> str:
+        """Stable fingerprint of the privacy configuration that participates in
+        accounting, so a resume with a different config is detected."""
+        payload = {
+            "noise_multiplier": self.cfg.noise_multiplier,
+            "delta": self.cfg.delta,
+            "max_epsilon": self.cfg.max_epsilon,
+            "sampling_rate": self.cfg.sampling_rate,
+            "neighboring_relation": self.cfg.neighboring_relation,
+        }
+        body = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return hashlib.sha256(body).hexdigest()
 
     def _compose_event(self, ev: dict[str, Any]) -> None:
         """Compose one recorded event into internal accountants without mutating history."""
@@ -115,23 +182,43 @@ class RdpAccountantWrapper:
             return
         try:
             state = json.loads(self._state_path.read_text())
-        except (json.JSONDecodeError, OSError):
-            raise ValueError("Corrupted accounting state file") from None
+        except (json.JSONDecodeError, OSError) as exc:
+            raise PrivacyStateError(f"unreadable privacy state file: {exc}") from None
         self._restore_state(state)
 
     def _restore_state(self, state: dict[str, Any]) -> None:
         missing = self._REQUIRED - set(state.keys())
         if missing:
-            raise ValueError(f"privacy state missing keys: {sorted(missing)}")
+            raise PrivacyStateError(f"privacy state missing keys: {sorted(missing)}")
         if state.get("version") != self.STATE_VERSION:
-            raise ValueError(
+            raise PrivacyStateError(
                 f"Incompatible state version: {state.get('version')}, expected {self.STATE_VERSION}"
             )
         if state.get("delta") != self.cfg.delta:
-            raise ValueError("delta changed across resume; epsilon not comparable")
+            raise PrivacyStateError("delta changed across resume; epsilon not comparable")
+        if state.get("noise_multiplier") != self.cfg.noise_multiplier:
+            raise PrivacyStateError(
+                "noise_multiplier changed across resume; epsilon not comparable"
+            )
+        if state.get("max_epsilon") != self.cfg.max_epsilon:
+            raise PrivacyStateError("max_epsilon changed across resume; epsilon not comparable")
+        stored_fp = state.get("config_fingerprint")
+        if stored_fp is not None and stored_fp != self._config_fingerprint():
+            raise PrivacyStateError(
+                "privacy config fingerprint changed across resume; epsilon not comparable"
+            )
+        # Integrity check: recompute SHA-256 over everything except sha256 itself.
+        stored_sha = state.get("sha256")
+        payload = {k: v for k, v in state.items() if k != "sha256"}
+        body = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        if stored_sha is None or hashlib.sha256(body).hexdigest() != stored_sha:
+            raise PrivacyStateError(
+                "privacy state integrity check failed (file truncated or tampered)"
+            )
         events = list(state.get("events", []))
         self.events = events
         self.rounds = 0
+        self.resumed_from_round = state.get("resumed_from_round")
         self._conservative = _make_accountant()
         self._amplified = None
         for ev in self.events:
@@ -151,7 +238,11 @@ class RdpAccountantWrapper:
         return acc
 
     def save_state(self, path: str | Path | None = None) -> None:
-        """Save accountant state to disk (atomic via temp+rename)."""
+        """Save accountant state to disk (atomic via temp+fsync+rename).
+
+        The persisted document carries a SHA-256 integrity field so a later
+        resume can detect truncation or tampering.
+        """
         if path is not None:
             self._state_path = Path(path)
         if self._state_path is None:
@@ -167,28 +258,64 @@ class RdpAccountantWrapper:
 
     @classmethod
     def load_state(
-        cls, path: str | Path | None = None, cfg: PrivacyConfig | None = None
+        cls,
+        path: str | Path | None = None,
+        cfg: PrivacyConfig | None = None,
+        resume: bool = False,
     ) -> RdpAccountantWrapper:
-        """Load accountant state from disk."""
+        """Load accountant state from disk.
+
+        ``resume`` controls fresh-run-vs-resume semantics:
+
+        * ``resume=False`` (fresh run): if ``path`` already exists, raise
+          ``PrivacyStateError`` so a fresh run never silently resets an
+          existing budget.
+        * ``resume=True``: if ``path`` does not exist, raise
+          ``PrivacyStateError`` (resume requested but nothing to resume).
+        """
         cfg = cfg or PrivacyConfig()
-        if path is None:
+        state_path = Path(path) if path is not None else None
+        if state_path is None:
             return cls(cfg)
-        state_path = Path(path)
-        if not state_path.exists():
-            return cls(cfg, state_path=state_path)
-        with open(state_path, encoding="utf-8") as f:
-            state = json.load(f)
-        acc = cls.from_state(cfg, state)
-        acc._state_path = state_path
-        return acc
+        if state_path.exists():
+            if not resume:
+                raise PrivacyStateError(
+                    f"{state_path} already exists; pass resume=true or choose a new state path"
+                )
+            with open(state_path, encoding="utf-8") as f:
+                try:
+                    state = json.load(f)
+                except json.JSONDecodeError as exc:
+                    raise PrivacyStateError(f"unreadable privacy state file: {exc}") from None
+            acc = cls.from_state(cfg, state)
+            acc._state_path = state_path
+            # The round we resume from is the number of rounds already spent.
+            acc.resumed_from_round = acc.rounds
+            return acc
+        if resume:
+            raise PrivacyStateError(f"resume requested but no state file at {state_path}")
+        return cls(cfg, state_path=state_path)
 
     def state_dict(self) -> dict[str, Any]:
-        """Return serializable state dict for resuming runs."""
-        return {
+        """Return serializable state dict for resuming runs.
+
+        Includes a SHA-256 integrity field computed over every other field so
+        truncation or tampering is detected on resume.
+        """
+        payload = {
             "version": self.STATE_VERSION,
             "delta": self.cfg.delta,
+            "noise_multiplier": self.cfg.noise_multiplier,
+            "max_epsilon": self.cfg.max_epsilon,
+            "rounds_spent": self.rounds,
             "events": list(self.events),
+            "config_fingerprint": self._config_fingerprint(),
         }
+        if self.resumed_from_round is not None:
+            payload["resumed_from_round"] = self.resumed_from_round
+        body = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        payload["sha256"] = hashlib.sha256(body).hexdigest()
+        return payload
 
     def step(self) -> None:
         """Record one round of Gaussian release."""
@@ -200,11 +327,27 @@ class RdpAccountantWrapper:
             self.events = self.events[-100:]
 
     def compose(self, event: dict[str, Any]) -> None:
-        """Record a privacy-relevant event (delegates to step for compatibility)."""
+        """Record a privacy-relevant event (delegates to step for compatibility).
+
+        .. deprecated:: use :meth:`step` instead.
+        """
+        warnings.warn(
+            "compose() is deprecated; use step() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.step()
 
     def get_epsilon(self) -> float:
-        """Return conservative (q=1) epsilon for current state."""
+        """Return conservative (q=1) epsilon for current state.
+
+        .. deprecated:: use :meth:`epsilon`["epsilon"] instead.
+        """
+        warnings.warn(
+            'get_epsilon() is deprecated; use epsilon()["epsilon"] instead',
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return float(self.epsilon()["epsilon"])
 
     def epsilon(self) -> dict[str, Any]:
@@ -255,9 +398,30 @@ class RdpAccountantWrapper:
         return bool(eps > float(self.cfg.max_epsilon))
 
 
+def account_round(
+    accountant: RdpAccountantWrapper,
+    state_path: str | Path | None = None,
+    server_round: int | None = None,
+) -> None:
+    """Account for one privacy release and atomically persist before dispatch.
+
+    Order matters: ``step()`` records the release into the accountant, then
+    ``save_state()`` durably persists (temp+fsync+os.replace) *before* the
+    server dispatches the round to clients. With local DP the noised update
+    leaves the client at dispatch time, so counting at aggregation could
+    forget a release after a crash. If persistence fails, the round is not
+    dispatched (the exception propagates out of ``configure_fit``).
+    """
+    accountant.step()
+    if state_path is not None:
+        accountant.save_state(state_path)
+
+
 __all__ = [
     "PrivacyBackendUnavailable",
     "PrivacyConfig",
+    "PrivacyStateError",
     "RdpAccountantWrapper",
+    "account_round",
     "build_privacy_config",
 ]

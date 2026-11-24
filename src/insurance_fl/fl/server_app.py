@@ -31,6 +31,8 @@ guarantee; it is orthogonal to Local DP and RDP accounting.
 
 from __future__ import annotations
 
+from typing import Any
+
 from flwr.common import Context
 from flwr.server import Server, ServerApp, ServerConfig
 from flwr.server.client_manager import SimpleClientManager
@@ -43,22 +45,70 @@ except ImportError:
     from flwr.server.grid import Grid  # type: ignore[no-redef]
 
 from insurance_fl.audit import AuditLogger
-from insurance_fl.fl.privacy import RdpAccountantWrapper, build_privacy_config
+from insurance_fl.fl.privacy import (
+    PRIVACY_KEYS,
+    PrivacyConfig,
+    RdpAccountantWrapper,
+    read_privacy_values,
+)
 from insurance_fl.fl.strategy import build_strategy
 
 app = ServerApp()
 
 
+def privacy_config_from_run_config(
+    rc: dict[str, Any],
+) -> PrivacyConfig | None:
+    """Build a PrivacyConfig from run_config, fail-closed (delegates to
+    ``read_privacy_values`` for parsing)."""
+    values, enabled = read_privacy_values(dict(rc))
+    if enabled:
+        for key in PRIVACY_KEYS:
+            if values[key] <= 0:
+                raise ValueError(
+                    f"privacy-enabled=true requires positive {key}, " f"got {values[key]}"
+                )
+        return PrivacyConfig(
+            max_epsilon=values["privacy-max-epsilon"],
+            target_delta=values["privacy-delta"],
+            population_size=4,
+            noise_multiplier=values["privacy-local-dp-noise-std"]
+            / values["privacy-local-dp-clip-norm"],
+            sampling_rate=1.0,
+            delta=values["privacy-delta"],
+        )
+    return None
+
+
 def build_components(context: Context) -> ServerAppComponents:
     """Build strategy + server config from run_config."""
     rc = context.run_config
-    privacy_config = build_privacy_config(dict(rc))
-    accountant = RdpAccountantWrapper(privacy_config)
+    privacy_config = privacy_config_from_run_config(dict(rc))
+    privacy_state_path = str(rc.get("privacy-state-path", "")) or None
+    privacy_resume = str(rc.get("privacy-resume", "false")).lower() == "true"
+    if privacy_resume and not privacy_state_path:
+        raise ValueError("privacy-resume=true requires privacy-state-path")
+    accountant = (
+        RdpAccountantWrapper.load_state(
+            privacy_state_path,
+            cfg=privacy_config,
+            resume=privacy_resume,
+        )
+        if privacy_config is not None
+        else None
+    )
     audit_logger = AuditLogger(
         path=__import__("pathlib").Path(str(rc.get("audit-path", "logs/audit.jsonl"))),
         run_id=str(rc.get("run-id", "fl-run")),
     )
     audit_logger.log_config_snapshot(config=dict(rc))
+    if accountant is not None and accountant.resumed_from_round is not None:
+        audit_logger.log_privacy_event(
+            round=accountant.resumed_from_round,
+            mechanism="local_dp",
+            accounting_status="resumed",
+            resumed_from_round=accountant.resumed_from_round,
+        )
 
     secagg_enabled = str(rc.get("secagg-enabled", "false")).lower() == "true"
     require_all_clients = str(rc.get("require-all-clients", "false")).lower() == "true"
@@ -70,6 +120,8 @@ def build_components(context: Context) -> ServerAppComponents:
         min_evaluate_clients=int(rc["min-evaluate-clients"]),
         min_available_clients=int(rc["min-available-clients"]),
         accountant=accountant,
+        max_epsilon=privacy_config.max_epsilon if privacy_config is not None else None,
+        privacy_state_path=privacy_state_path,
         audit_logger=audit_logger,
         run_id=str(rc.get("run-id", "fl-run")),
         require_all_clients=require_all_clients,

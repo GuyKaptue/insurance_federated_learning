@@ -1,0 +1,4 @@
+total 16
+drwxr-xr-x@  3 guykaptue  staff    96 Nov 20 16:21 .
+drwx------  22 guykaptue  staff   704 Nov 20 11:19 ..
+-rwxr-xr-x@  1 guykaptue  staff  5082 Nov 20 13:21 check_audit_ignores.py

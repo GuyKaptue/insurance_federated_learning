@@ -26,6 +26,7 @@ differential privacy guarantee.
 from __future__ import annotations
 
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -37,7 +38,7 @@ from flwr.client.mod.secure_aggregation.secaggplus_mod import secaggplus_mod
 from flwr.common import ArrayRecord, Context, Scalar
 
 from insurance_fl.fl import task as fl_task
-from insurance_fl.fl.privacy import build_privacy_config
+from insurance_fl.fl.privacy import read_privacy_values
 from insurance_fl.models.multi_task_nn import MultiTaskNN
 
 log = logging.getLogger(__name__)
@@ -172,17 +173,36 @@ _local_dp_mod_instance: LocalDpMod | None = None
 
 
 def _local_dp_mod(msg, context, call_next):
-    """Conditionally apply Local DP before SecAgg masking."""
+    """Conditionally apply Local DP before SecAgg masking.
+
+    Reads privacy keys from ``context.run_config`` (the same source the server
+    uses for the budget gate) so the noise the modifier adds matches the noise
+    the accountant is told about: ``noise_multiplier = noise_std / clip_norm``
+    and LocalDpMod's per-round epsilon is derived from ``delta`` and
+    ``noise_multiplier`` so its Gaussian sigma equals ``noise_multiplier *
+    clip_norm`` (with sensitivity == clip_norm).
+    """
     global _local_dp_mod_instance
-    if not _is_enabled(context, "local-dp-enabled"):
+    values, enabled = read_privacy_values(dict(context.run_config))
+    if not enabled:
         return call_next(msg, context)
+    clip_norm = values["privacy-local-dp-clip-norm"]
+    noise_std = values["privacy-local-dp-noise-std"]
+    delta = values["privacy-delta"]
+    if clip_norm <= 0 or noise_std <= 0 or not (0.0 < delta < 1.0):
+        raise ValueError(
+            f"privacy-enabled=true requires positive clip-norm/noise-std and "
+            f"delta in (0,1); got clip_norm={clip_norm}, noise_std={noise_std}, "
+            f"delta={delta}"
+        )
     if _local_dp_mod_instance is None:
-        cfg = build_privacy_config(dict(context.run_config))
+        noise_multiplier = noise_std / clip_norm
+        epsilon = math.sqrt(2.0 * math.log(1.25 / delta)) / noise_multiplier
         _local_dp_mod_instance = LocalDpMod(
-            clipping_norm=float(context.run_config.get("local-dp-clipping-norm", 1.0)),
-            sensitivity=float(context.run_config.get("local-dp-sensitivity", 1.0)),
-            epsilon=float(cfg.max_epsilon),
-            delta=float(cfg.target_delta),
+            clipping_norm=clip_norm,
+            sensitivity=clip_norm,
+            epsilon=epsilon,
+            delta=delta,
         )
     return _local_dp_mod_instance(msg, context, call_next)
 

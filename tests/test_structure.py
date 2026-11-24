@@ -56,6 +56,14 @@ def test_no_orphan_test_modules() -> None:
         Path("scripts/test_mia_script.py"),
         Path("test_artifact_provenance.py"),
         Path("fl/test_feature_leakage.py"),
+        Path("fl/test_client_identity.py"),
+        Path("fl/test_flower_node_auth.py"),
+        Path("fl/test_privacy_gate.py"),
+        Path("scripts/test_check_audit_ignores.py"),
+        Path("scripts/test_dp_sweep.py"),
+        Path("scripts/test_mia_membership_splits.py"),
+        Path("scripts/test_validate_notebooks.py"),
+        Path("test_dataset_logical_hash.py"),
     }
     orphans = []
     for t in sorted(TESTS_ROOT.rglob("test_*.py")):

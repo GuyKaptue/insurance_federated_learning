@@ -6,6 +6,7 @@ import random
 import types
 from dataclasses import dataclass
 
+import numpy as np
 import pytest
 
 pytest.importorskip("torch")
@@ -92,6 +93,99 @@ def test_resolve_client_id_rejects_num_partitions_mismatch_and_out_of_range():
         )
     with pytest.raises(ValueError, match="partition-id"):
         fl_task.resolve_client_id(types.SimpleNamespace(node_id=1, node_config={}))
+
+
+def test_resolve_client_id_ignores_client_identity_claim_in_untrusted_config():
+    with pytest.raises(ValueError, match="Missing partition-id"):
+        fl_task.resolve_client_id(
+            types.SimpleNamespace(
+                node_id=0,
+                node_config={"client_id": "switzerland_helvetia"},
+            )
+        )
+
+    ctx = types.SimpleNamespace(
+        node_id=999,
+        node_config={
+            "partition-id": 0,
+            "num-partitions": 4,
+            "client_id": "switzerland_helvetia",
+        },
+    )
+    assert fl_task.resolve_client_id(ctx) == "germany_allianz"
+
+
+@pytest.mark.parametrize("strategy_cls", [HybridAggregation, StratifiedFedProx])
+def test_aggregation_rejects_non_finite_client_update(strategy_cls):
+    from flwr.common import ndarrays_to_parameters
+
+    node_id = 123
+    manager = _cm([node_id])
+    kwargs = {
+        "fraction_fit": 1.0,
+        "fraction_evaluate": 1.0,
+        "min_fit_clients": 1,
+        "min_evaluate_clients": 1,
+        "min_available_clients": 1,
+    }
+    if strategy_cls is StratifiedFedProx:
+        kwargs["proximal_mu"] = 0.1
+    strategy = strategy_cls(**kwargs)
+    result = _fit_res("germany_allianz")
+    result.parameters = ndarrays_to_parameters([np.array([float("nan")])])
+
+    with pytest.raises(ValueError, match="non-finite"):
+        strategy.aggregate_fit(1, [(manager.all()[node_id], result)], [])
+
+
+@pytest.mark.parametrize("strategy_cls", [HybridAggregation, StratifiedFedProx])
+def test_aggregation_rejects_incompatible_update_shapes(strategy_cls):
+    from flwr.common import ndarrays_to_parameters
+
+    node_ids = [123, 456]
+    proxies = list(_cm(node_ids).all().values())
+    kwargs = {
+        "fraction_fit": 1.0,
+        "fraction_evaluate": 1.0,
+        "min_fit_clients": 2,
+        "min_evaluate_clients": 2,
+        "min_available_clients": 2,
+    }
+    if strategy_cls is StratifiedFedProx:
+        kwargs["proximal_mu"] = 0.1
+    strategy = strategy_cls(**kwargs)
+    results = []
+    for proxy, client_id, values in zip(
+        proxies,
+        ("germany_allianz", "france_axa"),
+        (np.zeros(2), np.zeros(3)),
+        strict=True,
+    ):
+        result = _fit_res(client_id)
+        result.parameters = ndarrays_to_parameters([values])
+        results.append((proxy, result))
+
+    with pytest.raises(ValueError, match="Mismatched parameter shapes"):
+        strategy.aggregate_fit(1, results, [])
+
+
+@pytest.mark.parametrize("strategy_cls", [HybridAggregation, StratifiedFedProx])
+def test_aggregation_rejects_non_positive_example_count(strategy_cls):
+    node_id = 789
+    manager = _cm([node_id])
+    kwargs = {
+        "fraction_fit": 1.0,
+        "fraction_evaluate": 1.0,
+        "min_fit_clients": 1,
+        "min_evaluate_clients": 1,
+        "min_available_clients": 1,
+    }
+    if strategy_cls is StratifiedFedProx:
+        kwargs["proximal_mu"] = 0.1
+    strategy = strategy_cls(**kwargs)
+
+    with pytest.raises(ValueError, match="Invalid num_examples=0"):
+        strategy.aggregate_fit(1, [(manager.all()[node_id], _fit_res("germany_allianz", n=0))], [])
 
 
 # --- strategy identity learning / selection ---

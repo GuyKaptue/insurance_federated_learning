@@ -59,11 +59,17 @@ def resolve_client_id(context) -> str:
         if num_partitions != len(CLIENT_IDS):
             raise ValueError(
                 f"num-partitions={num_partitions} does not match expected "
-                f"{len(CLIENT_IDS)} clients ({CLIENT_IDS})"
+                f"{len(CLIENT_IDS)} clients ({CLIENT_IDS}). Use the canonical "
+                f"simulation entry point (make flwr-sim / scripts/flwr_sim.sh or "
+                f"make flwr-guard), which passes "
+                f"--federation-config 'num-supernodes={len(CLIENT_IDS)}' (N_CLIENTS "
+                f"derived from insurance_fl.fl.task.CLIENT_IDS)."
             )
         if not (0 <= partition_id < len(CLIENT_IDS)):
             raise ValueError(
-                f"partition-id={partition_id} out of range for {len(CLIENT_IDS)} clients"
+                f"partition-id={partition_id} out of range for {len(CLIENT_IDS)} clients "
+                f"({CLIENT_IDS}). Ensure partition-id is in 0..{len(CLIENT_IDS)-1} and "
+                f"num-partitions/options.num-supernodes is {len(CLIENT_IDS)}."
             )
         client_id = CLIENT_IDS[partition_id]
         node_id = getattr(context, "node_id", None)

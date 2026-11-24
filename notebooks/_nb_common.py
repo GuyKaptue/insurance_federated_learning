@@ -13,6 +13,31 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import numpy as np
+from IPython.display import Markdown, display
+
+
+def story(md: str) -> None:
+    """Render a reading of the result above. Every number must come from an f-string placeholder."""
+    display(Markdown(md.strip()))
+
+
+def pct(x: float, d: int = 1) -> str:
+    return f"{100 * x:.{d}f}%"
+
+
+def pts(x: float, d: int = 1) -> str:
+    """Signed difference of two rates or AUCs, in percentage points (0.01 = 1 point)."""
+    return f"{100 * x:+.{d}f} points"
+
+
+def rel(new: float, old: float, d: int = 1) -> str:
+    """Signed relative change of new versus old."""
+    return f"{100 * (new - old) / old:+.{d}f}%"
+
+
+def overlaps(lo1: float, hi1: float, lo2: float, hi2: float) -> bool:
+    return not (hi1 < lo2 or hi2 < lo1)
+
 
 SEED = 42
 # Light mode by default: set NB_MODE=full for the expensive version.
@@ -232,7 +257,7 @@ def load_artifact(path, manifest_path: Optional[Path] = None) -> dict:
             raise StaleArtifactError(
                 f"{p}: {k}={d.get(k)!r} but dataset has {m.get(k)!r}"
             )
-    return d
+    return d  # type: ignore
 
 
 __all__ = [
@@ -248,16 +273,59 @@ __all__ = [
     "CLIENT_LABELS",
     "repo_root",
     "set_seed",
-    "optional",
-    "env_report",
-    "require_data",
-    "load_clients",
-    "style",
-    "save_fig",
-    "read_json_if_exists",
-    "StaleArtifactError",
-    "provenance_fields",
-    "load_artifact",
-    "Timer",
-    "short_df",
+    "story",
+    "pct",
+    "pts",
+    "rel",
+    "overlaps",
 ]
+
+# Unit tests for the helper functions
+
+
+import unittest
+
+
+class TestPct(unittest.TestCase):
+    def test_basic(self):
+        self.assertEqual(pct(0.05), "5.0%")
+        self.assertEqual(pct(0.1234, 2), "12.34%")
+        self.assertEqual(pct(1.0), "100.0%")
+        self.assertEqual(pct(0.0), "0.0%")
+
+    def test_rounding(self):
+        self.assertEqual(pct(1 / 3, 2), "33.33%")
+
+
+class TestPts(unittest.TestCase):
+    def test_positive(self):
+        self.assertEqual(pts(0.05), "+5.0 points")
+        self.assertEqual(pts(-0.03), "-3.0 points")
+
+    def test_zero(self):
+        self.assertEqual(pts(0), "+0.0 points")
+
+
+class TestRel(unittest.TestCase):
+    def test_positive(self):
+        self.assertEqual(rel(110, 100), "+10.0%")
+        self.assertEqual(rel(105, 100), "+5.0%")
+
+
+class TestOverlaps(unittest.TestCase):
+    def test_overlap(self):
+        self.assertTrue(overlaps(0.0, 0.5, 0.2, 0.8))
+        self.assertTrue(overlaps(0.0, 1.0, 0.5, 0.5))
+
+    def test_no_overlap(self):
+        self.assertFalse(overlaps(0.0, 0.5, 0.6, 1.0))
+        self.assertFalse(overlaps(0.0, 0.3, 0.5, 1.0))
+
+    def test_adjacent(self):
+        # intervals that just touch: [0, 0.5] and [0.5, 1.0] - overlap at boundary
+        # Our function: not (0.5 < 0.5 or 1.0 < 0.0) = not (False or False) = True
+        self.assertTrue(overlaps(0.0, 0.5, 0.5, 1.0))
+
+
+if __name__ == "__main__":
+    unittest.main()

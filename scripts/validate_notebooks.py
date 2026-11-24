@@ -8,6 +8,7 @@ Exit code != 0 on any structural/execution/environment failure.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -69,13 +70,33 @@ def _validator_env() -> dict:
     return info
 
 
+def _notebook_hashes(paths: list[Path]) -> dict[str, str]:
+    """Return content hashes keyed by notebook path for mutation detection."""
+    return {
+        str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in paths
+    }
+
+
+def _notebooks_unchanged(before: dict[str, str], paths: list[Path]) -> bool:
+    """Check whether notebook sources still match their pre-validation hashes."""
+    return before == _notebook_hashes(paths)
+
+
 def _in_repo_venv(exe: str | None) -> bool:
     if not exe:
         return False
-    exe = str(Path(exe).resolve())
     venv_bin = str((ROOT / "venv" / "bin").resolve())
     venv_root = str((ROOT / "venv").resolve())
+    # Check the raw path first: kernel.json and direct venv invocation use the
+    # un-resolved venv path (venv/bin/python). Do NOT resolve symlinks here:
+    # venv/bin/python -> <base>/python3.11 escapes the venv, so resolving
+    # would wrongly reject a perfectly valid repo-venv interpreter.
     if exe.startswith(venv_bin + "/") or exe.startswith(venv_root + "/"):
+        return True
+    # Then try resolved path (covers absolute non-symlink invocations).
+    exe_resolved = str(Path(exe).resolve())
+    if exe_resolved.startswith(venv_bin + "/") or exe_resolved.startswith(venv_root + "/"):
         return True
     # CI/controlled env: allow current interpreter outside repo venv.
     if os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true":
@@ -173,6 +194,7 @@ def main() -> int:
     if not notebooks:
         print("No notebooks found")
         return 1
+    notebook_hashes_before = _notebook_hashes(notebooks)
 
     for p in notebooks:
         row = {
@@ -280,16 +302,10 @@ def main() -> int:
             print(f"ENV_ERROR: {e}", file=sys.stderr)
 
 
-    # Final guard: validation must never modify tracked notebook sources
+    # Final guard: validation must never modify notebook sources. Compare the
+    # run's before/after content so pre-existing worktree edits are preserved.
     try:
-        r = subprocess.run(
-            ["git", "diff", "--quiet", "--", "notebooks/"],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if r.returncode != 0:
+        if not _notebooks_unchanged(notebook_hashes_before, notebooks):
             print("ERROR: notebooks/ modified during validation", file=sys.stderr)
             failed = True
     except Exception as e:

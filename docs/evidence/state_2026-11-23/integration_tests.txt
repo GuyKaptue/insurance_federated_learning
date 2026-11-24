@@ -1,0 +1,15 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-8.4.2, pluggy-1.7.0
+rootdir: /Users/guykaptue/Downloads/insurance_federated_learning
+configfile: pyproject.toml
+plugins: hypothesis-6.170.1, cov-7.1.0, timeout-2.4.0, anyio-4.14.2, Faker-24.14.1, platformdirs-4.13.3
+collected 48 items
+
+tests/integration/test_causal_transport_regression.py .....              [ 10%]
+tests/integration/test_e2e_pipeline.py ..                                [ 14%]
+tests/integration/test_fairness.py ............                          [ 39%]
+tests/integration/test_rdp_accounting.py ................                [ 72%]
+tests/integration/test_secagg.py ...........                             [ 95%]
+tests/integration/test_tls.py ..                                         [100%]
+
+============================== 48 passed in 4.37s ==============================

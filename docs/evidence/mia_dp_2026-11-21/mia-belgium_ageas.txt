@@ -1,0 +1,19 @@
+  fed round 1/20 mean_val_auc=0.8045
+  fed round 5/20 mean_val_auc=0.8242
+  fed round 10/20 mean_val_auc=0.8274
+  fed round 15/20 mean_val_auc=0.8273
+  fed round 20/20 mean_val_auc=0.8275
+MIA evaluation complete. Results: reports/mia_v2/belgium_ageas.json
+  Status: ok
+  ROC AUC: 0.5065860000000001
+  ROC AUC CI95: [0.47109008006496117, 0.5424185820107859]
+  TPR@1%FPR: 0.018
+  Members: 500, Non-members: 500
+  Min resolvable FPR: 0.002
+  Shadow models: 3
+  Bootstrap: 1000
+  unique_scores=100 distinct_target_predictions=1000 pred_has_nan=False loss_threshold_auc=0.505608 rf_attack_auc=0.5065860000000001
+  target_auc=0.8545803611593086 majority_baseline_accuracy=0.5320000052452087 target_has_skill=True
+  control=none target_epochs=40
+  Mode: full, data_dir: data/processed/european_insurance_federated
+  git_dirty: True

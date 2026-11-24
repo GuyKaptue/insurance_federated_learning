@@ -26,7 +26,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks]"
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,tracking]"
       - name: pip check
         run: python -m pip check
       - name: Ruff
@@ -51,7 +51,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks]"
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,tracking]"
       - name: pip check
         run: python -m pip check
       - name: Unit tests (not slow) with coverage
@@ -76,7 +76,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks]"
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,tracking]"
       - name: pip check
         run: python -m pip check
       - name: Generate canonical dataset (untracked in git)
@@ -99,7 +99,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,simulation]"
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,simulation,tracking]"
       - name: pip check
         run: python -m pip check
       - name: Generate canonical dataset (untracked in git)
@@ -126,7 +126,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks]"
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,tracking]"
       - name: pip check
         run: python -m pip check
       - name: Register Jupyter kernel
@@ -154,7 +154,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks]"
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,tracking]"
       - name: pip check
         run: python -m pip check
       - name: Privacy extra installed check
@@ -182,21 +182,44 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks]"
-          python -m pip install pip-audit
+          pip install -c constraints/ci-linux-py311.txt -e ".[dev,causal,privacy,notebooks,tracking]"
+          python -m pip install "pip-audit==2.10.1"
       - name: pip check
         run: python -m pip check
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: pip-audit
+      - name: pip-audit (runtime, blocking)
         run: |
-          ignore_args=""
-          if [ -f security/pip-audit-ignore.txt ]; then
-            ignore_args=$(awk 'NF && $1 !~ /^#/{printf "--ignore-vuln %s ", $1}' security/pip-audit-ignore.txt)
-          fi
-          pip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --strict $ignore_args
+          set +e
+          mkdir -p artifacts/security
+          pip-audit -r constraints/runtime-linux-py311.txt --no-deps --disable-pip --format json -o artifacts/security/pip-audit-runtime.json
+          rc=$?
+          set -e
+          echo "$rc" > artifacts/security/pip-audit-runtime.exitcode
+          # Blocking gate: every runtime advisory id must be covered by a justified,
+          # time-boxed ignore in security/pip-audit-ignores.toml (one entry per id,
+          # expiry <= 60 days, validated by scripts/ci/check_audit_ignores.py).
+          python scripts/ci/check_audit_ignores.py             --ignores security/pip-audit-ignores.toml             --runtime-report artifacts/security/pip-audit-runtime.json             --full-report artifacts/security/pip-audit-full.json             --today "$(date +%F)"
+      - name: pip-audit (full lock, report-only)
+        if: always()
+        run: |
+          set +e
+          mkdir -p artifacts/security
+          pip-audit -r constraints/ci-linux-py311.txt --no-deps --disable-pip --format json -o artifacts/security/pip-audit-full.json
+          rc=$?
+          set -e
+          echo "$rc" > artifacts/security/pip-audit-full.exitcode
+          echo "Full-lock audit is report-only (exit code recorded: $(cat artifacts/security/pip-audit-full.exitcode)); runtime gate above is blocking."
+      - name: Upload pip-audit report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pip-audit-report
+          path: artifacts/security
+          if-no-files-found: warn
+
 
   ci-gate:
     runs-on: ubuntu-latest

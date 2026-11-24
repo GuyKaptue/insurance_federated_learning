@@ -50,9 +50,9 @@
   },
   "dataset_version": "v2",
   "config_hash": "e93bcefe91a0b25a",
-  "git_sha": "fa1927f02ee643c22727b136a51f2aca21dbcad5",
-  "git_dirty": false,
-  "note": "Point disparity (0.0347) from per-client median-seed federated test AUCs passes 0.05 threshold, but joint bootstrap 95% CI crosses 0.05 so overall status is inconclusive at 95% confidence. Per-seed disparities are 0.0338/0.0340/0.0375. Bayes AUCs are analytic test-split ceilings (not gaps caused by fairness intervention).",
+  "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+  "git_dirty": true,
+  "note": "Point disparity (0.0347) and Bayes proxy spread (0.0290) leave descriptive excess spread 0.0057; this is not causal attribution. The joint bootstrap 95% CI still crosses the 0.05 threshold, so overall status remains inconclusive.",
   "disparity_point_median_seed_per_client": 0.0347164614956591,
   "disparity_per_seed": {
     "42": 0.03383467744741686,
@@ -92,15 +92,22 @@
   "status_3way": "inconclusive",
   "passes_threshold_point": true,
   "bayes_test_auc_reference": {
-    "Germany": 0.843235327963176,
-    "France": 0.8405507936507935,
-    "Belgium": 0.8519739334824254,
-    "Switzerland": 0.8476126126126126
+    "Germany": 0.8392745376955905,
+    "France": 0.8541142857142856,
+    "Belgium": 0.8508414056170188,
+    "Switzerland": 0.8683083968597111
   },
   "per_country_gap_bayes_minus_federated": {
-    "Germany": 0.008555384862180215,
-    "France": -0.02197063492063489,
-    "Belgium": 0.009650549791425989,
-    "Switzerland": -0.021783791984042344
+    "Germany": 0.004594594594594659,
+    "France": -0.008407142857142835,
+    "Belgium": 0.008518021926019359,
+    "Switzerland": -0.0010880077369438412
+  },
+  "bayes_decomposition": {
+    "bayes_spread": 0.0290338591641206,
+    "federated_spread": 0.0347164614956591,
+    "excess_spread_over_bayes_proxy": 0.0056826023315385,
+    "interpretation": "descriptive excess over the analytic test-split Bayes proxy; not a causal estimate of model-attributable disparity",
+    "bayes_source": "reports/is_high_risk_auc.json:test_split_bayes.per_client"
   }
 }

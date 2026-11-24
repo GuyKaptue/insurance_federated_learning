@@ -1,0 +1,23 @@
+artifacts	flwr-guard	2026-11-20T08:44:32.2205061Z              ^^^^^^^^^^^^^^^^^^
+artifacts	flwr-guard	2026-11-20T08:44:32.2205542Z   File "/home/runner/work/insurance_federated_learning/insurance_federated_learning/src/insurance_fl/fl/client_app.py", line 136, in client_fn
+artifacts	flwr-guard	2026-11-20T08:44:32.2206055Z     client_id = fl_task.resolve_client_id(context)
+artifacts	flwr-guard	2026-11-20T08:44:32.2206306Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+artifacts	flwr-guard	2026-11-20T08:44:32.2206821Z   File "/home/runner/work/insurance_federated_learning/insurance_federated_learning/src/insurance_fl/fl/task.py", line 60, in resolve_client_id
+artifacts	flwr-guard	2026-11-20T08:44:32.2207310Z     raise ValueError(
+artifacts	flwr-guard	2026-11-20T08:44:32.2207769Z ValueError: num-partitions=10 does not match expected 4 clients (['germany_allianz', 'france_axa', 'belgium_ageas', 'switzerland_helvetia'])
+artifacts	flwr-guard	2026-11-20T08:44:32.2208152Z 
+artifacts	flwr-guard	2026-11-20T08:44:32.2208304Z The above exception was the direct cause of the following exception:
+artifacts	flwr-guard	2026-11-20T08:44:32.2208530Z 
+artifacts	flwr-guard	2026-11-20T08:44:32.2209180Z ^[[36mray::ClientAppActor.run()^[[39m (pid=2886, ip=10.1.0.106, actor_id=5fd4529659cf5a15aeb9922701000000, repr=<flwr.simulation.ray_transport.ray_actor.ClientAppActor object at 0x7d3576d75cd0>)
+artifacts	flwr-guard	2026-11-20T08:44:32.2209773Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+artifacts	flwr-guard	2026-11-20T08:44:32.2210002Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+artifacts	flwr-guard	2026-11-20T08:44:32.2210512Z   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/flwr/simulation/ray_transport/ray_actor.py", line 65, in run
+artifacts	flwr-guard	2026-11-20T08:44:32.2211106Z     raise ClientAppException(str(ex)) from ex
+artifacts	flwr-guard	2026-11-20T08:44:32.2211375Z flwr.clientapp.client_app.ClientAppException: 
+artifacts	flwr-guard	2026-11-20T08:44:32.2211968Z Exception ClientAppException occurred. Message: num-partitions=10 does not match expected 4 clients (['germany_allianz', 'france_axa', 'belgium_ageas', 'switzerland_helvetia'])
+artifacts	flwr-guard	2026-11-20T08:44:32.2212612Z ^[[91mERROR ^[[0m:     Traceback (most recent call last):
+artifacts	flwr-guard	2026-11-20T08:44:32.2213147Z   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/flwr/server/superlink/fleet/vce/vce_api.py", line 132, in worker
+artifacts	flwr-guard	2026-11-20T08:44:32.2213782Z     out_mssg, updated_context = backend.process_message(message, context)
+artifacts	flwr-guard	2026-11-20T08:44:32.2214099Z                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+artifacts	flwr-guard	2026-11-20T08:44:32.2214811Z   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/flwr/server/superlink/fleet/vce/backend/raybackend.py", line 195, in process_message
+artifacts	flwr-guard	2026-11-20T08:44:32.2215457Z     raise ex

@@ -1,0 +1,67 @@
+x-app-runtime: &app-runtime
+  image: insurance-flower-app:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+  restart: on-failure:3
+
+services:
+  superlink:
+    image: flwr/superlink:1.31.0
+    command: ["--insecure", "--isolation", "process"]
+    ports: ["127.0.0.1:9093:9093"]
+
+  supernode-0:
+    image: flwr/supernode:1.31.0
+    command: ["--insecure", "--superlink", "superlink:9092", "--clientappio-api-address", "0.0.0.0:9094", "--isolation", "process", "--node-config", "partition-id=0 num-partitions=4"]
+    depends_on: [superlink]
+  supernode-1:
+    image: flwr/supernode:1.31.0
+    command: ["--insecure", "--superlink", "superlink:9092", "--clientappio-api-address", "0.0.0.0:9095", "--isolation", "process", "--node-config", "partition-id=1 num-partitions=4"]
+    depends_on: [superlink]
+  supernode-2:
+    image: flwr/supernode:1.31.0
+    command: ["--insecure", "--superlink", "superlink:9092", "--clientappio-api-address", "0.0.0.0:9096", "--isolation", "process", "--node-config", "partition-id=2 num-partitions=4"]
+    depends_on: [superlink]
+  supernode-3:
+    image: flwr/supernode:1.31.0
+    command: ["--insecure", "--superlink", "superlink:9092", "--clientappio-api-address", "0.0.0.0:9097", "--isolation", "process", "--node-config", "partition-id=3 num-partitions=4"]
+    depends_on: [superlink]
+
+  data-init:
+    <<: *app-runtime
+    entrypoint: ["python", "-m", "insurance_fl.fl.task"]
+    command: ["--prepare", "--output-dir", "/app/data/processed/fl_task0_smoke", "--samples-per-client", "64", "--seed", "42"]
+    volumes: [./data/docker-smoke:/app/data]
+    restart: "no"
+
+  serverapp:
+    <<: *app-runtime
+    command: ["--insecure", "--plugin-type", "serverapp", "--appio-api-address", "superlink:9091"]
+    depends_on: [superlink]
+    stop_signal: SIGINT
+
+  clientapp-0:
+    <<: *app-runtime
+    command: ["--insecure", "--plugin-type", "clientapp", "--appio-api-address", "supernode-0:9094"]
+    depends_on: {supernode-0: {condition: service_started}, data-init: {condition: service_completed_successfully}}
+    volumes: [./data/docker-smoke:/app/data:ro]
+    stop_signal: SIGINT
+  clientapp-1:
+    <<: *app-runtime
+    command: ["--insecure", "--plugin-type", "clientapp", "--appio-api-address", "supernode-1:9095"]
+    depends_on: {supernode-1: {condition: service_started}, data-init: {condition: service_completed_successfully}}
+    volumes: [./data/docker-smoke:/app/data:ro]
+    stop_signal: SIGINT
+  clientapp-2:
+    <<: *app-runtime
+    command: ["--insecure", "--plugin-type", "clientapp", "--appio-api-address", "supernode-2:9096"]
+    depends_on: {supernode-2: {condition: service_started}, data-init: {condition: service_completed_successfully}}
+    volumes: [./data/docker-smoke:/app/data:ro]
+    stop_signal: SIGINT
+  clientapp-3:
+    <<: *app-runtime
+    command: ["--insecure", "--plugin-type", "clientapp", "--appio-api-address", "supernode-3:9097"]
+    depends_on: {supernode-3: {condition: service_started}, data-init: {condition: service_completed_successfully}}
+    volumes: [./data/docker-smoke:/app/data:ro]
+    stop_signal: SIGINT

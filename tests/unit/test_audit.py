@@ -6,7 +6,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from insurance_fl.audit import AUDIT_RETENTION_DAYS, AuditLogger
+from insurance_fl.audit import AUDIT_RETENTION_DAYS, AuditLogger, verify_event_integrity
 
 
 def test_all_event_types_serialize() -> None:
@@ -74,6 +74,8 @@ def test_secret_redaction_recursive() -> None:
         assert ev["sanitized_config"]["nested"]["api_key"] == "<REDACTED>"
         assert ev["sanitized_config"]["list"][0]["secret"] == "<REDACTED>"
         assert ev["sanitized_config"]["max-epsilon"] == 10.0
+        assert "hidden" not in json.dumps(ev)
+        assert verify_event_integrity(ev)
 
 
 def test_append_preserves_earlier() -> None:
@@ -89,6 +91,8 @@ def test_append_preserves_earlier() -> None:
         assert len(events) == 2
         assert events[0]["round"] == 1
         assert events[1]["round"] == 2
+        assert [event["event_type"] for event in events] == ["fl_round_start", "fl_round_start"]
+        assert all(verify_event_integrity(event) for event in events)
 
 
 def test_retention_days() -> None:
@@ -123,3 +127,15 @@ def test_event_hash_present() -> None:
         events = logger.read_events()
         assert "event_hash" in events[0]
         assert len(events[0]["event_hash"]) == 64
+        assert verify_event_integrity(events[0])
+
+
+def test_event_hash_detects_tampering_after_restart() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path = Path(tmpdir) / "audit.jsonl"
+        AuditLogger(path=path, run_id="test-run").log_fl_round_start(round=1)
+        restarted_logger = AuditLogger(path=path, run_id="test-run")
+        event = restarted_logger.read_events()[0]
+        assert verify_event_integrity(event)
+        event["round"] = 2
+        assert not verify_event_integrity(event)

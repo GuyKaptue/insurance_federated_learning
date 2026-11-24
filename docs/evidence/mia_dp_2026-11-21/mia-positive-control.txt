@@ -1,0 +1,18 @@
+/Users/guykaptue/Downloads/insurance_federated_learning/src/insurance_fl/evaluation/mia.py:71: RuntimeWarning: overflow encountered in exp
+  probs = 1.0 / (1.0 + np.exp(-out))
+/Users/guykaptue/Downloads/insurance_federated_learning/src/insurance_fl/evaluation/mia.py:71: RuntimeWarning: overflow encountered in exp
+  probs = 1.0 / (1.0 + np.exp(-out))
+MIA evaluation complete. Results: reports/mia_evaluation.json
+  Status: ok
+  ROC AUC: 0.650336
+  ROC AUC CI95: [0.6003363786296816, 0.7003958088487857]
+  TPR@1%FPR: 0.015813953488372095
+  Members: 250, Non-members: 250
+  Min resolvable FPR: 0.004
+  Shadow models: 3
+  Bootstrap: 1000
+  unique_scores=135 distinct_target_predictions=264 pred_has_nan=False loss_threshold_auc=0.650336 rf_attack_auc=0.537256
+  target_auc=0.8601401958901479 majority_baseline_accuracy=0.507999986410141 target_has_skill=True
+  control=overfit target_epochs=1000
+  Mode: full, data_dir: data/processed/european_insurance_federated
+  git_dirty: True

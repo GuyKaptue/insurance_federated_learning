@@ -19,11 +19,13 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from flwr.common import EvaluateIns, FitIns
-from flwr.server.strategy import FedAvg, FedProx, QFedAvg
+import numpy as np
+from flwr.common import EvaluateIns, FitIns, Parameters, parameters_to_ndarrays
+from flwr.server.client_manager import ClientManager
+from flwr.server.strategy import FedAvg, FedProx, QFedAvg, Strategy
 
 from insurance_fl.fl.fairness import CLIENT_COUNTRY_MAP, stratified_sample
-from insurance_fl.fl.privacy import RdpAccountantWrapper
+from insurance_fl.fl.privacy import RdpAccountantWrapper, account_round
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +59,122 @@ def _audit_identity_conflict(audit_logger: Any, run_id: str | None, **details: A
         pass
 
 
+def _validate_fit_updates(results: list) -> None:
+    """Reject malformed or non-finite client tensors before strategy aggregation."""
+    expected_shapes: list[tuple[int, ...]] | None = None
+    for client_proxy, fit_res in results:
+        if fit_res.num_examples <= 0:
+            raise ValueError(
+                f"Invalid num_examples={fit_res.num_examples} from node_id={client_proxy.cid}"
+            )
+        try:
+            arrays = parameters_to_ndarrays(fit_res.parameters)
+        except Exception as exc:
+            raise ValueError(f"Malformed parameters from node_id={client_proxy.cid}") from exc
+        shapes = [np.asarray(array).shape for array in arrays]
+        if expected_shapes is None:
+            expected_shapes = shapes
+        elif shapes != expected_shapes:
+            raise ValueError(
+                f"Mismatched parameter shapes from node_id={client_proxy.cid}: "
+                f"expected {expected_shapes}, received {shapes}"
+            )
+        for array in arrays:
+            value = np.asarray(array)
+            if not np.issubdtype(value.dtype, np.number) or not np.isfinite(value).all():
+                raise ValueError(
+                    f"Client update contains non-finite or non-numeric values "
+                    f"from node_id={client_proxy.cid}"
+                )
+
+
+class _ClientIdentityMixin:
+    """Shared validation for client identities learned from Flower replies."""
+
+    _node_to_client_id: dict[int, str]
+    _client_identity_conflict: bool
+
+    def _register_client_id_from_result(
+        self,
+        node_id: int,
+        metrics: dict[str, Any],
+        phase: str,
+        observed_round: set[str] | None = None,
+    ) -> str | None:
+        raw = None
+        if metrics is not None:
+            try:
+                raw = metrics.get("client_id")
+            except Exception:
+                raw = None
+            if raw is None:
+                try:
+                    raw = metrics["client_id"]
+                except Exception:
+                    raw = None
+        server_round = getattr(self, "_round", 0)
+        audit_logger = getattr(self, "audit_logger", None)
+        run_id = getattr(self, "run_id", None)
+        if raw is None or raw == "":
+            self._client_identity_conflict = True
+            _audit_identity_conflict(
+                audit_logger,
+                run_id,
+                reason="missing_client_id",
+                phase=phase,
+                node_id=node_id,
+                server_round=server_round,
+            )
+            raise ValueError(f"Missing client_id in {phase} metrics from node_id={node_id}")
+        client_id = str(raw)
+        from insurance_fl.fl.task import CLIENT_IDS
+
+        if client_id not in CLIENT_IDS:
+            self._client_identity_conflict = True
+            _audit_identity_conflict(
+                audit_logger,
+                run_id,
+                reason="unknown_client_id",
+                phase=phase,
+                node_id=node_id,
+                client_id=client_id,
+                server_round=server_round,
+            )
+            raise ValueError(f"Unknown client_id {client_id!r} from node_id={node_id}")
+        known = self._node_to_client_id.get(node_id)
+        if known is not None and known != client_id:
+            self._client_identity_conflict = True
+            _audit_identity_conflict(
+                audit_logger,
+                run_id,
+                reason="conflicting_client_id",
+                phase=phase,
+                node_id=node_id,
+                previous_client_id=known,
+                client_id=client_id,
+                server_round=server_round,
+            )
+            raise ValueError(
+                f"Conflicting client_id for node_id={node_id}: {known!r} vs {client_id!r}"
+            )
+        if observed_round is not None and client_id in observed_round:
+            self._client_identity_conflict = True
+            _audit_identity_conflict(
+                audit_logger,
+                run_id,
+                reason="duplicate_client_id",
+                phase=phase,
+                node_id=node_id,
+                client_id=client_id,
+                server_round=server_round,
+            )
+            raise ValueError(f"Duplicate client_id {client_id!r} in {phase} results")
+        self._node_to_client_id[node_id] = client_id
+        if observed_round is not None:
+            observed_round.add(client_id)
+        return client_id
+
+
 try:
     import mlflow
 
@@ -66,7 +184,7 @@ except ImportError:
     mlflow = None  # type: ignore[assignment]
 
 
-class HybridAggregation(FedAvg):
+class HybridAggregation(_ClientIdentityMixin, FedAvg):
     """Hybrid aggregation strategy for the multi-task FL platform.
 
     Extends ``FedAvg`` with:
@@ -117,7 +235,12 @@ class HybridAggregation(FedAvg):
         self.accountant = accountant
         self.audit_logger = audit_logger
         self.run_id = run_id
-        self.mlflow_enabled = mlflow_enabled and _MLFLOW_AVAILABLE
+        if mlflow_enabled and not _MLFLOW_AVAILABLE:
+            raise RuntimeError(
+                "mlflow_enabled=True but mlflow is not installed; install "
+                "insurance-federated-learning[tracking]"
+            )
+        self.mlflow_enabled = mlflow_enabled
         self.mlflow_tracking_uri = mlflow_tracking_uri
         self.mlflow_experiment_name = mlflow_experiment_name
         self.require_all_clients = bool(kwargs.pop("require_all_clients", False))
@@ -145,83 +268,6 @@ class HybridAggregation(FedAvg):
             accept_failures=accept_failures,
             **kwargs,
         )
-
-    def _register_client_id_from_result(
-        self,
-        node_id: int,
-        metrics: dict[str, Any],
-        phase: str,
-        observed_round: set[str] | None = None,
-    ) -> str | None:
-        raw = None
-        if metrics is not None:
-            try:
-                raw = metrics.get("client_id")  # type: ignore[attr-defined]
-            except Exception:
-                raw = None
-            if raw is None:
-                try:
-                    raw = metrics["client_id"]  # type: ignore[index]
-                except Exception:
-                    raw = None
-        if raw is None or raw == "":
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                self.run_id,
-                reason="missing_client_id",
-                phase=phase,
-                node_id=node_id,
-                server_round=self._round,
-            )
-            raise ValueError(f"Missing client_id in {phase} metrics from node_id={node_id}")
-        client_id = str(raw)
-        from insurance_fl.fl.task import CLIENT_IDS
-
-        if client_id not in CLIENT_IDS:
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                self.run_id,
-                reason="unknown_client_id",
-                phase=phase,
-                node_id=node_id,
-                client_id=client_id,
-                server_round=self._round,
-            )
-            raise ValueError(f"Unknown client_id {client_id!r} from node_id={node_id}")
-        known = self._node_to_client_id.get(node_id)
-        if known is not None and known != client_id:
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                self.run_id,
-                reason="conflicting_client_id",
-                phase=phase,
-                node_id=node_id,
-                previous_client_id=known,
-                client_id=client_id,
-                server_round=self._round,
-            )
-            raise ValueError(
-                f"Conflicting client_id for node_id={node_id}: {known!r} vs {client_id!r}"
-            )
-        if observed_round is not None and client_id in observed_round:
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                self.run_id,
-                reason="duplicate_client_id",
-                phase=phase,
-                node_id=node_id,
-                client_id=client_id,
-                server_round=self._round,
-            )
-            raise ValueError(f"Duplicate client_id {client_id!r} in {phase} results")
-        self._node_to_client_id[node_id] = client_id
-        if observed_round is not None:
-            observed_round.add(client_id)
-        return client_id
 
     def configure_fit(self, server_round, parameters, client_manager):
 
@@ -320,6 +366,7 @@ class HybridAggregation(FedAvg):
         return [(cp, fit_ins) for cp in selected_proxies]
 
     def aggregate_fit(self, server_round, results, failures):
+        _validate_fit_updates(results)
         if self._client_identity_conflict:
             raise ValueError("Client identity conflict detected before aggregation")
         observed_ids: set[str] = set()
@@ -493,7 +540,95 @@ class HybridAggregation(FedAvg):
 _ALLOWED = {"fedavg", "fedprox", "hybrid", "qfedavg"}
 
 
-class StratifiedFedProx(FedProx):
+class GatedStrategy(Strategy):
+    """Composition wrapper that enforces the privacy budget before dispatch."""
+
+    def __init__(
+        self,
+        inner: Strategy,
+        *,
+        accountant: RdpAccountantWrapper | None,
+        state_path: str | None,
+        max_epsilon: float | None,
+        audit_logger: Any = None,
+        run_id: str | None = None,
+    ) -> None:
+        if (accountant is None) != (max_epsilon is None):
+            raise ValueError("GatedStrategy needs both accountant and max_epsilon")
+        self.inner = inner
+        self.accountant = accountant
+        self.state_path = state_path
+        self.max_epsilon = float(max_epsilon) if max_epsilon is not None else None
+        self.audit_logger = audit_logger
+        self.run_id = run_id
+        self.budget_exhausted = False
+        self.stopped_for_budget = False
+        self.rounds_trained = 0
+        self.rounds_skipped = 0
+
+    def __getattr__(self, name: str) -> Any:
+        if name == "inner":
+            raise AttributeError(name)
+        return getattr(self.inner, name)
+
+    def configure_fit(
+        self, server_round: int, parameters: Parameters, client_manager: ClientManager
+    ):
+        if self.accountant is None or self.max_epsilon is None:
+            return self.inner.configure_fit(server_round, parameters, client_manager)
+        projected = self.accountant.project_epsilon(additional_releases=1)
+        if self.budget_exhausted or projected > self.max_epsilon:
+            self.rounds_skipped += 1
+            self.stopped_for_budget = True
+            if not self.budget_exhausted:
+                self.budget_exhausted = True
+                spent = self.accountant.project_epsilon(additional_releases=0)
+                if self.audit_logger is not None:
+                    try:
+                        self.audit_logger.log_privacy_event(
+                            round=server_round,
+                            event="privacy_budget_exhausted",
+                            epsilon=spent,
+                            projected=projected,
+                            max_epsilon=self.max_epsilon,
+                        )
+                    except Exception:
+                        try:
+                            self.audit_logger.log_event(
+                                "privacy_budget_exhausted",
+                                {
+                                    "round": server_round,
+                                    "epsilon": spent,
+                                    "projected": projected,
+                                    "max_epsilon": self.max_epsilon,
+                                },
+                            )
+                        except Exception:
+                            pass
+            return []
+        account_round(self.accountant, self.state_path, server_round)
+        self.rounds_trained += 1
+        return self.inner.configure_fit(server_round, parameters, client_manager)
+
+    def configure_evaluate(
+        self, server_round: int, parameters: Parameters, client_manager: ClientManager
+    ):
+        return self.inner.configure_evaluate(server_round, parameters, client_manager)
+
+    def initialize_parameters(self, client_manager: ClientManager):
+        return self.inner.initialize_parameters(client_manager)
+
+    def aggregate_fit(self, server_round: int, results: list, failures: list):
+        return self.inner.aggregate_fit(server_round, results, failures)
+
+    def aggregate_evaluate(self, server_round: int, results: list, failures: list):
+        return self.inner.aggregate_evaluate(server_round, results, failures)
+
+    def evaluate(self, server_round: int, parameters: Parameters):
+        return self.inner.evaluate(server_round, parameters)
+
+
+class StratifiedFedProx(_ClientIdentityMixin, FedProx):
     """FedProx with country-stratified client sampling (kept for backward compat)."""
 
     def __init__(
@@ -521,83 +656,6 @@ class StratifiedFedProx(FedProx):
         self.secagg_enabled = bool(secagg_enabled)
         self.identity_learning_enabled = not self.secagg_enabled
         self._identity_stratification_logged = False
-
-    def _register_client_id_from_result(
-        self,
-        node_id: int,
-        metrics: dict[str, Any],
-        phase: str,
-        observed_round: set[str] | None = None,
-    ) -> str | None:
-        raw = None
-        if metrics is not None:
-            try:
-                raw = metrics.get("client_id")  # type: ignore[attr-defined]
-            except Exception:
-                raw = None
-            if raw is None:
-                try:
-                    raw = metrics["client_id"]  # type: ignore[index]
-                except Exception:
-                    raw = None
-        if raw is None or raw == "":
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                getattr(self, "run_id", None),
-                reason="missing_client_id",
-                phase=phase,
-                node_id=node_id,
-                server_round=getattr(self, "_round", 0),
-            )
-            raise ValueError(f"Missing client_id in {phase} metrics from node_id={node_id}")
-        client_id = str(raw)
-        from insurance_fl.fl.task import CLIENT_IDS
-
-        if client_id not in CLIENT_IDS:
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                getattr(self, "run_id", None),
-                reason="unknown_client_id",
-                phase=phase,
-                node_id=node_id,
-                client_id=client_id,
-                server_round=getattr(self, "_round", 0),
-            )
-            raise ValueError(f"Unknown client_id {client_id!r} from node_id={node_id}")
-        known = self._node_to_client_id.get(node_id)
-        if known is not None and known != client_id:
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                getattr(self, "run_id", None),
-                reason="conflicting_client_id",
-                phase=phase,
-                node_id=node_id,
-                previous_client_id=known,
-                client_id=client_id,
-                server_round=getattr(self, "_round", 0),
-            )
-            raise ValueError(
-                f"Conflicting client_id for node_id={node_id}: {known!r} vs {client_id!r}"
-            )
-        if observed_round is not None and client_id in observed_round:
-            self._client_identity_conflict = True
-            _audit_identity_conflict(
-                self.audit_logger,
-                getattr(self, "run_id", None),
-                reason="duplicate_client_id",
-                phase=phase,
-                node_id=node_id,
-                client_id=client_id,
-                server_round=getattr(self, "_round", 0),
-            )
-            raise ValueError(f"Duplicate client_id {client_id!r} in {phase} results")
-        self._node_to_client_id[node_id] = client_id
-        if observed_round is not None:
-            observed_round.add(client_id)
-        return client_id
 
     def configure_fit(self, server_round, parameters, client_manager):
 
@@ -654,6 +712,7 @@ class StratifiedFedProx(FedProx):
         return [(cp, fit_ins) for cp in selected_proxies]
 
     def aggregate_fit(self, server_round, results, failures):
+        _validate_fit_updates(results)
         if self._client_identity_conflict:
             raise ValueError("Client identity conflict detected before aggregation")
         observed_ids: set[str] = set()
@@ -755,10 +814,24 @@ def build_strategy(
     mlflow_experiment_name: str = "insurance_fl",
     require_all_clients: bool = False,
     secagg_enabled: bool = False,
+    max_epsilon: float | None = None,
+    privacy_state_path: str | None = None,
     **kwargs: Any,
 ) -> Any:
+    # Gate-only arguments are consumed here and never reach Flower constructors.
+    if (accountant is None) != (max_epsilon is None):
+        if max_epsilon is not None:
+            raise ValueError("no privacy accountant configured")
+        raise ValueError("max_epsilon is required when accountant is configured")
+    gate_accountant = accountant
+    gate_max_epsilon = max_epsilon
+    if strategy_name not in _ALLOWED:
+        raise ValueError(
+            f"Unknown strategy {strategy_name!r}; allowed: {sorted(_ALLOWED)}. "
+            "HybridAggregation/QFedAvg arrive with Task 4."
+        )
     if strategy_name == "fedavg":
-        return FedAvg(
+        strategy = FedAvg(
             fraction_fit=fraction_fit,
             fraction_evaluate=fraction_evaluate,
             min_fit_clients=min_fit_clients,
@@ -766,8 +839,16 @@ def build_strategy(
             min_available_clients=min_available_clients,
             **kwargs,
         )
+        return GatedStrategy(
+            strategy,
+            accountant=gate_accountant,
+            state_path=privacy_state_path,
+            max_epsilon=gate_max_epsilon,
+            audit_logger=audit_logger,
+            run_id=run_id,
+        )
     if strategy_name == "fedprox":
-        return StratifiedFedProx(
+        strategy = StratifiedFedProx(
             fraction_fit=fraction_fit,
             fraction_evaluate=fraction_evaluate,
             min_fit_clients=min_fit_clients,
@@ -783,8 +864,16 @@ def build_strategy(
             run_id=run_id,
             **kwargs,
         )
+        return GatedStrategy(
+            strategy,
+            accountant=gate_accountant,
+            state_path=privacy_state_path,
+            max_epsilon=gate_max_epsilon,
+            audit_logger=audit_logger,
+            run_id=run_id,
+        )
     if strategy_name == "qfedavg":
-        return QFedAvgStrategy(
+        strategy = QFedAvgStrategy(
             q_param=kwargs.pop("q_param", 0.2),
             qffl_learning_rate=kwargs.pop("qffl_learning_rate", 0.1),
             fraction_fit=fraction_fit,
@@ -794,8 +883,16 @@ def build_strategy(
             min_available_clients=min_available_clients,
             **kwargs,
         )
+        return GatedStrategy(
+            strategy,
+            accountant=gate_accountant,
+            state_path=privacy_state_path,
+            max_epsilon=gate_max_epsilon,
+            audit_logger=audit_logger,
+            run_id=run_id,
+        )
     if strategy_name == "hybrid":
-        return HybridAggregation(
+        strategy = HybridAggregation(
             fraction_fit=fraction_fit,
             fraction_evaluate=fraction_evaluate,
             min_fit_clients=min_fit_clients,
@@ -806,7 +903,7 @@ def build_strategy(
             country_map=country_map,
             min_clients_per_country=min_clients_per_country,
             sampling_seed=sampling_seed,
-            accountant=accountant,
+            accountant=None,
             audit_logger=audit_logger,
             run_id=run_id,
             mlflow_enabled=mlflow_enabled,
@@ -816,10 +913,24 @@ def build_strategy(
             secagg_enabled=secagg_enabled,
             **kwargs,
         )
+        return GatedStrategy(
+            strategy,
+            accountant=gate_accountant,
+            state_path=privacy_state_path,
+            max_epsilon=gate_max_epsilon,
+            audit_logger=audit_logger,
+            run_id=run_id,
+        )
     raise ValueError(
         f"Unknown strategy {strategy_name!r}; allowed: {sorted(_ALLOWED)}. "
         "HybridAggregation/QFedAvg arrive with Task 4."
     )
 
 
-__all__ = ["HybridAggregation", "QFedAvgStrategy", "StratifiedFedProx", "build_strategy"]
+__all__ = [
+    "GatedStrategy",
+    "HybridAggregation",
+    "QFedAvgStrategy",
+    "StratifiedFedProx",
+    "build_strategy",
+]

@@ -1,0 +1,5 @@
+src/insurance_fl/fl/strategy.py:372: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+src/insurance_fl/fl/strategy.py:474: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+src/insurance_fl/fl/strategy.py:718: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+src/insurance_fl/fl/strategy.py:757: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+Success: no issues found in 1 source file

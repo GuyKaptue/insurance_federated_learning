@@ -11,6 +11,7 @@ import math
 import tempfile
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from insurance_fl.fl import privacy
@@ -36,11 +37,44 @@ def test_build_config_defaults() -> None:
     assert cfg.population_size == 4
 
 
+def test_flower_local_dp_noise_std_matches_accountant_multiplier() -> None:
+    """Flower's emitted Gaussian noise matches the multiplier used for RDP."""
+    from flwr.client.mod.localdp_mod import add_localdp_gaussian_noise_to_params
+    from flwr.common import ndarrays_to_parameters, parameters_to_ndarrays
+
+    clip_norm = 1.3
+    noise_std = 0.7
+    delta = 1e-5
+    accountant = privacy.RdpAccountantWrapper(
+        privacy.PrivacyConfig(
+            noise_multiplier=noise_std / clip_norm,
+            delta=delta,
+            target_delta=delta,
+        )
+    )
+    epsilon = math.sqrt(2.0 * math.log(1.25 / delta)) / accountant.cfg.noise_multiplier
+    sample_count = 20_000
+    np.random.seed(20261121)
+    zero_parameters = ndarrays_to_parameters([np.zeros(sample_count, dtype=np.float64)])
+    noised_parameters = add_localdp_gaussian_noise_to_params(
+        zero_parameters,
+        sensitivity=clip_norm,
+        epsilon=epsilon,
+        delta=delta,
+    )
+    samples = parameters_to_ndarrays(noised_parameters)[0]
+    measured_std = float(np.std(samples, ddof=1))
+    expected_std = clip_norm * accountant.cfg.noise_multiplier
+    standard_error = expected_std / math.sqrt(2.0 * (sample_count - 1))
+
+    assert abs(measured_std - expected_std) <= 4.0 * standard_error
+
+
 def test_accounting_available_with_backend() -> None:
     # When dp-accounting is available, the wrapper should be constructable
     accountant = privacy.RdpAccountantWrapper(privacy.PrivacyConfig())
     # The public contract: epsilon should be finite after composing events
-    accountant.compose({"round": 1, "noise_multiplier": 1.0})
+    accountant.step()
     eps = accountant.epsilon()
     assert eps["epsilon"] >= 0
     assert math.isfinite(eps["epsilon"])
@@ -48,11 +82,11 @@ def test_accounting_available_with_backend() -> None:
 
 def test_compose_records_events() -> None:
     accountant = privacy.RdpAccountantWrapper(privacy.PrivacyConfig())
-    accountant.compose({"round": 1, "noise_multiplier": 0.1})
-    accountant.compose({"round": 2, "noise_multiplier": 0.1})
+    accountant.step()
+    accountant.step()
     # Verify events are recorded: epsilon should grow with each round
     eps1 = accountant.epsilon()
-    accountant.compose({"round": 3, "noise_multiplier": 0.1})
+    accountant.step()
     eps2 = accountant.epsilon()
     # Epsilon should be monotonically non-decreasing
     assert eps2["epsilon"] >= eps1["epsilon"]
@@ -62,7 +96,7 @@ def test_compose_records_events() -> None:
 
 def test_get_epsilon_returns_finite() -> None:
     accountant = privacy.RdpAccountantWrapper(privacy.PrivacyConfig(noise_multiplier=1.0))
-    accountant.compose({"round": 1})
+    accountant.step()
     eps = accountant.epsilon()
     # epsilon should be finite and non-negative
     assert isinstance(eps, dict)
@@ -72,9 +106,9 @@ def test_get_epsilon_returns_finite() -> None:
 
 def test_get_epsilon_monotonic() -> None:
     accountant = privacy.RdpAccountantWrapper(privacy.PrivacyConfig(noise_multiplier=1.0))
-    accountant.compose({"round": 1})
+    accountant.step()
     eps1 = accountant.epsilon()
-    accountant.compose({"round": 2})
+    accountant.step()
     eps2 = accountant.epsilon()
     # Epsilon should be monotonically non-decreasing
     assert eps2["epsilon"] >= eps1["epsilon"]
@@ -104,7 +138,7 @@ def test_would_exceed_below_budget() -> None:
     # High noise multiplier -> low epsilon -> should not exceed
     cfg = privacy.PrivacyConfig(max_epsilon=100.0, noise_multiplier=10.0)
     accountant = privacy.RdpAccountantWrapper(cfg)
-    accountant.compose({"round": 1})
+    accountant.step()
     # would_exceed should return False when within budget
     assert accountant.would_exceed() is False
 
@@ -113,7 +147,7 @@ def test_would_exceed_above_budget() -> None:
     # Low noise multiplier -> high epsilon -> should exceed
     cfg = privacy.PrivacyConfig(max_epsilon=0.01, noise_multiplier=0.1)
     accountant = privacy.RdpAccountantWrapper(cfg)
-    accountant.compose({"round": 1})
+    accountant.step()
     # would_exceed should return True when over budget
     assert accountant.would_exceed() is True
 
@@ -121,7 +155,7 @@ def test_would_exceed_above_budget() -> None:
 def test_would_exceed_non_mutating() -> None:
     cfg = privacy.PrivacyConfig(max_epsilon=10.0, noise_multiplier=1.0)
     accountant = privacy.RdpAccountantWrapper(cfg)
-    accountant.compose({"round": 1})
+    accountant.step()
     count_before = accountant.rounds
     eps_before = accountant.epsilon()
     accountant.would_exceed()
@@ -133,7 +167,7 @@ def test_would_exceed_non_mutating() -> None:
 def test_rejected_release_does_not_commit() -> None:
     cfg = privacy.PrivacyConfig(max_epsilon=0.01, noise_multiplier=0.1)
     accountant = privacy.RdpAccountantWrapper(cfg)
-    accountant.compose({"round": 1})
+    accountant.step()
     count_before = accountant.rounds
     result = accountant.would_exceed()
     assert result is True
@@ -144,7 +178,7 @@ def test_rejected_release_does_not_commit() -> None:
 def test_project_epsilon() -> None:
     cfg = privacy.PrivacyConfig(noise_multiplier=1.0)
     accountant = privacy.RdpAccountantWrapper(cfg)
-    accountant.compose({"round": 1})
+    accountant.step()
     projected = accountant.project_epsilon(additional_releases=2)
     # Project should not mutate: rounds and conservative epsilon should be unchanged
     assert accountant.rounds == 1
@@ -157,8 +191,8 @@ def test_state_persistence_roundtrip() -> None:
         state_path = Path(tmpdir) / "state.json"
         cfg = privacy.PrivacyConfig(noise_multiplier=1.0, max_epsilon=10.0)
         accountant1 = privacy.RdpAccountantWrapper(cfg, state_path=state_path)
-        accountant1.compose({"round": 1})
-        accountant1.compose({"round": 2})
+        accountant1.step()
+        accountant1.step()
         # Save state after composing
         accountant1.save_state(state_path)
         # Verify events are recorded
@@ -181,7 +215,7 @@ def test_state_not_counted_twice() -> None:
         state_path = Path(tmpdir) / "state.json"
         cfg = privacy.PrivacyConfig(noise_multiplier=1.0)
         accountant1 = privacy.RdpAccountantWrapper(cfg, state_path=state_path)
-        accountant1.compose({"round": 1})
+        accountant1.step()
         # Save state after composing
         accountant1.save_state(state_path)
         # Restore from state
@@ -189,7 +223,7 @@ def test_state_not_counted_twice() -> None:
         # Restored accountant should have same rounds as before restore
         assert accountant2.rounds == 1
         # Composing a new event should increase rounds
-        accountant2.compose({"round": 2})
+        accountant2.step()
         # Should be 2 after second compose
         assert accountant2.rounds == 2
 
@@ -200,7 +234,7 @@ def test_corrupted_state_raises() -> None:
         state_path.write_text("not valid json")
         cfg = privacy.PrivacyConfig(noise_multiplier=1.0)
         # Should fail when trying to load corrupted state
-        with pytest.raises(ValueError):
+        with pytest.raises(privacy.PrivacyStateError):
             privacy.RdpAccountantWrapper(cfg, state_path=state_path)
 
 
@@ -210,7 +244,7 @@ def test_incompatible_state_version_raises() -> None:
         state_path.write_text(json.dumps({"version": 99, "delta": 1e-5, "events": []}))
         cfg = privacy.PrivacyConfig(noise_multiplier=1.0)
         # Should fail when trying to load incompatible state version
-        with pytest.raises(ValueError):
+        with pytest.raises(privacy.PrivacyStateError):
             privacy.RdpAccountantWrapper(cfg, state_path=state_path)
 
 
@@ -227,7 +261,7 @@ def test_state_noise_multiplier_mismatch_raises() -> None:
         state_path.write_text(json.dumps(state))
         cfg = privacy.PrivacyConfig(noise_multiplier=1.0, delta=1e-5)
         # Should fail when delta in state doesn't match config
-        with pytest.raises(ValueError):
+        with pytest.raises(privacy.PrivacyStateError):
             privacy.RdpAccountantWrapper.load_state(state_path, cfg)
 
 

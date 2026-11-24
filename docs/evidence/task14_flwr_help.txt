@@ -1,0 +1,29 @@
+                                                                                
+ Usage: flwr [OPTIONS] [COMMAND] [ARGS]...                                      
+                                                                                
+ ^[[93m^[[1mflwr is the Flower command line interface.^[[0m                           
+                                                                                
+‚M-^UM--‚M-^TM-^@ Options ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B --version             -V        Show the version and exit.                   ‚M-^TM-^B
+‚M-^TM-^B --install-completion            Install completion for the current shell.    ‚M-^TM-^B
+‚M-^TM-^B --show-completion               Show completion for the current shell, to    ‚M-^TM-^B
+‚M-^TM-^B                                 copy it or customize the installation.       ‚M-^TM-^B
+‚M-^TM-^B --help                -h        Show this message and exit.                  ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+‚M-^UM--‚M-^TM-^@ Commands ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B new          Create new Flower App.                                          ‚M-^TM-^B
+‚M-^TM-^B run          Run Flower App.                                                 ‚M-^TM-^B
+‚M-^TM-^B build        Build a Flower App into a Flower App Bundle (FAB).              ‚M-^TM-^B
+‚M-^TM-^B install      Install a Flower App Bundle.                                    ‚M-^TM-^B
+‚M-^TM-^B log          Get logs from a run.                                            ‚M-^TM-^B
+‚M-^TM-^B list         List the details of one provided run ID or all runs (alias:     ‚M-^TM-^B
+‚M-^TM-^B              ls).                                                            ‚M-^TM-^B
+‚M-^TM-^B stop         Stop a Flower run.                                              ‚M-^TM-^B
+‚M-^TM-^B login        Login to Flower SuperLink.                                      ‚M-^TM-^B
+‚M-^TM-^B pull         Pull artifacts from a Flower run.                               ‚M-^TM-^B
+‚M-^TM-^B supernode    Manage SuperNodes                                               ‚M-^TM-^B
+‚M-^TM-^B app          Manage Apps                                                     ‚M-^TM-^B
+‚M-^TM-^B federation   Manage Federations                                              ‚M-^TM-^B
+‚M-^TM-^B config       Manage Configuration                                            ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+

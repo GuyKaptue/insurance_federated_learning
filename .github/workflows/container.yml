@@ -1,0 +1,32 @@
+name: Container
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop, feat/task0-baseline-federation]
+  schedule:
+    - cron: "23 4 * * 1"
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Build local image
+        run: docker build --tag insurance-fl:ci .
+      - name: Check installed dependencies
+        run: docker run --rm --entrypoint python insurance-fl:ci -m pip check
+      - name: Scan image for fixed high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        with:
+          image-ref: insurance-fl:ci
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"

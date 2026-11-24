@@ -1,0 +1,4 @@
+d_logger.read_events()[0]
++        assert verify_event_integrity(event)
++        event["round"] = 2
++        assert not verify_event_integrity(event)

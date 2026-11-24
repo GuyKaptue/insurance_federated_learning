@@ -1,0 +1,57 @@
+‚M-^UM--‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@ Update available ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B A newer Flower version is available: 1.31.0 -> 1.44.0 ‚M-^TM-^B
+‚M-^TM-^B Upgrade: python -m pip install -U flwr                ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+                                                                                
+ Usage: flwr run [OPTIONS] [APP] [SUPERLINK]                                    
+                                                                                
+ Run Flower App.                                                                
+                                                                                
+‚M-^UM--‚M-^TM-^@ Arguments ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B   app            [APP]        [default: .]                                   ‚M-^TM-^B
+‚M-^TM-^B   superlink      [SUPERLINK]                                                 ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+‚M-^UM--‚M-^TM-^@ Options ‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UÆ
+‚M-^TM-^B --federation                 TEXT            The federation to submit the    ‚M-^TM-^B
+‚M-^TM-^B                                              run to; must be in the format   ‚M-^TM-^B
+‚M-^TM-^B                                              `@<account>/<federation>`.      ‚M-^TM-^B
+‚M-^TM-^B --run-config         -c      TEXT            Override run configuration      ‚M-^TM-^B
+‚M-^TM-^B                                              values using one of the         ‚M-^TM-^B
+‚M-^TM-^B                                              following formats:              ‚M-^TM-^B
+‚M-^TM-^B                                              --run-config '<k1>=<v1>         ‚M-^TM-^B
+‚M-^TM-^B                                              <k2>=<v2>' | --run-config       ‚M-^TM-^B
+‚M-^TM-^B                                              '<k1>=<v1>' --run-config        ‚M-^TM-^B
+‚M-^TM-^B                                              '<k2>=<v2>' | --run-config      ‚M-^TM-^B
+‚M-^TM-^B                                              <path/to/your/toml>             ‚M-^TM-^B
+‚M-^TM-^B                                              When providing key-value pairs, ‚M-^TM-^B
+‚M-^TM-^B                                              values can be of any type       ‚M-^TM-^B
+‚M-^TM-^B                                              supported by TOML (e.g., bool,  ‚M-^TM-^B
+‚M-^TM-^B                                              int, float, string).The         ‚M-^TM-^B
+‚M-^TM-^B                                              specified keys (<k1> and <k2>   ‚M-^TM-^B
+‚M-^TM-^B                                              in the example) must exist in   ‚M-^TM-^B
+‚M-^TM-^B                                              the run configuration under the ‚M-^TM-^B
+‚M-^TM-^B                                              `` section of `pyproject.toml`  ‚M-^TM-^B
+‚M-^TM-^B                                              to be overridden.               ‚M-^TM-^B
+‚M-^TM-^B                                              Alternatively, provide a TOML   ‚M-^TM-^B
+‚M-^TM-^B                                              file containing key-value pair  ‚M-^TM-^B
+‚M-^TM-^B                                              overrides.                      ‚M-^TM-^B
+‚M-^TM-^B --federation-config          TEXT            Override federation             ‚M-^TM-^B
+‚M-^TM-^B                                              configuration values using one  ‚M-^TM-^B
+‚M-^TM-^B                                              of the following formats:       ‚M-^TM-^B
+‚M-^TM-^B                                              --federation-config '<k1>=<v1>  ‚M-^TM-^B
+‚M-^TM-^B                                              <k2>=<v2>' |                    ‚M-^TM-^B
+‚M-^TM-^B                                              --federation-config '<k1>=<v1>' ‚M-^TM-^B
+‚M-^TM-^B                                              --federation-config '<k2>=<v2>' ‚M-^TM-^B
+‚M-^TM-^B                                              When providing key-value pairs, ‚M-^TM-^B
+‚M-^TM-^B                                              values can be of any type       ‚M-^TM-^B
+‚M-^TM-^B                                              supported by TOML (e.g., bool,  ‚M-^TM-^B
+‚M-^TM-^B                                              int, float, string).            ‚M-^TM-^B
+‚M-^TM-^B --stream                                     Use `--stream` with `flwr run`  ‚M-^TM-^B
+‚M-^TM-^B                                              to display logs; logs are not   ‚M-^TM-^B
+‚M-^TM-^B                                              streamed by default.            ‚M-^TM-^B
+‚M-^TM-^B --format                     [default|json]  Format output using 'default'   ‚M-^TM-^B
+‚M-^TM-^B                                              view or 'json'                  ‚M-^TM-^B
+‚M-^TM-^B                                              [default: default]              ‚M-^TM-^B
+‚M-^TM-^B --help               -h                      Show this message and exit.     ‚M-^TM-^B
+‚M-^U∞‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^TM-^@‚M-^UØ
+

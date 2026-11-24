@@ -1,0 +1,1 @@
+{"event_type": "privacy_event", "run_id": "fl-run", "timestamp_utc": "2026-11-21T08:14:58.973462+00:00", "round": 2, "mechanism": "local_dp", "accounting_status": "resumed", "resumed_from_round": 2, "event_hash": "6a17ce0e1955c500970a2b693b276944f8a79cb6a32d70d17aec3b34146c8b2a"}

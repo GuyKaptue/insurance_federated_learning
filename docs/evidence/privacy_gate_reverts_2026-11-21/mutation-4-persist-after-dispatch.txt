@@ -1,0 +1,22 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_gate_invoked_before_dispatch_saves_state _________________
+tests/unit/fl/test_privacy_gate.py:156: in test_gate_invoked_before_dispatch_saves_state
+    result = strategy.configure_fit(1, None, _make_client_manager(1))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/insurance_fl/fl/strategy.py:568: in configure_fit
+    result = self.inner.configure_fit(server_round, parameters, client_manager)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/fl/test_privacy_gate.py:150: in check_state_before_dispatch
+    dispatch_state = json.loads(state_path.read_text())
+                                ^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/lib/python3.11/pathlib.py:1058: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/ml/gbzd550j28bfftvz5yhp9gf40000gn/T/pytest-of-guykaptue/pytest-261/test_gate_invoked_before_dispa0/privacy_state.json'
+=========================== short test summary info ============================
+FAILED tests/unit/fl/test_privacy_gate.py::test_gate_invoked_before_dispatch_saves_state
+1 failed in 3.44s

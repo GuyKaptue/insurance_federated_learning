@@ -79,6 +79,12 @@ def _event_hash(event: dict[str, Any]) -> str:
     return hashlib.sha256(serialized.encode()).hexdigest()
 
 
+def verify_event_integrity(event: dict[str, Any]) -> bool:
+    """Check an event hash against its stored (redacted) contents."""
+    stored_hash = event.get("event_hash")
+    return isinstance(stored_hash, str) and stored_hash == _event_hash(event)
+
+
 @dataclass
 class AuditLogger:
     """Append-only JSONL audit logger."""
@@ -104,11 +110,11 @@ class AuditLogger:
         if "timestamp_utc" not in event:
             event["timestamp_utc"] = _utc_now()
 
-        # Add event hash
-        event["event_hash"] = _event_hash(event)
-
         # Redact secrets
         event = _redact(event)
+
+        # Hash the persisted representation so readers can verify its integrity.
+        event["event_hash"] = _event_hash(event)
 
         line = json.dumps(event, default=str, ensure_ascii=False) + "\n"
 
@@ -243,10 +249,10 @@ class AuditLogger:
         event: dict[str, Any] = {
             "event_type": "config_snapshot",
             "run_id": self.run_id,
-            "config_hash": _config_hash(config),
             "sanitized_config": _redact(config),
             "timestamp_utc": _utc_now(),
         }
+        event["config_hash"] = _config_hash(event["sanitized_config"])
         event.update(extra)
         self._write(event)
 
@@ -267,4 +273,4 @@ class AuditLogger:
         return events
 
 
-__all__ = ["AUDIT_RETENTION_DAYS", "AuditLogger"]
+__all__ = ["AUDIT_RETENTION_DAYS", "AuditLogger", "verify_event_integrity"]

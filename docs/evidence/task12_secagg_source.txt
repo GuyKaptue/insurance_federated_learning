@@ -1,0 +1,41 @@
+tests/unit/fl/test_server_app.py-97-        "min-evaluate-clients": 4,
+tests/unit/fl/test_server_app.py-98-        "min-available-clients": 4,
+tests/unit/fl/test_server_app.py-99-        "num-server-rounds": 1,
+tests/unit/fl/test_server_app.py:100:        "secagg-enabled": "true",
+tests/unit/fl/test_server_app.py-101-        "require-all-clients": "false",
+tests/unit/fl/test_server_app.py-102-    }
+tests/unit/fl/test_server_app.py-103-    context = Context(run_id=1, node_id=0, node_config={}, state={}, run_config=rc)
+tests/unit/fl/test_server_app.py-104-    grid = SimpleNamespace()
+tests/unit/fl/test_server_app.py-105-
+tests/unit/fl/test_server_app.py:106:    with pytest.raises(NotImplementedError, match=r"SecAgg\+ runtime orchestration"):
+tests/unit/fl/test_server_app.py-107-        server_app.main(grid, context)
+--
+src/insurance_fl/fl/server_app.py-110-            resumed_from_round=accountant.resumed_from_round,
+src/insurance_fl/fl/server_app.py-111-        )
+src/insurance_fl/fl/server_app.py-112-
+src/insurance_fl/fl/server_app.py:113:    secagg_enabled = str(rc.get("secagg-enabled", "false")).lower() == "true"
+src/insurance_fl/fl/server_app.py-114-    require_all_clients = str(rc.get("require-all-clients", "false")).lower() == "true"
+src/insurance_fl/fl/server_app.py-115-    strategy = build_strategy(
+src/insurance_fl/fl/server_app.py-116-        strategy_name=str(rc.get("strategy-type", "fedavg")),
+--
+src/insurance_fl/fl/server_app.py-140-def main(grid: Grid, context: Context) -> None:
+src/insurance_fl/fl/server_app.py-141-    """Run federated training, optionally with Secure Aggregation.
+src/insurance_fl/fl/server_app.py-142-
+src/insurance_fl/fl/server_app.py:143:    When ``secagg-enabled`` is true in ``run_config``, the
+src/insurance_fl/fl/server_app.py-144-    ``SecAggPlusWorkflow`` protects client updates. Otherwise, the
+src/insurance_fl/fl/server_app.py-145-    baseline ``start_grid`` / FedAvg path is used.
+src/insurance_fl/fl/server_app.py-146-    """
+--
+src/insurance_fl/fl/server_app.py-151-    client_manager = SimpleClientManager()
+src/insurance_fl/fl/server_app.py-152-
+src/insurance_fl/fl/server_app.py-153-    rc = context.run_config
+src/insurance_fl/fl/server_app.py:154:    secagg_enabled = str(rc.get("secagg-enabled", "false")).lower() == "true"
+src/insurance_fl/fl/server_app.py-155-
+src/insurance_fl/fl/server_app.py-156-    if secagg_enabled:
+src/insurance_fl/fl/server_app.py-157-        # SecAgg+ simulation runtime path requires proper workflow orchestration
+src/insurance_fl/fl/server_app.py-158-        # (client manager updates, init, round loop) beyond this bootstrap.
+src/insurance_fl/fl/server_app.py-159-        # Kept explicit to avoid a silently incorrect/incomplete run.
+src/insurance_fl/fl/server_app.py:160:        raise NotImplementedError(
+src/insurance_fl/fl/server_app.py-161-            "SecAgg+ runtime orchestration via server_app.main is not wired for "
+src/insurance_fl/fl/server_app.py-162-            "multi-round simulation in this patch; use SecAgg workflow integration "
+src/insurance_fl/fl/server_app.py-163-            "tests and dedicated wiring."

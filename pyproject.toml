@@ -43,7 +43,7 @@ dependencies = [
     "scipy>=1.10.0,<2.0.0",
 
     # Data Handling & Storage
-    "pyarrow>=12.0.0,<15.0.0",
+    "pyarrow>=17.0.0,<18.0.0",  # accepted trial: PYSEC-2024-161 fix (17.0.0); logical data identity verified
     "Faker>=18.0.0,<25.0.0",
 
     # Machine Learning
@@ -74,9 +74,6 @@ dependencies = [
     "fastapi>=0.95.0,<1.0.0",
     "uvicorn[standard]>=0.21.0,<0.30.0",
     "pydantic>=2.0.0,<3.0.0",
-
-    # Experiment Tracking
-    "mlflow>=2.2.0,<3.0.0",
 
     # Privacy / RDP accounting (required by the FL runtime path so Ray workers
     # installed from this package have the backend; do not rely on system Python)
@@ -147,6 +144,11 @@ notebooks = [
     "networkx>=3.0.0",
 ]
 
+# Experiment tracking (optional; strategy raises clear error if requested but missing)
+tracking = [
+    "mlflow>=2.2.0,<3.0.0",
+]
+
 [tool.flwr.app]
 publisher = "GuyKaptue"
 
@@ -194,6 +196,17 @@ dp-epsilon = 2.0
 dp-delta = 0.00001
 dp-clipping-norm = 1.0
 dp-noise-multiplier = 0.1
+# Privacy budget gate (Stage C): enabled via privacy-enabled. When true, all of
+# privacy-local-dp-clip-norm, privacy-local-dp-noise-std, privacy-delta,
+# privacy-max-epsilon must be present and positive (fail-closed). When false,
+# setting any privacy-* value raises at start-up.
+privacy-enabled = false
+privacy-local-dp-clip-norm = 1.0
+privacy-local-dp-noise-std = 1.0
+privacy-delta = 1e-5
+privacy-max-epsilon = 8.0
+privacy-state-path = "runs/privacy_state.json"
+privacy-resume = false
 secagg-enabled = false
 secagg-num-shares = 4
 secagg-reconstruction-threshold = 3
@@ -203,44 +216,7 @@ secagg-quantization-range = 4194304
 require-all-clients = false
 
 
-#######################################################################
-# CONFIGURATION MIGRATION NOTICE:
-#
-# What was previously called "federation config" for SuperLink
-# connections in pyproject.toml has been renamed and moved.
-#
-# These settings are now **SuperLink connection configuration**
-# and are defined in the Flower configuration file.
-#
-# The entries below are commented out intentionally and are kept
-# only as a migration reference.
-#
-# Docs: https://flower.ai/docs/framework/ref-flower-configuration.html
-#######################################################################
 
-# [tool.flwr.federations]
-# default = "simulation"
-
-# # BUGFIX: `options."default".address = ...` / `options."default".num-supernodes`
-# # is not valid Flower federation syntax (verified against current Flower
-# # docs) - it silently did nothing. Deployment federations take `address`/
-# # `insecure` directly; simulation federations take `options.num-supernodes`
-# # directly, with no extra `"default"` nesting.
-# [tool.flwr.federations.local-deployment]
-# address = "127.0.0.1:9092"
-# insecure = true
-
-# [tool.flwr.federations.simulation]
-# options.num-supernodes = 4
-
-# # NOTE (Flower >= 1.26): newer Flower versions replace this
-# # [tool.flwr.federations.*] section with a global Flower Configuration file
-# # (~/.flwr/config.toml, see `flwr config --help`). If your installed flwr
-# # version is 1.26+, it will auto-migrate this section into that file the
-# # first time you run a `flwr` CLI command (with a comment left here noting
-# # the migration) - this is expected, not an error. Check `flwr --version`
-# # and the Flower Configuration docs if `flwr run` reports federation-related
-# # errors despite the section above being correct.
 
 [tool.setuptools]
 packages = {find = {where = ["src"], include = ["insurance_fl*"]}}
@@ -306,4 +282,5 @@ filterwarnings = [
     "ignore::pydantic.warnings.PydanticDeprecatedSince212",
     "ignore::RuntimeWarning:numpy.*",
     "ignore::FutureWarning:lightgbm.*",
+    "error::DeprecationWarning:insurance_fl.*",
 ]

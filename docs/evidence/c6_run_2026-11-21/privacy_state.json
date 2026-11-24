@@ -1,0 +1,1 @@
+{"version": 1, "delta": 1e-05, "noise_multiplier": 1.0, "max_epsilon": 8.0, "rounds_spent": 2, "events": [{"sigma": 1.0, "q": 1.0}, {"sigma": 1.0, "q": 1.0}], "config_fingerprint": "b828305653972ff98adb4cf297e86ac5e48f174acc74cb8c3e5049973f9d213c", "sha256": "c2abb0bed51a051915e557afc37a208753d141f4e4be9ac548d84b45aea2c30b"}

@@ -1,0 +1,75 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-8.4.2, pluggy-1.7.0 -- /Users/guykaptue/Downloads/insurance_federated_learning/venv/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /Users/guykaptue/Downloads/insurance_federated_learning
+configfile: pyproject.toml
+plugins: hypothesis-6.170.1, cov-7.1.0, timeout-2.4.0, anyio-4.14.2, Faker-24.14.1, platformdirs-4.13.3
+timeout: 300.0s
+timeout method: signal
+timeout func_only: False
+collecting ... collected 48 items
+
+tests/integration/test_causal_transport_regression.py::test_dag_passes_validation PASSED [  2%]
+tests/integration/test_causal_transport_regression.py::test_dag_fails_on_unknown_node_edge PASSED [  4%]
+tests/integration/test_causal_transport_regression.py::test_dag_fails_on_bad_adjustment_set PASSED [  6%]
+tests/integration/test_causal_transport_regression.py::test_ate_estimators_agree PASSED [  8%]
+tests/integration/test_causal_transport_regression.py::test_transport_verdict_de_fr_to_ch PASSED [ 10%]
+tests/integration/test_e2e_pipeline.py::test_end_to_end_generate_preprocess_train_evaluate PASSED [ 12%]
+tests/integration/test_e2e_pipeline.py::test_deterministic_pipeline_same_seed PASSED [ 14%]
+tests/integration/test_fairness.py::test_group_clients_by_country PASSED [ 16%]
+tests/integration/test_fairness.py::test_stratified_sample_covers_all_countries PASSED [ 18%]
+tests/integration/test_fairness.py::test_stratified_sample_no_duplicates PASSED [ 20%]
+tests/integration/test_fairness.py::test_stratified_sample_reproducible PASSED [ 22%]
+tests/integration/test_fairness.py::test_stratified_sample_insufficient_budget PASSED [ 25%]
+tests/integration/test_fairness.py::test_stratified_sample_handles_unavailable PASSED [ 27%]
+tests/integration/test_fairness.py::test_stratified_sample_empty_group PASSED [ 29%]
+tests/integration/test_fairness.py::test_disparity_calculation PASSED    [ 31%]
+tests/integration/test_fairness.py::test_disparity_missing_metrics PASSED [ 33%]
+tests/integration/test_fairness.py::test_disparity_empty PASSED          [ 35%]
+tests/integration/test_fairness.py::test_disparity_zero_mean PASSED      [ 37%]
+tests/integration/test_fairness.py::test_disparity_threshold PASSED      [ 39%]
+tests/integration/test_rdp_accounting.py::test_backend_available_and_accountant_constructible PASSED [ 41%]
+tests/integration/test_rdp_accounting.py::test_compose_records_rounds_and_events PASSED [ 43%]
+tests/integration/test_rdp_accounting.py::test_get_epsilon_returns_finite PASSED [ 45%]
+tests/integration/test_rdp_accounting.py::test_get_epsilon_monotonic PASSED [ 47%]
+tests/integration/test_rdp_accounting.py::test_would_exceed_over_budget PASSED [ 50%]
+tests/integration/test_rdp_accounting.py::test_would_exceed_under_budget PASSED [ 52%]
+tests/integration/test_rdp_accounting.py::test_project_epsilon_does_not_mutate_state PASSED [ 54%]
+tests/integration/test_rdp_accounting.py::test_would_exceed_is_non_mutating PASSED [ 56%]
+tests/integration/test_rdp_accounting.py::test_state_persistence_roundtrip PASSED [ 58%]
+tests/integration/test_rdp_accounting.py::test_state_not_counted_twice PASSED [ 60%]
+tests/integration/test_rdp_accounting.py::test_corrupted_state_raises PASSED [ 62%]
+tests/integration/test_rdp_accounting.py::test_composition_matches_backend PASSED [ 64%]
+tests/integration/test_rdp_accounting.py::test_invalid_config_delta_rejected PASSED [ 66%]
+tests/integration/test_rdp_accounting.py::test_get_epsilon_delta_sensitivity PASSED [ 68%]
+tests/integration/test_rdp_accounting.py::test_rejected_release_projection_does_not_commit PASSED [ 70%]
+tests/integration/test_rdp_accounting.py::test_backend_unavailable_raises PASSED [ 72%]
+tests/integration/test_secagg.py::test_secaggplus_workflow_valid_target_params PASSED [ 75%]
+tests/integration/test_secagg.py::test_secaggplus_workflow_rejects_threshold_ge_shares PASSED [ 77%]
+tests/integration/test_secagg.py::test_secaggplus_workflow_rejects_num_shares_le_2 PASSED [ 79%]
+tests/integration/test_secagg.py::test_secaggplus_workflow_rejects_nonpositive_max_weight PASSED [ 81%]
+tests/integration/test_secagg.py::test_secaggplus_workflow_defaults_match_targets PASSED [ 83%]
+tests/integration/test_secagg.py::test_weighted_aggregate_matches_independent_calculation PASSED [ 85%]
+tests/integration/test_secagg.py::test_no_individual_updates_leak_through_workflow PASSED [ 87%]
+tests/integration/test_secagg.py::test_secagg_mod_passthrough_non_train PASSED [ 89%]
+tests/integration/test_secagg.py::test_secagg_mod_disabled_passthrough PASSED [ 91%]
+tests/integration/test_secagg.py::test_local_dp_mod_disabled_passthrough PASSED [ 93%]
+tests/integration/test_secagg.py::test_local_dp_mod_uses_privacy_config PASSED [ 95%]
+tests/integration/test_tls.py::test_tls_cert_chain_validates PASSED      [ 97%]
+tests/integration/test_tls.py::test_tls_rejects_wrong_ca_expiry_and_hostname PASSED [100%]
+
+============================= slowest 15 durations =============================
+0.72s call     tests/integration/test_e2e_pipeline.py::test_end_to_end_generate_preprocess_train_evaluate
+0.31s call     tests/integration/test_tls.py::test_tls_cert_chain_validates
+0.31s call     tests/integration/test_tls.py::test_tls_rejects_wrong_ca_expiry_and_hostname
+0.28s call     tests/integration/test_e2e_pipeline.py::test_deterministic_pipeline_same_seed
+0.25s call     tests/integration/test_causal_transport_regression.py::test_ate_estimators_agree
+0.05s call     tests/integration/test_causal_transport_regression.py::test_transport_verdict_de_fr_to_ch
+0.03s setup    tests/integration/test_causal_transport_regression.py::test_dag_passes_validation
+0.01s call     tests/integration/test_causal_transport_regression.py::test_dag_passes_validation
+0.01s call     tests/integration/test_causal_transport_regression.py::test_dag_fails_on_bad_adjustment_set
+0.01s call     tests/integration/test_causal_transport_regression.py::test_dag_fails_on_unknown_node_edge
+
+(5 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================== 48 passed in 6.39s ==============================

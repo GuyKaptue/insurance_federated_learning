@@ -1,0 +1,268 @@
+{
+  "dataset_version": "v2",
+  "config_hash": "e93bcefe91a0b25a",
+  "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+  "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+  "git_dirty": true,
+  "synthetic_only": true,
+  "procedure": "one raw-feature local train epoch per client from same initial model, weighted FedAvg, then validation loss components",
+  "seed": 42,
+  "local_epochs": 1,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "clip_norm": 1.0,
+  "clients": {
+    "germany_allianz": {
+      "n_train": 3000,
+      "update_l2_before_clip": 5082180060.819758,
+      "clip_factor_at_norm_1": 1.9676595241269343e-10,
+      "would_be_clipped_at_norm_1": true
+    },
+    "france_axa": {
+      "n_train": 3000,
+      "update_l2_before_clip": 3540577603.164886,
+      "clip_factor_at_norm_1": 2.8243979149224417e-10,
+      "would_be_clipped_at_norm_1": true
+    },
+    "belgium_ageas": {
+      "n_train": 3000,
+      "update_l2_before_clip": 5287306120.713308,
+      "clip_factor_at_norm_1": 1.891322305100599e-10,
+      "would_be_clipped_at_norm_1": true
+    },
+    "switzerland_helvetia": {
+      "n_train": 3000,
+      "update_l2_before_clip": 11650052501.202286,
+      "clip_factor_at_norm_1": 8.583652304543692e-11,
+      "would_be_clipped_at_norm_1": true
+    }
+  },
+  "target_scales": {
+    "germany_allianz": {
+      "claim_risk_score": {
+        "min": 0.0,
+        "p50": 7.614338787432265,
+        "p90": 17.178610979603864,
+        "p99": 29.574905358627017,
+        "max": 44.93652428759671,
+        "mean": 8.416113520077001,
+        "std": 6.797028434740891
+      },
+      "customer_lifetime_value": {
+        "min": 1000.0,
+        "p50": 3475.9439427961424,
+        "p90": 5476.305447232189,
+        "p99": 7295.22420958073,
+        "max": 9403.345625999285,
+        "mean": 3564.9547989511143,
+        "std": 1441.4971860383075
+      },
+      "will_renew": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.7723333333333333,
+        "std": 0.41932631154693306
+      },
+      "is_high_risk": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.5253333333333333,
+        "std": 0.49935780981398725
+      },
+      "customer_segment": {
+        "min": 0.0,
+        "p50": 2.0,
+        "p90": 2.0,
+        "p99": 2.0,
+        "max": 2.0,
+        "mean": 1.5733333333333333,
+        "std": 0.6082397188243757
+      }
+    },
+    "france_axa": {
+      "claim_risk_score": {
+        "min": 0.0,
+        "p50": 8.819580961011189,
+        "p90": 21.643120585768518,
+        "p99": 38.86114626822267,
+        "max": 52.00500529613238,
+        "mean": 10.318766400550217,
+        "std": 8.700369751827662
+      },
+      "customer_lifetime_value": {
+        "min": 1000.0,
+        "p50": 3201.4135360732316,
+        "p90": 5280.821014066375,
+        "p99": 7018.738867128535,
+        "max": 9516.543962784264,
+        "mean": 3331.9167093060714,
+        "std": 1442.7864852371056
+      },
+      "will_renew": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.6883333333333334,
+        "std": 0.4631744331842546
+      },
+      "is_high_risk": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.5246666666666666,
+        "std": 0.4993911848997293
+      },
+      "customer_segment": {
+        "min": 0.0,
+        "p50": 2.0,
+        "p90": 2.0,
+        "p99": 2.0,
+        "max": 2.0,
+        "mean": 1.5756666666666668,
+        "std": 0.6101430615483188
+      }
+    },
+    "belgium_ageas": {
+      "claim_risk_score": {
+        "min": 0.0,
+        "p50": 8.399459073714103,
+        "p90": 18.977420463365178,
+        "p99": 34.63406020660798,
+        "max": 51.10404748696472,
+        "mean": 9.447780409107587,
+        "std": 7.771853654912685
+      },
+      "customer_lifetime_value": {
+        "min": 1000.0,
+        "p50": 3069.4220050926097,
+        "p90": 4980.496186837124,
+        "p99": 6605.396239797597,
+        "max": 7695.880393694568,
+        "mean": 3158.4943697097337,
+        "std": 1332.626880224711
+      },
+      "will_renew": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.7243333333333334,
+        "std": 0.44684958940963065
+      },
+      "is_high_risk": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.519,
+        "std": 0.49963886958482323
+      },
+      "customer_segment": {
+        "min": 0.0,
+        "p50": 2.0,
+        "p90": 2.0,
+        "p99": 2.0,
+        "max": 2.0,
+        "mean": 1.5676666666666668,
+        "std": 0.6165126834777115
+      }
+    },
+    "switzerland_helvetia": {
+      "claim_risk_score": {
+        "min": 0.0,
+        "p50": 5.89536208434653,
+        "p90": 14.676619432260315,
+        "p99": 25.893142099409715,
+        "max": 36.68913786718208,
+        "mean": 6.787317976932912,
+        "std": 6.031996244159781
+      },
+      "customer_lifetime_value": {
+        "min": 1000.0,
+        "p50": 4366.739209862346,
+        "p90": 6982.387275741571,
+        "p99": 9502.011168088926,
+        "max": 11301.437906656025,
+        "mean": 4505.829849790595,
+        "std": 1818.8251869086982
+      },
+      "will_renew": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.7856666666666666,
+        "std": 0.4103590568703894
+      },
+      "is_high_risk": {
+        "min": 0.0,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0,
+        "mean": 0.5316666666666666,
+        "std": 0.4989962146371676
+      },
+      "customer_segment": {
+        "min": 0.0,
+        "p50": 2.0,
+        "p90": 2.0,
+        "p99": 2.0,
+        "max": 2.0,
+        "mean": 1.6016666666666666,
+        "std": 0.5935743892348756
+      }
+    }
+  },
+  "round1_validation_losses": {
+    "germany_allianz": {
+      "claim_risk_score": 83.73932647705078,
+      "customer_lifetime_value": 15160240.0,
+      "will_renew": 0.6071875095367432,
+      "is_high_risk": 0.6906387209892273,
+      "customer_segment": 0.88828045129776,
+      "total_equal_weight": 15160325.925433159,
+      "total_kendall": 13837376.0
+    },
+    "france_axa": {
+      "claim_risk_score": 131.13230895996094,
+      "customer_lifetime_value": 13552962.0,
+      "will_renew": 0.646345317363739,
+      "is_high_risk": 0.6967185139656067,
+      "customer_segment": 0.8841686844825745,
+      "total_equal_weight": 13553095.359541476,
+      "total_kendall": 12370399.0
+    },
+    "belgium_ageas": {
+      "claim_risk_score": 114.03276824951172,
+      "customer_lifetime_value": 11301659.0,
+      "will_renew": 0.6380590796470642,
+      "is_high_risk": 0.6958214640617371,
+      "customer_segment": 0.8796214461326599,
+      "total_equal_weight": 11301775.24627024,
+      "total_kendall": 10315538.0
+    },
+    "switzerland_helvetia": {
+      "claim_risk_score": 59.26075744628906,
+      "customer_lifetime_value": 23649910.0,
+      "will_renew": 0.5911585092544556,
+      "is_high_risk": 0.6884025931358337,
+      "customer_segment": 0.8633955717086792,
+      "total_equal_weight": 23649971.40371412,
+      "total_kendall": 21586176.0
+    }
+  }
+}

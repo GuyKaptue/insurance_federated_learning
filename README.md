@@ -1,5 +1,7 @@
 # 🏦 Insurance Federated Learning Platform
 
+Container deployment notes and the local four-client Flower Compose smoke topology are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The local topology is synthetic and single-host; it does not demonstrate multiple organizations.
+
 [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TensorFlow Federated](https://img.shields.io/badge/TFF-0.52+-orange.svg)](https://www.tensorflow.org/federated)
@@ -32,13 +34,13 @@ All experiments use **synthetic data** (5,000 samples per client) generated with
 | Stage | What | Why | How to run | Results link |
 |-------|------|-----|------------|--------------|
 | 1. Synthetic Data Generation | 20,000 synthetic records (5,000/client, 33 features, 5 targets) | Realistic, privacy-safe benchmark | `make data` (official: `insurance-fl-generate --samples 5000 --seed 42 --output data/processed/european_insurance_federated`, backed by `insurance_fl.data.generator.EuropeanInsuranceFederatedDataset`) | `docs/EIFD.md`, `docs/evidence/dataset_manifest.json` (when present) |
-| 2. TLS Certificate Generation | CA + server + client certs via OpenSSL | Transport security for local SuperLink/SuperNode | `python generate_creds.py --output-dir certificates` | `tests/integration/test_tls.py` |
+| 2. TLS Certificate Generation | CA + server certificate validation via OpenSSL | TLS server authentication for local SuperLink/SuperNode | `python generate_creds.py --output-dir certificates` | `tests/integration/test_tls.py`; Flower 1.31 root certificates verify the server. Client certificate files are generated for examples, but the standard Flower gRPC server does not require client certificates; SuperNode key authentication is a separate feature. |
 | 3. Security (SecAgg+) | Cryptographic masking of parameter updates (partially implemented) | Parameter updates protected by protocol when correctly wired; **not end-to-end Flower-app runtime evidence** | `pytest tests/integration/test_secagg.py` (protocol-level); `server_app.main(secagg-enabled=true)` fails closed (`NotImplementedError`) | `tests/integration/test_secagg.py`, `tests/unit/fl/test_server_app.py` (see D-PRIV-006; no committed end-to-end SecAgg run log) |
-| 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `artifacts/fairness_disparity.json` (v2 `is_high_risk`: point 0.0347, joint 95% CI [0.0159, 0.0803], **inconclusive**) |
-| 5. MIA | Black-box shadow-model MIA on is_high_risk | Empirical leakage check | `python scripts/run_mia.py` | `reports/mia_evaluation.json` (not committed) - AUC 0.6032215647600263, TPR@1%FPR 0.03564102564102564 |
-| 6. Differential Privacy (Local DP) | Optional Gaussian noise + clipping (disabled by default) | Per-client DP when enabled | `python scripts/dp_sweep.py` | `reports/dp_utility_curve.json` (not committed); script at `scripts/dp_sweep.py` |
+| 4. Fairness | Country-stratified sampling + disparity D = max(m_c) - min(m_c) | Detect disparate impact | `pytest tests/integration/test_fairness.py` | `artifacts/fairness_disparity.json`: Bayes proxy spread 0.0290, federated spread 0.0347, descriptive excess 0.0057; joint 95% CI [0.0159, 0.0803] crosses 0.05, **inconclusive** |
+| 5. MIA | Shadow-model positive control and per-client v2 membership samples | Empirical leakage check | `python scripts/run_mia.py` | Positive control AUC 0.6503; preregistered lower-CI gate passes, AUC≥0.75 target fails. `reports/mia_v2_federated.json`: all per-client 95% CIs include 0.5; this does not prove zero leakage. |
+| 6. Differential Privacy (Local DP) | Optional client-side Gaussian noise + clipping (disabled by default) | Client-update-level guarantee under stated add/remove adjacency when enabled | `python scripts/dp_sweep.py` | One release per utility point; sigma=1 causes severe measured utility loss. Assumptions: [`docs/PRIVACY_MATH.md`](docs/PRIVACY_MATH.md). |
 | 7. DP-Counting (RDP) | Fail-closed RDP accounting with dp-accounting v0.6.0 | Quantifiable epsilon-delta budget | `pytest tests/integration/test_rdp_accounting.py` | No committed epsilon (per-run only); fail-closed test in `tests/integration/test_rdp_accounting.py` |
-| 8. Federated Learning with Flower | Multi-task FL app (Kendall + FedBN) with Flower simulation path | Cross-market model without sharing raw data | `python -m insurance_fl.fl.task --prepare && flwr run . --stream --run-config num-server-rounds=2` | **Pre-fix (invalid for 4-partition identity claims, D-ORCH-010):** `docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`. **Post-fix participation proof:** `make flwr-guard` (4 distinct partitions/clients in fit+eval, see `scripts/check_flwr_guard_identity.py`). |
+| 8. Federated Learning with Flower | Multi-task FL app (Kendall + FedBN) with Flower simulation path | Cross-market model without sharing raw data | `python -m insurance_fl.fl.task --prepare && make flwr-sim FLWR_SIM_ARGS="--run-config num-server-rounds=2"` (canonical entry point: `scripts/flwr_sim.sh`, passes `--federation-config num-supernodes=$(N_CLIENTS)` derived from `CLIENT_IDS`, isolated `FLWR_HOME`) | **Pre-fix (invalid for 4-partition identity claims, D-ORCH-010):** `docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`. **Post-fix participation proof:** `make flwr-guard` (4 distinct partitions/clients in fit+eval, see `scripts/check_flwr_guard_identity.py`). |
 
 ## 1. The Problem We Are Solving
 
@@ -66,11 +68,11 @@ European insurers hold highly sensitive customer data. Regulations (GDPR) and co
 
 ## ✅ Results (What the Platform Can Do Today)
 
-- **Federated Flower app executes**: pre-fix `flwr run` logs show completed multi-round simulation runs (`docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`), but those runs are **invalid for 4-partition identity/per-client attribution claims** due to a pre-fix `node_id % 4` mapping bug (D-ORCH-010). Post-fix `make flwr-guard` proves 4 distinct partitions/clients participate once each in fit and evaluate (identity-checked).
-- **Privacy stack (fail-closed)**: RDP accountant, Local DP, and SecAgg+ modules present; runs halt rather than proceed without an ε guarantee when the backend is unavailable.
+- **Federated Flower app executes**: pre-fix `flwr run` logs show completed multi-round simulation runs (`docs/evidence/layer1_flwr_run_2rounds.log`, `docs/evidence/layer2_flwr_run_3rounds.log`), but those runs are **invalid for 4-partition identity/per-client attribution claims** due to a pre-fix `node_id % 4` mapping bug (D-ORCH-010). Post-fix `make flwr-guard` proves 4 distinct partitions/clients participate once each in fit and evaluate (identity-checked). Use the canonical simulation entry point `make flwr-sim` / `scripts/flwr_sim.sh` (or `make flwr-guard`) so Flower 1.31 always receives `--federation-config num-supernodes=$(N_CLIENTS)` and runs with an isolated `FLWR_HOME` (no writes to real `~/.flwr`, no `pyproject.toml` migration side effects).
+- **Privacy stack**: DP is disabled by default. When enabled, the Local DP modifier and RDP gate fail closed if required accounting is unavailable. SecAgg+ is not wired end-to-end through the Flower app; see [`docs/PRIVACY_MATH.md`](docs/PRIVACY_MATH.md).
 - **Fairness & audit**: country-stratified FedProx, disparity metrics, JSONL audit trail (6 event types, secret redaction), MIA evaluation.
 - **Hybrid ML**: per-client XGBoost/LightGBM/CatBoost with OOF predictions, NNLS stacking, β-fusion.
-- **`is_high_risk` (v2, validated gate artifacts):** federated/pooled/local/GBM test AUCs do not exceed per-test-split Bayes AUC by >2 SE for any client (`reports/is_high_risk_auc.json:test_split_bayes`). Post-hoc calibration (isotonic/temperature/Platt, val-fit/test-eval) showed no uniform improvement; **raw probabilities remain the shipped default** (`reports/is_high_risk_auc.json:calibration_comparison`). Feature surface: 24 identical ordered inputs/client (21 base + 3 missingness indicators).
+- **`is_high_risk` (v2, validated gate artifacts):** federated/pooled/local/GBM test AUCs do not exceed per-test-split Bayes AUC by >2 SE for any client (`reports/is_high_risk_auc.json:test_split_bayes`). Post-hoc calibration (isotonic/temperature/Platt, val-fit/test-eval) showed no uniform improvement; **raw probabilities remain the shipped default** (`reports/is_high_risk_auc.json:calibration_comparison`). Model feature surface: 24 inputs/client (21 predictors + 3 missingness indicators). The 26 numeric columns include five numeric targets; `customer_id` is an identifier and excluded.
 ### ✅ Causal estimation — estimators agree
 ```
 scripts/causal_estimate.py
@@ -119,6 +121,7 @@ If the canonical dataset is missing, data-dependent tests skip with a clear mess
 
 
 - **Canonical interpreter:** use the project virtual environment at `./venv` (Python 3.11 in this checkout). Run commands as `./venv/bin/python -m ...` and `./venv/bin/pip ...` (or activate the venv). `Makefile` is venv-aware (`PYTHON ?= venv/bin/python` when present).
+- **Experiment tracking (optional):** install the `tracking` extra (`pip install -e ".[dev,causal,privacy,notebooks,tracking]"` or `pip install insurance-federated-learning[tracking]`) to enable MLflow. If `mlflow_enabled=True` is requested without this extra, the strategy raises a clear `RuntimeError` (no silent fallback).
 - **Do not rely on system/Homebrew Python for project validation:** `python3` on this machine resolves to Homebrew Python 3.13 with a different package set (e.g. Flower version/import paths differ) and can produce misleading test/notebook results.
 - **Notebook execution kernel:** `scripts/validate_notebooks.py` executes notebooks with the `insurance-fl` Jupyter kernel by default (`NB_KERNEL` overrides). Register it with `make kernel` (or `./venv/bin/python -m ipykernel install --user --name insurance-fl`) before validation; `scripts/run_notebooks.py` currently uses `kernel_name="python3"` and may need the same alignment for non-validator runs.
 - **Utility scripts (kept):** `scripts/launch_tls.py` — print/dry-run TLS Flower launch commands (e.g. `./venv/bin/python scripts/launch_tls.py --dry-run --certs-dir certificates`). `scripts/run_e2e.py` — end-to-end hybrid pipeline runner (e.g. `./venv/bin/python scripts/run_e2e.py --rounds 3 --output-dir runs`). `scripts/diagnose_is_high_risk.py` — ad-hoc XGBoost learnability diagnostic for `is_high_risk` (e.g. `./venv/bin/python scripts/diagnose_is_high_risk.py --data-dir data/processed/fl_task0_smoke`).
@@ -170,8 +173,25 @@ SMD diagnostics, overlap checks, source/target loss and **ratio**, and the
 **T3 transportability verdict** — reported separately for the *model* and for
 the *causal effect*.
 
-Notebooks for interactive exploration:
+Notebook catalog (latest validator run: 19/19 passed in `NB_MODE=light`; full mode is not claimed):
+`notebooks/calibration_comparison.ipynb`,
 `notebooks/causal_inference_quickstart.ipynb`,
+`notebooks/client_identity_and_isolation.ipynb`,
+`notebooks/dp_accounting_rdp.ipynb`,
+`notebooks/dp_utility_tradeoff.ipynb`,
+`notebooks/fairness_evaluation.ipynb`,
+`notebooks/feature_surface_and_leakage.ipynb`,
+`notebooks/flower_federated_learning.ipynb`,
+`notebooks/hybrid_boosters_stacking.ipynb`,
+`notebooks/local_dp.ipynb`,
+`notebooks/membership_inference.ipynb`,
+`notebooks/mia_power_analysis.ipynb`,
+`notebooks/privacy_budget_gate.ipynb`,
+`notebooks/round1_loss_diagnosis.ipynb`,
+`notebooks/security_secagg.ipynb`,
+`notebooks/synthetic_data_generation.ipynb`,
+`notebooks/test_split_bayes_sanity.ipynb`,
+`notebooks/tls_credentials.ipynb`,
 `notebooks/transportability_quickstart.ipynb`.
 
 ## 📦 Installation (clean environment)
@@ -267,7 +287,7 @@ preview/experimental status unless noted):
 - `build_local_dp_mod()` in `src/insurance_fl/fl/dp.py` wraps Flower's `LocalDpMod`.
 - Clipping + Gaussian noise applied before SecAgg masking.
 - **Disabled by default.** No Local-DP guarantee is provided when disabled.
-- Utility sweep: `python scripts/dp_sweep.py` → `reports/dp_utility_curve.json`.
+- Utility sweep: `python scripts/dp_sweep.py` → `reports/dp_utility_curve.json`; the measured sigma=1 point has severe utility loss. The sweep measures one release per point, not cumulative repeated releases.
 
 ### RDP Accounting
 - **RESOLVED**: Uses `dp-accounting` (Google) v0.6.0 as RDP backend.
@@ -281,10 +301,11 @@ preview/experimental status unless noted):
   eligible country (subject to availability and budget).
 - Per-country disparity: D = max(m_c) - min(m_c).
 - 5% threshold is a configurable hypothesis, not a regulatory standard.
-- **v2 `is_high_risk` (fed reference, per-client test AUC):** point disparity 0.0347 with per-seed disparities 0.0338/0.0340/0.0375, but joint bootstrap 95% CI [0.0159, 0.0803] crosses 0.05 (conservative max−min bootstrap) — **status: inconclusive** (not a pass). See `artifacts/fairness_disparity.json`.
+- **v2 `is_high_risk` (fed reference, per-client test AUC):** point disparity 0.0347 with per-seed disparities 0.0338/0.0340/0.0375, but joint bootstrap 95% CI [0.0159, 0.0803] crosses 0.05 (conservative max−min bootstrap) — **status: inconclusive** (not a pass). Analytic test-split Bayes proxy spread is 0.0290; the 0.0057 excess is descriptive and not a causal estimate of model-attributable disparity. See `artifacts/fairness_disparity.json`.
 
 ### TLS
 - Applies to local SuperLink/SuperNode deployments only. SuperGrid transport security is platform-managed.
+- Flower 1.31 `--root-certificates` validates the server certificate; its standard gRPC server sets `require_client_auth=False`, so this is not mTLS. Optional SuperNode public-key authentication requires TLS and the `grpc-rere` Fleet API; it is not applicable to Flower simulation. The generated client certificate is not an authorization mechanism.
 - Generate certs: `python generate_creds.py --output-dir certificates` (see `tests/integration/test_tls.py`).
 
 ### Reproducibility
@@ -295,8 +316,8 @@ preview/experimental status unless noted):
 ### Membership Inference Attack (MIA)
 - Black-box MIA via shadow models: `src/insurance_fl/evaluation/mia.py`.
 - Reports ROC AUC and TPR@1%FPR. Empirical result, not formal DP guarantee.
-- Run: `python scripts/run_mia.py` → `reports/mia_evaluation.json`.
-- AUC near 0.5 does not prove zero leakage.
+- `reports/mia_evaluation.json` is the overfit positive control (AUC 0.6503; preregistered lower-CI gate passes, AUC≥0.75 target fails).
+- `reports/mia_v2_federated.json` evaluates train members against held-out test/validation nonmembers for the recorded federated reference; all per-client confidence intervals include 0.5. AUC near 0.5 does not prove zero leakage.
 
 ### Audit Trails
 - Structured JSONL: `src/insurance_fl/audit.py`. 6 event types.

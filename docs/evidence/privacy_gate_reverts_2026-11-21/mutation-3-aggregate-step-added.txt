@@ -1,0 +1,10 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_aggregate_fit_does_not_account_a_second_release _____________
+tests/unit/fl/test_privacy_gate.py:181: in test_aggregate_fit_does_not_account_a_second_release
+    assert acc.rounds == 1
+E   assert 2 == 1
+E    +  where 2 = <insurance_fl.fl.privacy.RdpAccountantWrapper object at 0x13d5f2c10>.rounds
+=========================== short test summary info ============================
+FAILED tests/unit/fl/test_privacy_gate.py::test_aggregate_fit_does_not_account_a_second_release
+1 failed in 3.53s

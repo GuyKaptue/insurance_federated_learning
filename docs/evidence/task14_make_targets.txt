@@ -1,0 +1,26 @@
+evaluate: ## Evaluate models and write reports/
+	$(PYTHON) scripts/evaluate_models.py
+
+serve: ## Run the FastAPI service locally
+	$(PYTHON) scripts/deploy_api.py
+
+docker-build: ## Build the Docker image
+	docker build -t insurance-fl:latest .
+
+docker-run: ## Run the built image
+	docker run --rm insurance-fl:latest
+
+docker-test: ## Run container tests
+	docker run --rm insurance-fl:latest python -m pytest -q -m "not slow"
+
+compose-up: ## Start the federated docker-compose stack
+	docker compose up --build -d
+
+compose-down: ## Stop the federated docker-compose stack
+	docker compose down
+
+ci: ## What CI runs locally: lint, typecheck, tests, coverage, flwr smoke
+	$(MAKE) lint
+	$(MAKE) typecheck
+	$(MAKE) test
+	$(MAKE) coverage

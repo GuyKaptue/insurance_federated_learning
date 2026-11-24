@@ -1,0 +1,53 @@
+ M .github/workflows/ci.yml
+ M Makefile
+ M README.md
+ M artifacts/fairness_disparity.json
+ M constraints/ci-linux-py311.txt
+ M docs/DECISIONS.md
+ M docs/engineering/IMPLEMENTATION_STATUS.md
+ M docs/evidence/dataset_manifest.json
+ M notebooks/dp_accounting_rdp.ipynb
+ M notebooks/fairness_evaluation.ipynb
+ M notebooks/flower_federated_learning.ipynb
+ M notebooks/hybrid_boosters_stacking.ipynb
+ M notebooks/local_dp.ipynb
+ M pyproject.toml
+ M reports/notebook_validation.json
+ M scripts/check_dataset_signal.py
+ M scripts/dp_sweep.py
+ M scripts/launch_tls.py
+ M scripts/run_mia.py
+ M scripts/validate_notebooks.py
+ D security/pip-audit-ignore.txt
+ M src/insurance_fl/fl/client_app.py
+ M src/insurance_fl/fl/privacy.py
+ M src/insurance_fl/fl/server_app.py
+ M src/insurance_fl/fl/strategy.py
+ M src/insurance_fl/fl/task.py
+ M tests/integration/test_rdp_accounting.py
+ M tests/unit/fl/test_privacy.py
+ M tests/unit/fl/test_server_app.py
+ M tests/unit/fl/test_strategy.py
+ M tests/unit/scripts/test_mia_script.py
+?? constraints/runtime-linux-py311.txt
+?? docs/PRIVACY_MATH.md
+?? docs/engineering/DIAGNOSIS_2026-11-21.md
+?? docs/evidence/c6_run_2026-11-21/
+?? docs/evidence/mia_dp_2026-11-21/
+?? docs/evidence/privacy_gate_reverts_2026-11-21/
+?? docs/evidence/round1_loss_diagnosis_2026-11-21.json
+?? docs/evidence/security_audit_2026-11-21/
+?? docs/evidence/task7_flwr_rerun_2026-11-21/
+?? reports/dp_utility_curve.json
+?? reports/mia_evaluation.json
+?? reports/mia_v2/
+?? reports/mia_v2_federated.json
+?? scripts/ci/
+?? scripts/flwr_sim.sh
+?? security/pip-audit-ignores.toml
+?? tests/unit/fl/test_privacy_gate.py
+?? tests/unit/scripts/test_check_audit_ignores.py
+?? tests/unit/scripts/test_dp_sweep.py
+?? tests/unit/scripts/test_mia_membership_splits.py
+?? tests/unit/scripts/test_validate_notebooks.py
+?? tests/unit/test_dataset_logical_hash.py

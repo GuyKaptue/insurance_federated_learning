@@ -1,0 +1,13 @@
+scripts/ci/check_audit_ignores.py
+docs/evidence/task10_artifact_inventory.txt
+docs/evidence/c6_run_2026-11-21/audit_budget_exhausted.jsonl
+docs/evidence/c6_run_2026-11-21/audit_resume.jsonl
+docs/evidence/security_audit_2026-11-21/latest-ci-failure-security.txt
+docs/evidence/security_audit_2026-11-21/gitleaks-source-scan.txt
+docs/evidence/security_audit_2026-11-21/vulnerabilities.tsv
+docs/evidence/security_audit_2026-11-21/latest-ci-failure-artifact.txt
+docs/evidence/security_audit_2026-11-21/ignore-check.txt
+docs/evidence/security_audit_2026-11-21/runtime-linux-py311.json
+tests/unit/scripts/test_check_audit_ignores.py
+tests/unit/test_audit.py
+tests/unit/test_artifact_provenance.py

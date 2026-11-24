@@ -1,0 +1,359 @@
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/entry_points.txt:3:flower-superlink = flwr.server.app:run_superlink
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:47:def ensure_local_superlink(connection: SuperLinkConnection) -> SuperLinkConnection:
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:70:        if not _is_local_superlink_started():
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:71:            _start_local_superlink(
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:80:def _get_local_superlink_paths() -> tuple[Path, Path]:
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:82:    runtime_dir = get_flwr_home() / "local-superlink"
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:84:    log_file_path = runtime_dir / "superlink.log"
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:89:def _is_local_superlink_started() -> bool:
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:103:def _start_local_superlink(in_memory: bool = False) -> None:
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:105:    database_path, log_file_path = _get_local_superlink_paths()
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:113:        "flower-superlink",
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:147:            f"Unable to launch `flower-superlink` for local simulation: {exc}"
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:156:                f"`flower-superlink` exited with code {process.poll()}. "
+venv/lib/python3.11/site-packages/flwr/cli/local_superlink.py:160:        if _is_local_superlink_started():
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:2:../../../bin/flower-superlink,sha256=EayFp7uI9yniAgIYuPmJ55ujUna0kLZ90abMQYMMtcY,291
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:77:flwr/cli/__pycache__/local_superlink.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:140:flwr/cli/local_superlink.py,sha256=YBg9nxHqO7jJTrwrJeSsyZBTfSYMSVj5Gp8RJ7o_Loc,6934
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:530:flwr/server/superlink/__init__.py,sha256=GNSuJ4-N6Z8wun2iZNlXqENt5beUyzC0Gi_tN396bbM,707
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:531:flwr/server/superlink/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:532:flwr/server/superlink/__pycache__/utils.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:533:flwr/server/superlink/fleet/__init__.py,sha256=Uiwr33yfW_eL-pEfj80c_JUhIKRkCPsN1JSs2v4aglU,711
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:534:flwr/server/superlink/fleet/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:535:flwr/server/superlink/fleet/grpc_adapter/__init__.py,sha256=fUu1V63YrzjxAOZnBJx99WjuD4Mro7dJIFH-1V4NLV8,742
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:536:flwr/server/superlink/fleet/grpc_adapter/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:537:flwr/server/superlink/fleet/grpc_adapter/__pycache__/grpc_adapter_servicer.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:538:flwr/server/superlink/fleet/grpc_adapter/grpc_adapter_servicer.py,sha256=DE4vbPdS5Tps3FsYFRRiFj1aml5B46625fy-rFF7mXc,5557
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:539:flwr/server/superlink/fleet/grpc_bidi/__init__.py,sha256=dOM49q1b9MrtUr5jldjEnQ38NhcUyYs-zC3gsJb1TtI,735
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:540:flwr/server/superlink/fleet/grpc_bidi/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:541:flwr/server/superlink/fleet/grpc_bidi/__pycache__/flower_service_servicer.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:542:flwr/server/superlink/fleet/grpc_bidi/__pycache__/grpc_bridge.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:543:flwr/server/superlink/fleet/grpc_bidi/__pycache__/grpc_client_proxy.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:544:flwr/server/superlink/fleet/grpc_bidi/__pycache__/grpc_server.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:545:flwr/server/superlink/fleet/grpc_bidi/flower_service_servicer.py,sha256=fUumpuU-n1PVH-BEcPA-VMXAzyXh1u10vZriB6vx3V8,6003
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:546:flwr/server/superlink/fleet/grpc_bidi/grpc_bridge.py,sha256=cKb4bHfvoku34sfWmcVzJ04MQ49bIcTQ0GeH6TmVVCE,6448
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:547:flwr/server/superlink/fleet/grpc_bidi/grpc_client_proxy.py,sha256=01p58US63-eMmKm_KHeFQqbCHBjeL9pEfgqGI-r3Dw8,4828
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:548:flwr/server/superlink/fleet/grpc_bidi/grpc_server.py,sha256=6uraD1bcZGYs9uXWUa46THUKUBnAknIxckiGAt036kc,5142
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:549:flwr/server/superlink/fleet/grpc_rere/__init__.py,sha256=ahDJJ1e-lDxBpeBMgPk7YZt2wB38_QltcpOC0gLbpFs,758
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:550:flwr/server/superlink/fleet/grpc_rere/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:551:flwr/server/superlink/fleet/grpc_rere/__pycache__/fleet_servicer.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:552:flwr/server/superlink/fleet/grpc_rere/__pycache__/node_auth_server_interceptor.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:553:flwr/server/superlink/fleet/grpc_rere/fleet_servicer.py,sha256=JNXWsf7igBbJc0ihR56psD9wGEwRyiZ37k9D6oHqZEs,12446
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:554:flwr/server/superlink/fleet/grpc_rere/node_auth_server_interceptor.py,sha256=stsfUnwMHydn3aEPa_Jh6EILnx2taUeoUIdM2B1ikOY,5888
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:555:flwr/server/superlink/fleet/message_handler/__init__.py,sha256=fHsRV0KvJ8HtgSA4_YBsEzuhJLjO8p6xx4aCY2oE1p4,731
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:556:flwr/server/superlink/fleet/message_handler/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:557:flwr/server/superlink/fleet/message_handler/__pycache__/message_handler.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:558:flwr/server/superlink/fleet/message_handler/message_handler.py,sha256=oCOtBPdLdI8C-agxm2NhEq6ScTrC-UtrX6t4j92Yq0A,12810
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:559:flwr/server/superlink/fleet/rest_rere/__init__.py,sha256=Lzc93nA7tDqoy-zRUaPG316oqFiZX1HUCL5ELaXY_xw,735
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:560:flwr/server/superlink/fleet/rest_rere/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:561:flwr/server/superlink/fleet/rest_rere/__pycache__/rest_api.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:562:flwr/server/superlink/fleet/rest_rere/rest_api.py,sha256=26HtlEozWOmXKV5ZQShNxRMxx_gRdvgRr4HPVXfXtnY,9475
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:563:flwr/server/superlink/fleet/vce/__init__.py,sha256=XOKbAWOzlCqEOQ3M2cBYkH7HKA7PxlbCJMunt-ty-DY,784
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:564:flwr/server/superlink/fleet/vce/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:565:flwr/server/superlink/fleet/vce/__pycache__/metrics.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:566:flwr/server/superlink/fleet/vce/__pycache__/vce_api.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:567:flwr/server/superlink/fleet/vce/backend/__init__.py,sha256=1Ga4FpHshrO8d_clQgJx5hCuKdYblEY-uqQwK30P0NI,814
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:568:flwr/server/superlink/fleet/vce/backend/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:569:flwr/server/superlink/fleet/vce/backend/__pycache__/backend.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:570:flwr/server/superlink/fleet/vce/backend/__pycache__/raybackend.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:571:flwr/server/superlink/fleet/vce/backend/backend.py,sha256=-jqnBf5KGFuoergSFGo2hctkddEgMOKCyHojYP5H3rA,2168
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:572:flwr/server/superlink/fleet/vce/backend/raybackend.py,sha256=8N2FtIgdoqvyuEjLZWBnNWbXHymZ6sNu4JjUAPMOLkE,7524
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:573:flwr/server/superlink/fleet/vce/metrics.py,sha256=ag4gdlt1eGnRFTaPXexI5dFo3WnlK9N8VZk0AEdb3jE,1245
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:574:flwr/server/superlink/fleet/vce/vce_api.py,sha256=5UwZ-76HVHbBUhHLKGslrtmREYmNHNFFXoVFdyTOkAI,13534
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:575:flwr/server/superlink/linkstate/README.md,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:576:flwr/server/superlink/linkstate/__init__.py,sha256=KSUCjOfJlW1g6GAjlqK3mTviqLvJLuQEzSJwO27Qokg,1052
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:577:flwr/server/superlink/linkstate/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:578:flwr/server/superlink/linkstate/__pycache__/in_memory_linkstate.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:579:flwr/server/superlink/linkstate/__pycache__/linkstate.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:580:flwr/server/superlink/linkstate/__pycache__/linkstate_factory.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:581:flwr/server/superlink/linkstate/__pycache__/sql_linkstate.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:582:flwr/server/superlink/linkstate/__pycache__/utils.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:583:flwr/server/superlink/linkstate/in_memory_linkstate.py,sha256=c0hmq4-7MVp6vW080fssaXeETW3_jnlNypzYSPXz0Jw,35296
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:584:flwr/server/superlink/linkstate/linkstate.py,sha256=WWofNow1Hw3jjjhxcDqrO65pp2OGiVUHlT_hbosmRXw,16147
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:585:flwr/server/superlink/linkstate/linkstate_factory.py,sha256=_h-JFT4_Zagh6nZTZwZIkE3cKBaPQo1F3rbH_e0pELw,3230
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:586:flwr/server/superlink/linkstate/sql_linkstate.py,sha256=ZJ3VB06Jndh5epd3aQrr647-OL4DgrR6-yQu4QnYZf4,54652
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:587:flwr/server/superlink/linkstate/utils.py,sha256=QC29o9wIihOAgH-0MVC4RL2jazKJjRR8Goydtu2ddS8,14297
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:588:flwr/server/superlink/serverappio/__init__.py,sha256=Fy4zJuoccZe5mZSEIpOmQvU6YeXFBa1M4eZuXXmJcn8,717
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:589:flwr/server/superlink/serverappio/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:590:flwr/server/superlink/serverappio/__pycache__/serverappio_grpc.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:591:flwr/server/superlink/serverappio/__pycache__/serverappio_servicer.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:592:flwr/server/superlink/serverappio/serverappio_grpc.py,sha256=2YgbL__j3jIlDYg_iSLVwDhRUcp8ZOHvq0I9KGTn6kE,3348
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:593:flwr/server/superlink/serverappio/serverappio_servicer.py,sha256=P3YdlxejEfDRect190Y4NI6x3c6ehundvizj74Q9u1M,15673
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:594:flwr/server/superlink/utils.py,sha256=y5vuGw2491l8wOlQMOv_Bf9VLZjZmlrqrjMCCPfDgtQ,2048
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:888:flwr/superlink/__init__.py,sha256=GNSuJ4-N6Z8wun2iZNlXqENt5beUyzC0Gi_tN396bbM,707
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:889:flwr/superlink/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:890:flwr/superlink/artifact_provider/__init__.py,sha256=pgZEcVPKRE874LSu3cgy0HbwSJBIpVy_HxQOmne4PAs,810
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:891:flwr/superlink/artifact_provider/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:892:flwr/superlink/artifact_provider/__pycache__/artifact_provider.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:893:flwr/superlink/artifact_provider/artifact_provider.py,sha256=Gt1UUojVOa4WDgv8unU20MoETSMd5rSPF9eIITBNJY0,1236
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:894:flwr/superlink/auth_plugin/__init__.py,sha256=ApYBHnDmtv5gVrnxdFq97zC58O1icqHogK2Dz6o8DVI,1000
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:895:flwr/superlink/auth_plugin/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:896:flwr/superlink/auth_plugin/__pycache__/auth_plugin.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:897:flwr/superlink/auth_plugin/__pycache__/noop_auth_plugin.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:898:flwr/superlink/auth_plugin/auth_plugin.py,sha256=xLqAYFG7sjAhYgyeTvvEY6fSMjPRq0offmTDRYpIs78,2956
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:899:flwr/superlink/auth_plugin/noop_auth_plugin.py,sha256=0MWjNXZdz6zGRfitlnZfVKu4sKVn0HhJvnp09c3xVUA,2962
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:900:flwr/superlink/federation/__init__.py,sha256=A1pFFvkEQrHzvRAOstr2o7nphx3JbuJgkNRFKJ9qD3M,890
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:901:flwr/superlink/federation/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:902:flwr/superlink/federation/__pycache__/federation_manager.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:903:flwr/superlink/federation/__pycache__/noop_federation_manager.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:904:flwr/superlink/federation/federation_manager.py,sha256=6Bha-VvJxOq4Zyk-FvJsin9kha3CnN63YTvsUVbjKj8,11483
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:905:flwr/superlink/federation/noop_federation_manager.py,sha256=6o08enXwn0WyjL40ZdIiCDvW7W6Og4q0774eBAydvwE,8767
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:906:flwr/superlink/grid/__init__.py,sha256=LgY2_Xm3HfKj17em4tPhmS4dfY-sXR0G5BkYD_DLzsc,853
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:907:flwr/superlink/grid/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:908:flwr/superlink/grid/__pycache__/grpc_grid.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:909:flwr/superlink/grid/__pycache__/inmemory_grid.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:910:flwr/superlink/grid/grpc_grid.py,sha256=fYIGZ2WB8rAEbeoMsWoHacSxMCDExqw0roaCtARggG0,15985
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:911:flwr/superlink/grid/inmemory_grid.py,sha256=mhHps3IGi7Ew2IthcM4m9CfeHM2faZkXj93qoF3jnVw,6358
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:912:flwr/superlink/servicer/__init__.py,sha256=ZC-kILcUGeh6IxJsfu24cTzUqIGXmQfEKsGfhsnhBpM,717
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:913:flwr/superlink/servicer/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:914:flwr/superlink/servicer/control/__init__.py,sha256=qhUTMt_Mg4lxslCJYn5hDSrA-lXf5ya3617BT8kR-2Y,803
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:915:flwr/superlink/servicer/control/__pycache__/__init__.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:916:flwr/superlink/servicer/control/__pycache__/control_account_auth_interceptor.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:917:flwr/superlink/servicer/control/__pycache__/control_event_log_interceptor.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:918:flwr/superlink/servicer/control/__pycache__/control_grpc.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:919:flwr/superlink/servicer/control/__pycache__/control_license_interceptor.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:920:flwr/superlink/servicer/control/__pycache__/control_servicer.cpython-311.pyc,,
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:921:flwr/superlink/servicer/control/control_account_auth_interceptor.py,sha256=AJs7GE-fyUBLcUEUzB058TpFzC7gyDOL17THvYkJTn8,6529
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:922:flwr/superlink/servicer/control/control_event_log_interceptor.py,sha256=r9LjF5VkrE1sZIcml-sO2uOPAwpvr6dj4tFchqoDcR4,5965
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:923:flwr/superlink/servicer/control/control_grpc.py,sha256=Go-c0-fSc9MzFPLEX2R1iZUuPerYYXxJvK40acN-1VE,4276
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:924:flwr/superlink/servicer/control/control_license_interceptor.py,sha256=8d28soJ0mLLhpSGCpuY2YzgbX0vVO7Sqe2DcApEgILc,3336
+venv/lib/python3.11/site-packages/flwr-1.31.0.dist-info/RECORD:925:flwr/superlink/servicer/control/control_servicer.py,sha256=lXr4QjHEZI9HFRjmhreqwf_QfHHxpHTPttVDCeJa8vM,45693
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:34:from ..flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:40:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:58:    migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:60:    # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:61:    superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:62:    superlink = superlink_connection.name
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:65:    if superlink_connection.insecure:
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:71:    channel = init_channel_from_connection(superlink_connection, NoOpCliAuthPlugin())
+venv/lib/python3.11/site-packages/flwr/cli/login/login.py:80:        cast(str, superlink_connection.address), login_response.authn_type
+venv/lib/python3.11/site-packages/flwr/superlink/grid/inmemory_grid.py:28:from flwr.server.superlink.linkstate import LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/cli/supernode/unregister.py:23:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/supernode/unregister.py:44:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/supernode/unregister.py:60:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/unregister.py:62:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/supernode/unregister.py:63:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/unregister.py:67:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/ls.py:28:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/supernode/ls.py:51:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/supernode/ls.py:75:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/ls.py:77:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/supernode/ls.py:78:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/ls.py:82:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/common/exit/exit.py:123:    if sys.argv[0].endswith("flower-superlink"):
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_servicer.py:121:from flwr.server.superlink.linkstate import LinkState, LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_servicer.py:140:from flwr.superlink.artifact_provider import ArtifactProvider
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_servicer.py:141:from flwr.superlink.auth_plugin import ControlAuthnPlugin
+venv/lib/python3.11/site-packages/flwr/cli/supernode/register.py:28:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/supernode/register.py:54:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/supernode/register.py:73:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/register.py:75:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/supernode/register.py:76:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/supernode/register.py:80:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_license_interceptor.py:50:        # `flwr.superlink.servicer.control.ControlServicer`
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_account_auth_interceptor.py:35:from flwr.superlink.auth_plugin import ControlAuthnPlugin, ControlAuthzPlugin
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_account_auth_interceptor.py:89:        # `flwr.superlink.servicer.control.ControlServicer`
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:29:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:64:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:140:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:141:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:147:            superlink_connection,
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:161:    superlink_connection: SuperLinkConnection,
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:175:        federation = superlink_connection.federation or ""
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:178:        channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:198:                federation_config_overrides, superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:244:    superlink_connection: SuperLinkConnection,
+venv/lib/python3.11/site-packages/flwr/cli/run/run.py:246:    override_federation_config = _parse_deprecated_options(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/server/app.py:58:from flwr.common.logger import configure_superlink_log_file, log
+venv/lib/python3.11/site-packages/flwr/server/app.py:79:from flwr.superlink.artifact_provider import ArtifactProvider
+venv/lib/python3.11/site-packages/flwr/server/app.py:80:from flwr.superlink.auth_plugin import (
+venv/lib/python3.11/site-packages/flwr/server/app.py:86:from flwr.superlink.federation import FederationManager, NoOpFederationManager
+venv/lib/python3.11/site-packages/flwr/server/app.py:87:from flwr.superlink.servicer.control import run_control_api_grpc
+venv/lib/python3.11/site-packages/flwr/server/app.py:89:from .superlink.fleet.grpc_adapter.grpc_adapter_servicer import GrpcAdapterServicer
+venv/lib/python3.11/site-packages/flwr/server/app.py:90:from .superlink.fleet.grpc_rere.fleet_servicer import FleetServicer
+venv/lib/python3.11/site-packages/flwr/server/app.py:91:from .superlink.fleet.grpc_rere.node_auth_server_interceptor import (
+venv/lib/python3.11/site-packages/flwr/server/app.py:94:from .superlink.linkstate import LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/server/app.py:95:from .superlink.serverappio.serverappio_grpc import run_serverappio_api_grpc
+venv/lib/python3.11/site-packages/flwr/server/app.py:102:        add_ee_args_superlink,
+venv/lib/python3.11/site-packages/flwr/server/app.py:115:    def add_ee_args_superlink(parser: argparse.ArgumentParser) -> None:
+venv/lib/python3.11/site-packages/flwr/server/app.py:211:def run_superlink() -> None:
+venv/lib/python3.11/site-packages/flwr/server/app.py:213:    warn_if_flwr_update_available(process_name="flower-superlink")
+venv/lib/python3.11/site-packages/flwr/server/app.py:215:    args = _parse_args_run_superlink().parse_args()
+venv/lib/python3.11/site-packages/flwr/server/app.py:218:        configure_superlink_log_file(
+venv/lib/python3.11/site-packages/flwr/server/app.py:273:    certificates, appio_certificates = _obtain_superlink_certificates(args)
+venv/lib/python3.11/site-packages/flwr/server/app.py:541:def _obtain_superlink_certificates(
+venv/lib/python3.11/site-packages/flwr/server/app.py:751:        from flwr.server.superlink.fleet.rest_rere.rest_api import app as fast_api_app
+venv/lib/python3.11/site-packages/flwr/server/app.py:762:        app="flwr.server.superlink.fleet.rest_rere.rest_api:app",
+venv/lib/python3.11/site-packages/flwr/server/app.py:773:def _parse_args_run_superlink() -> argparse.ArgumentParser:
+venv/lib/python3.11/site-packages/flwr/server/app.py:786:    add_ee_args_superlink(parser=parser)
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_event_log_interceptor.py:52:        # `flwr.superlink.servicer.control.ControlServicer`
+venv/lib/python3.11/site-packages/flwr/cli/constant.py:53:    SUPERLINK = "superlink"
+venv/lib/python3.11/site-packages/flwr/cli/constant.py:107:DEFAULT_FLOWER_CONFIG_TOML = f"""[superlink]
+venv/lib/python3.11/site-packages/flwr/cli/constant.py:110:[superlink.supergrid]
+venv/lib/python3.11/site-packages/flwr/cli/constant.py:113:[superlink.local]
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_grpc.py:28:from flwr.server.superlink.linkstate import LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_grpc.py:34:from flwr.superlink.artifact_provider import ArtifactProvider
+venv/lib/python3.11/site-packages/flwr/superlink/servicer/control/control_grpc.py:35:from flwr.superlink.auth_plugin import (
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:172:def parse_superlink_connection(
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:211:def serialize_superlink_connection(connection: SuperLinkConnection) -> dict[str, Any]:
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:241:def read_superlink_connection(
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:266:        superlink_config = toml_dict.get(SuperLinkConnectionTomlKey.SUPERLINK, {})
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:270:            connection_name = superlink_config.get(SuperLinkConnectionTomlKey.DEFAULT)
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:278:                "connection by adding: \n\n[superlink]\ndefault = 'connection_name'\n\n"
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:283:        if connection_name not in superlink_config:
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:289:            if connection_name == superlink_config.get(
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:294:                    "is defined in the [superlink] section."
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:298:        conn_dict = superlink_config[connection_name]
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:299:        return parse_superlink_connection(conn_dict, connection_name)
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:312:def write_superlink_connection(connection: SuperLinkConnection) -> None:
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:327:    # Ensure superlink section exists
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:331:    superlink_config = toml_dict[SuperLinkConnectionTomlKey.SUPERLINK]
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:334:    conn_dict = serialize_superlink_connection(connection)
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:337:    superlink_config[connection.name] = conn_dict
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:343:def set_default_superlink_connection(connection_name: str) -> None:
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:347:    # Get superlink section
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:348:    superlink_config = toml_dict[SuperLinkConnectionTomlKey.SUPERLINK]
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:351:    if connection_name not in superlink_config:
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:358:    superlink_config[SuperLinkConnectionTomlKey.DEFAULT] = connection_name
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:410:    superlink_config: dict[str, Any] = toml_dict[SuperLinkConnectionTomlKey.SUPERLINK]
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:411:    for name in list(superlink_config.keys()):
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:412:        if isinstance(superlink_config[name], dict):
+venv/lib/python3.11/site-packages/flwr/cli/flower_config.py:413:            superlink_config[name] = flatten_dict(superlink_config[name])
+venv/lib/python3.11/site-packages/flwr/cli/stop.py:25:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/stop.py:47:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/stop.py:77:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/stop.py:79:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/stop.py:80:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/stop.py:84:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/superlink/federation/federation_manager.py:28:    from flwr.server.superlink.linkstate.linkstate import LinkState
+venv/lib/python3.11/site-packages/flwr/common/logger.py:211:def configure_superlink_log_file(
+venv/lib/python3.11/site-packages/flwr/cli/log.py:28:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/log.py:164:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/log.py:193:    migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/log.py:195:    # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/log.py:196:    superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/log.py:199:        _log_with_control_api(superlink_connection, run_id, stream)
+venv/lib/python3.11/site-packages/flwr/cli/log.py:205:    superlink_connection: SuperLinkConnection,
+venv/lib/python3.11/site-packages/flwr/cli/log.py:213:    superlink_connection : SuperLinkConnection
+venv/lib/python3.11/site-packages/flwr/cli/log.py:220:    channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/config/ls.py:44:        # Get `superlink` tables
+venv/lib/python3.11/site-packages/flwr/cli/config/ls.py:45:        superlink_connections = config.get(SuperLinkConnectionTomlKey.SUPERLINK, {})
+venv/lib/python3.11/site-packages/flwr/cli/config/ls.py:48:        default = superlink_connections.pop(SuperLinkConnectionTomlKey.DEFAULT, None)
+venv/lib/python3.11/site-packages/flwr/cli/config/ls.py:50:        connection_names = list(superlink_connections.keys())
+venv/lib/python3.11/site-packages/flwr/common/telemetry.py:175:    # CLI: `flower-superlink`
+venv/lib/python3.11/site-packages/flwr/server/fleet_event_log_interceptor.py:50:        # `flwr.server.superlink.fleet.grpc_rere.fleet_servicer.FleetServicer`
+venv/lib/python3.11/site-packages/flwr/cli/federation/archive.py:22:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/federation/archive.py:44:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/archive.py:60:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/federation/archive.py:62:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/federation/archive.py:63:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/federation/archive.py:67:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/pull.py:25:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/pull.py:41:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/pull.py:63:    migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/pull.py:65:    # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/pull.py:66:    superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/pull.py:69:        channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/reject.py:40:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/reject.py:54:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/revoke.py:46:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/revoke.py:60:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/cli/federation/create.py:24:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/federation/create.py:46:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/create.py:78:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/federation/create.py:80:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/federation/create.py:81:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/federation/create.py:85:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:29:    parse_superlink_connection,
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:30:    set_default_superlink_connection,
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:31:    write_superlink_connection,
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:134:            conn = parse_superlink_connection(toml_fed_config, name)
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:135:            write_superlink_connection(conn)
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:141:        set_default_superlink_connection(default_toml_federation)
+venv/lib/python3.11/site-packages/flwr/cli/config_migration.py:186:    legacy usage check. Other CLI commands should call `migrate(superlink, ctx.args)`.
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/rest_rere/rest_api.py:54:from flwr.server.superlink.fleet.message_handler import message_handler
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/rest_rere/rest_api.py:55:from flwr.server.superlink.linkstate import LinkState, LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/accept.py:40:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/accept.py:54:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_account.py:45:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_account.py:59:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/ls.py:52:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/ls.py:73:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/cli/federation/simulation_config.py:45:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/simulation_config.py:145:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_rere/node_auth_server_interceptor.py:37:from flwr.server.superlink.linkstate import LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_rere/node_auth_server_interceptor.py:104:        # `flwr.server.superlink.fleet.grpc_rere.fleet_server.FleetServicer`
+venv/lib/python3.11/site-packages/flwr/cli/ls.py:28:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/ls.py:49:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/ls.py:103:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/ls.py:105:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/ls.py:106:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/ls.py:116:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:72:from .flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:73:from .local_superlink import ensure_local_superlink
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:348:    connection = ensure_local_superlink(connection)
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:376:    superlink: str | None,
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:383:    superlink : str | None
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:394:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/utils.py:395:        channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/create.py:44:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/invite/create.py:58:    with cli_output_control_stub(superlink, output_format) as (stub, is_json):
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_rere/fleet_servicer.py:56:from flwr.server.superlink.fleet.message_handler import message_handler
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_rere/fleet_servicer.py:57:from flwr.server.superlink.linkstate import LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_rere/fleet_servicer.py:58:from flwr.server.superlink.utils import abort_grpc_context
+venv/lib/python3.11/site-packages/flwr/cli/federation/add_supernode.py:22:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/federation/add_supernode.py:48:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/add_supernode.py:64:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/federation/add_supernode.py:66:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/federation/add_supernode.py:67:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/federation/add_supernode.py:71:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_supernode.py:22:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_supernode.py:48:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_supernode.py:64:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_supernode.py:66:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_supernode.py:67:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/federation/remove_supernode.py:71:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/cli/federation/ls.py:26:from flwr.cli.flower_config import read_superlink_connection
+venv/lib/python3.11/site-packages/flwr/cli/federation/ls.py:53:    superlink: Annotated[
+venv/lib/python3.11/site-packages/flwr/cli/federation/ls.py:84:        migrate(superlink, args=ctx.args)
+venv/lib/python3.11/site-packages/flwr/cli/federation/ls.py:86:        # Read superlink connection configuration
+venv/lib/python3.11/site-packages/flwr/cli/federation/ls.py:87:        superlink_connection = read_superlink_connection(superlink)
+venv/lib/python3.11/site-packages/flwr/cli/federation/ls.py:91:            channel = init_channel_from_connection(superlink_connection)
+venv/lib/python3.11/site-packages/flwr/supernode/cli/flower_supernode.py:69:    root_certificates = try_obtain_root_certificates(args, args.superlink)
+venv/lib/python3.11/site-packages/flwr/supernode/cli/flower_supernode.py:103:        server_address=args.superlink,
+venv/lib/python3.11/site-packages/flwr/supernode/cli/flower_supernode.py:235:        "--superlink",
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_bidi/flower_service_servicer.py:34:from flwr.server.superlink.fleet.grpc_bidi.grpc_bridge import (
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_bidi/flower_service_servicer.py:39:from flwr.server.superlink.fleet.grpc_bidi.grpc_client_proxy import GrpcClientProxy
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_bidi/grpc_client_proxy.py:25:from flwr.server.superlink.fleet.grpc_bidi.grpc_bridge import (
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/grpc_bidi/grpc_server.py:26:from flwr.server.superlink.fleet.grpc_bidi.flower_service_servicer import (
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/message_handler/message_handler.py:64:from flwr.server.superlink.linkstate import LinkState
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/message_handler/message_handler.py:65:from flwr.server.superlink.utils import check_abort
+venv/lib/python3.11/site-packages/flwr/supercore/task_process/agent/run_agentapp.py:58:from flwr.superlink.grid import GrpcGrid
+venv/lib/python3.11/site-packages/flwr/server/serverapp/app.py:70:from flwr.superlink.grid import GrpcGrid
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/vce/vce_api.py:45:from flwr.server.superlink.linkstate import LinkState, LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/server/superlink/fleet/vce/vce_api.py:48:from flwr.superlink.federation import NoOpFederationManager
+venv/lib/python3.11/site-packages/flwr/compat/client/app.py:167:        "\n\n\t\t$ flower-supernode --insecure --superlink='<IP>:<PORT>'"
+venv/lib/python3.11/site-packages/flwr/simulation/app.py:62:from flwr.server.superlink.fleet.vce.backend.backend import BackendConfig
+venv/lib/python3.11/site-packages/flwr/simulation/app.py:63:from flwr.server.superlink.fleet.vce.metrics import VceMetrics
+venv/lib/python3.11/site-packages/flwr/server/superlink/linkstate/linkstate_factory.py:24:from flwr.superlink.federation import FederationManager
+venv/lib/python3.11/site-packages/flwr/server/superlink/serverappio/serverappio_servicer.py:63:from flwr.server.superlink.linkstate import LinkState, LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/compat/server/app.py:30:from flwr.server.superlink.fleet.grpc_bidi.grpc_server import start_grpc_server
+venv/lib/python3.11/site-packages/flwr/compat/server/app.py:48:    This function is deprecated since 1.13.0. Use the :code:`flower-superlink` command
+venv/lib/python3.11/site-packages/flwr/compat/server/app.py:110:        "\n\tInstead, use the `flower-superlink` CLI command to start a SuperLink "
+venv/lib/python3.11/site-packages/flwr/compat/server/app.py:112:        "\n\n\t\t$ flower-superlink --insecure"
+venv/lib/python3.11/site-packages/flwr/compat/server/app.py:114:        "\n\n\t\t$ flower-superlink --help"
+venv/lib/python3.11/site-packages/flwr/server/superlink/serverappio/serverappio_grpc.py:28:from flwr.server.superlink.linkstate import LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/server/superlink/utils.py:22:from flwr.server.superlink.linkstate import LinkState
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:46:from flwr.server.superlink.fleet import vce
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:47:from flwr.server.superlink.fleet.vce.backend.backend import BackendConfig
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:48:from flwr.server.superlink.fleet.vce.metrics import VceMetrics
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:49:from flwr.server.superlink.linkstate import InMemoryLinkState, LinkStateFactory
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:50:from flwr.server.superlink.linkstate.in_memory_linkstate import RunRecord
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:51:from flwr.server.superlink.linkstate.utils import generate_rand_int_from_bytes
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:62:from flwr.superlink.federation import NoOpFederationManager
+venv/lib/python3.11/site-packages/flwr/simulation/run_simulation.py:63:from flwr.superlink.grid import InMemoryGrid
+venv/lib/python3.11/site-packages/flwr/server/superlink/linkstate/sql_linkstate.py:58:from flwr.superlink.federation import FederationManager
+venv/lib/python3.11/site-packages/flwr/simulation/legacy_app.py:44:from flwr.server.superlink.linkstate.utils import generate_rand_int_from_bytes
+venv/lib/python3.11/site-packages/flwr/server/superlink/linkstate/linkstate.py:29:from flwr.superlink.federation import FederationManager
+venv/lib/python3.11/site-packages/flwr/server/superlink/linkstate/in_memory_linkstate.py:43:from flwr.server.superlink.linkstate.linkstate import LinkState
+venv/lib/python3.11/site-packages/flwr/server/superlink/linkstate/in_memory_linkstate.py:48:from flwr.superlink.federation import FederationManager

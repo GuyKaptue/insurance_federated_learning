@@ -60,7 +60,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="TLS launch helper")
     parser.add_argument("--certs-dir", default="certificates")
     parser.add_argument("--superlink", default="127.0.0.1:8000")
-    parser.add_argument("--num-supernodes", type=int, default=4)
+    parser.add_argument(
+        "--num-supernodes",
+        type=int,
+        default=4,
+        help="Number of Flower supernodes (should match insurance_fl.fl.task.CLIENT_IDS length, 4). For Flower 1.31 simulation runs use the canonical entry point: make flwr-sim / scripts/flwr_sim.sh (passes --federation-config num-supernodes=N_CLIENTS and isolates FLWR_HOME).",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 

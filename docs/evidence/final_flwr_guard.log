@@ -1,0 +1,74 @@
+
+Flower configuration not found. Created default configuration at /var/folders/ml/gbzd550j28bfftvz5yhp9gf40000gn/T/flwr-home.lIav7s/config.toml
+
+ðM-^_M-^NM-^J Successfully started run 16234676124087700566
+^[[92mINFO ^[[0m:      Starting logstream for run_id `16234676124087700566`
+^[[92mINFO ^[[0m:      Starting Flower Simulation
+Successfully installed insurance-federated-learning to /tmp/flwr-home-test3/apps/GuyKaptue.insurance-federated-learning.1.0.0.dde2308a.
+/Users/guykaptue/Downloads/insurance_federated_learning/venv/lib/python3.11/site-packages/mlflow/utils/pydantic_utils.py:33: PydanticDeprecatedSince212: Using `@model_validator` with mode='after' on a classmethod is deprecated. Instead, use an instance method. See the documentation at https://docs.pydantic.dev/2.13/concepts/validators/#model-after-validator. Deprecated in Pydantic V2.12 to be removed in V3.0.
+  return pydantic_model_validator(mode=mode)(func)
+/Users/guykaptue/Downloads/insurance_federated_learning/venv/lib/python3.11/site-packages/mlflow/gateway/config.py:454: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+  class Route(ConfigModel):
+^[[93mWARNING ^[[0m:   Both server and strategy were provided, ignoring strategy
+^[[92mINFO ^[[0m:      Starting Flower ServerApp, config: num_rounds=1, no round_timeout
+^[[92mINFO ^[[0m:      
+^[[92mINFO ^[[0m:      [INIT]
+^[[92mINFO ^[[0m:      Requesting initial parameters from one random client
+2026-11-21 12:40:53,860	WARNING authentication_token_setup.py:85 -- Token authentication is enabled for this Ray cluster. Set RAY_AUTH_MODE=disabled to opt out. For more information, see https://docs.ray.io/en/latest/ray-security/token-auth.html
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_MAPPING node_id=887723969367438439 partition_id=0 num_partitions=4 client_id=germany_allianz
+^[[92mINFO ^[[0m:      Received initial parameters from one random client
+^[[92mINFO ^[[0m:      Starting evaluation of initial global parameters
+^[[92mINFO ^[[0m:      Evaluation returned no results (`None`)
+^[[92mINFO ^[[0m:      
+^[[92mINFO ^[[0m:      [ROUND 1]
+^[[92mINFO ^[[0m:      configure_fit: strategy sampled 4 clients (out of 4)
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_MAPPING node_id=887723969367438439 partition_id=0 num_partitions=4 client_id=germany_allianz
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_PHASE_FIT client_id=germany_allianz
+^[[33m(raylet)^[[0m [2026-11-21 12:41:06,389 E 37250 7805232] (raylet) file_system_monitor.cc:116: /tmp/ray/ray/session_2026-11-21_12-40-53_864264_37174 is over 95% full, available space: 0.115486 GB; capacity: 228.274 GB. Object creation will fail if spilling is required.
+^[[36m(ClientAppActor pid=37321)^[[0m CLIENT_MAPPING node_id=9700846383364964482 partition_id=1 num_partitions=4 client_id=france_axa
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_MAPPING node_id=13709610440195116597 partition_id=2 num_partitions=4 client_id=belgium_ageas
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_MAPPING node_id=13843384953982837343 partition_id=3 num_partitions=4 client_id=switzerland_helvetia
+^[[92mINFO ^[[0m:      aggregate_fit: received 4 results and 0 failures
+^[[36m(ClientAppActor pid=37321)^[[0m CLIENT_PHASE_FIT client_id=france_axa
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_PHASE_FIT client_id=belgium_ageas
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_PHASE_FIT client_id=switzerland_helvetia
+^[[93mWARNING ^[[0m:   No fit_metrics_aggregation_fn provided
+^[[92mINFO ^[[0m:      configure_evaluate: strategy sampled 4 clients (out of 4)
+^[[92mINFO ^[[0m:      aggregate_evaluate: received 4 results and 0 failures
+^[[93mWARNING ^[[0m:   No evaluate_metrics_aggregation_fn provided
+^[[36m(ClientAppActor pid=37321)^[[0m CLIENT_MAPPING node_id=9700846383364964482 partition_id=1 num_partitions=4 client_id=france_axa
+^[[36m(ClientAppActor pid=37321)^[[0m CLIENT_PHASE_EVALUATE client_id=france_axa
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_MAPPING node_id=13709610440195116597 partition_id=2 num_partitions=4 client_id=belgium_ageas
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_PHASE_EVALUATE client_id=belgium_ageas
+^[[92mINFO ^[[0m:      
+^[[92mINFO ^[[0m:      [SUMMARY]
+^[[92mINFO ^[[0m:      Run finished 1 round(s) in 3.09s
+^[[92mINFO ^[[0m:      	History (loss, distributed):
+^[[92mINFO ^[[0m:      		round 1: 10215083.75
+^[[92mINFO ^[[0m:      
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_PHASE_EVALUATE client_id=germany_allianz
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_PHASE_EVALUATE client_id=switzerland_helvetia
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_MAPPING node_id=887723969367438439 partition_id=0 num_partitions=4 client_id=germany_allianz
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_MAPPING node_id=13843384953982837343 partition_id=3 num_partitions=4 client_id=switzerland_helvetia
+--- flwr-guard: last 20 lines ---
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_PHASE_FIT client_id=belgium_ageas
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_PHASE_FIT client_id=switzerland_helvetia
+^[[93mWARNING ^[[0m:   No fit_metrics_aggregation_fn provided
+^[[92mINFO ^[[0m:      configure_evaluate: strategy sampled 4 clients (out of 4)
+^[[92mINFO ^[[0m:      aggregate_evaluate: received 4 results and 0 failures
+^[[93mWARNING ^[[0m:   No evaluate_metrics_aggregation_fn provided
+^[[36m(ClientAppActor pid=37321)^[[0m CLIENT_MAPPING node_id=9700846383364964482 partition_id=1 num_partitions=4 client_id=france_axa
+^[[36m(ClientAppActor pid=37321)^[[0m CLIENT_PHASE_EVALUATE client_id=france_axa
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_MAPPING node_id=13709610440195116597 partition_id=2 num_partitions=4 client_id=belgium_ageas
+^[[36m(ClientAppActor pid=37322)^[[0m CLIENT_PHASE_EVALUATE client_id=belgium_ageas
+^[[92mINFO ^[[0m:      
+^[[92mINFO ^[[0m:      [SUMMARY]
+^[[92mINFO ^[[0m:      Run finished 1 round(s) in 3.09s
+^[[92mINFO ^[[0m:      	History (loss, distributed):
+^[[92mINFO ^[[0m:      		round 1: 10215083.75
+^[[92mINFO ^[[0m:      
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_PHASE_EVALUATE client_id=germany_allianz
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_PHASE_EVALUATE client_id=switzerland_helvetia
+^[[36m(ClientAppActor pid=37319)^[[0m CLIENT_MAPPING node_id=887723969367438439 partition_id=0 num_partitions=4 client_id=germany_allianz
+^[[36m(ClientAppActor pid=37320)^[[0m CLIENT_MAPPING node_id=13843384953982837343 partition_id=3 num_partitions=4 client_id=switzerland_helvetia
+flwr-guard identity checks: OK (4 mappings, 4 fit, 4 evaluate)

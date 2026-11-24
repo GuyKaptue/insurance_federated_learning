@@ -1,0 +1,94 @@
+{
+  "dataset_version": "v2",
+  "config_hash": "e93bcefe91a0b25a",
+  "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+  "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+  "git_dirty": true,
+  "evaluation": "ordinary MIA against the in-process FedAvg+FedBN reference; per-client local BN state retained",
+  "target_source": "federated_reference",
+  "task": "is_high_risk",
+  "membership_sampling": "members from each target client train split; nonmembers from that client held-out test+validation splits",
+  "n_members_per_client": 500,
+  "n_nonmembers_per_client": 500,
+  "bootstrap": 1000,
+  "ci_method": "percentile bootstrap over fixed target attack scores",
+  "power_statement": "500 nonmembers give empirical FPR resolution 0.002; the four 95% bootstrap intervals include 0.5, so this sample does not distinguish any client attack from chance. This is not a prospective power guarantee and does not prove zero leakage.",
+  "clients": [
+    {
+      "client": "belgium_ageas",
+      "roc_auc": 0.5065860000000001,
+      "roc_auc_ci95": [
+        0.47109008006496117,
+        0.5424185820107859
+      ],
+      "tpr_at_1pct_fpr": 0.018,
+      "min_resolvable_fpr": 0.002,
+      "target_auc": 0.8545803611593086,
+      "majority_baseline_accuracy": 0.5320000052452087,
+      "target_has_skill": true,
+      "member_nonmember_disjoint": true,
+      "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+      "git_dirty": true,
+      "config_hash": "e93bcefe91a0b25a",
+      "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+      "output": "reports/mia_v2/belgium_ageas.json"
+    },
+    {
+      "client": "france_axa",
+      "roc_auc": 0.508842,
+      "roc_auc_ci95": [
+        0.4706768113465482,
+        0.5445577767707084
+      ],
+      "tpr_at_1pct_fpr": 0.009333333333333334,
+      "min_resolvable_fpr": 0.002,
+      "target_auc": 0.8627102069606758,
+      "majority_baseline_accuracy": 0.5220000147819519,
+      "target_has_skill": true,
+      "member_nonmember_disjoint": true,
+      "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+      "git_dirty": true,
+      "config_hash": "e93bcefe91a0b25a",
+      "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+      "output": "reports/mia_v2/france_axa.json"
+    },
+    {
+      "client": "germany_allianz",
+      "roc_auc": 0.499462,
+      "roc_auc_ci95": [
+        0.46316967218723565,
+        0.5369292684604613
+      ],
+      "tpr_at_1pct_fpr": 0.00823529411764706,
+      "min_resolvable_fpr": 0.002,
+      "target_auc": 0.8288719999999999,
+      "majority_baseline_accuracy": 0.5,
+      "target_has_skill": true,
+      "member_nonmember_disjoint": true,
+      "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+      "git_dirty": true,
+      "config_hash": "e93bcefe91a0b25a",
+      "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+      "output": "reports/mia_v2/germany_allianz.json"
+    },
+    {
+      "client": "switzerland_helvetia",
+      "roc_auc": 0.47463800000000006,
+      "roc_auc_ci95": [
+        0.4396918413246564,
+        0.5089854883952392
+      ],
+      "tpr_at_1pct_fpr": 0.015555555555555557,
+      "min_resolvable_fpr": 0.002,
+      "target_auc": 0.8690623362178987,
+      "majority_baseline_accuracy": 0.5070000290870667,
+      "target_has_skill": true,
+      "member_nonmember_disjoint": true,
+      "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+      "git_dirty": true,
+      "config_hash": "e93bcefe91a0b25a",
+      "dataset_content_hash": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+      "output": "reports/mia_v2/switzerland_helvetia.json"
+    }
+  ]
+}

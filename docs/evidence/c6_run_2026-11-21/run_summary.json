@@ -1,0 +1,40 @@
+{
+  "run": {
+    "configured_rounds": 5,
+    "privacy_enabled": true,
+    "max_epsilon": 8.0,
+    "delta": 0.00001,
+    "clip_norm": 1.0,
+    "noise_std": 1.0,
+    "noise_multiplier": 1.0,
+    "data_dir": "data/processed/fl_task0_smoke",
+    "dataset": "synthetic smoke dataset",
+    "config_hash": "c2f50cc6b0f00e68969f7824defa15a6d25302e9fb4a1d8ba874a49ad9ba0a6f",
+    "git_sha": "c6ef41ba4a4710b8f1c281aca3f577d2884ddad5",
+    "git_dirty": true
+  },
+  "initial_run": {
+    "flower_rounds_completed": 5,
+    "rounds_trained": 2,
+    "rounds_skipped": 3,
+    "stopped_for_budget": true,
+    "round_3_epsilon_spent": 7.077391578166641,
+    "round_3_projected_epsilon": 9.009958991683897,
+    "privacy_budget": 8.0,
+    "rounds_spent_in_state": 2,
+    "source": "run.log, audit_budget_exhausted.jsonl, privacy_state.json"
+  },
+  "resume_run": {
+    "privacy_resume": true,
+    "resumed_from_round": 2,
+    "flower_rounds_completed": 5,
+    "rounds_trained": 0,
+    "rounds_skipped": 5,
+    "rounds_spent_in_state_after_resume": 2,
+    "source": "resume.log, audit_resume.jsonl, privacy_state.json"
+  },
+  "limitations": [
+    "This smoke run verifies privacy accounting continuity and gate refusal; it does not restore a model checkpoint.",
+    "Training data are synthetic smoke partitions, not the canonical v2 4x5000 dataset."
+  ]
+}

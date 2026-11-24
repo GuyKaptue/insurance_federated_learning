@@ -1,0 +1,10 @@
+Name: flwr
+Version: 1.31.0
+Summary: Flower: A Friendly Federated AI Framework
+Home-page: https://flower.ai
+Author: The Flower Authors
+Author-email: The Flower Authors <hello@flower.ai>
+License-Expression: Apache-2.0
+Location: /Users/guykaptue/Downloads/insurance_federated_learning/venv/lib/python3.11/site-packages
+Requires: alembic, click, cryptography, grpcio, grpcio-health-checking, iterators, numpy, packaging, pathspec, protobuf, pycryptodome, pyyaml, requests, rich, sqlalchemy, tomli, tomli-w, typer, uv
+Required-by: insurance-federated-learning

@@ -1,0 +1,64 @@
+tests/unit/test_artifact_provenance.py-15-
+tests/unit/test_artifact_provenance.py-16-
+tests/unit/test_artifact_provenance.py-17-def _write_manifest(path: Path, version: str = "v2", config: str = "abc123") -> Path:
+tests/unit/test_artifact_provenance.py-18-    mp = path / "manifest.json"
+tests/unit/test_artifact_provenance.py:19:    mp.write_text(json.dumps({"dataset_version": version, "config_hash": config}))
+tests/unit/test_artifact_provenance.py-20-    return mp
+tests/unit/test_artifact_provenance.py-21-
+tests/unit/test_artifact_provenance.py-22-
+tests/unit/test_artifact_provenance.py:23:def test_load_artifact_rejects_stale_dataset_version(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py-24-    mp = _write_manifest(tmp_path, "v2", "cfg")
+tests/unit/test_artifact_provenance.py-25-    art = tmp_path / "a.json"
+tests/unit/test_artifact_provenance.py:26:    art.write_text(json.dumps({"dataset_version": "v1", "config_hash": "cfg", "x": 1}))
+tests/unit/test_artifact_provenance.py-27-    with pytest.raises(nb.StaleArtifactError) as ei:
+tests/unit/test_artifact_provenance.py-28-        nb.load_artifact(art, manifest_path=mp)
+tests/unit/test_artifact_provenance.py:29:    assert "dataset_version" in str(ei.value)
+tests/unit/test_artifact_provenance.py-30-
+tests/unit/test_artifact_provenance.py-31-
+tests/unit/test_artifact_provenance.py:32:def test_load_artifact_rejects_stale_config_hash(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py-33-    mp = _write_manifest(tmp_path, "v2", "cfg-new")
+tests/unit/test_artifact_provenance.py-34-    art = tmp_path / "a.json"
+tests/unit/test_artifact_provenance.py:35:    art.write_text(json.dumps({"dataset_version": "v2", "config_hash": "cfg-old"}))
+tests/unit/test_artifact_provenance.py-36-    with pytest.raises(nb.StaleArtifactError) as ei:
+tests/unit/test_artifact_provenance.py-37-        nb.load_artifact(art, manifest_path=mp)
+tests/unit/test_artifact_provenance.py:38:    assert "config_hash" in str(ei.value)
+tests/unit/test_artifact_provenance.py-39-
+tests/unit/test_artifact_provenance.py-40-
+tests/unit/test_artifact_provenance.py-41-def test_load_artifact_accepts_current_provenance(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py-42-    mp = _write_manifest(tmp_path, "v2", "cfg")
+tests/unit/test_artifact_provenance.py-43-    art = tmp_path / "a.json"
+tests/unit/test_artifact_provenance.py:44:    payload = {"dataset_version": "v2", "config_hash": "cfg", "value": 42}
+tests/unit/test_artifact_provenance.py-45-    art.write_text(json.dumps(payload))
+tests/unit/test_artifact_provenance.py-46-    out = nb.load_artifact(art, manifest_path=mp)
+tests/unit/test_artifact_provenance.py-47-    assert out["value"] == 42
+tests/unit/test_artifact_provenance.py-48-
+tests/unit/test_artifact_provenance.py-49-
+tests/unit/test_artifact_provenance.py-50-def test_provenance_fields_reads_manifest(tmp_path: Path) -> None:
+tests/unit/test_artifact_provenance.py-51-    mp = _write_manifest(tmp_path, "v9", "h9")
+tests/unit/test_artifact_provenance.py-52-    p = nb.provenance_fields(manifest_path=mp)
+tests/unit/test_artifact_provenance.py:53:    assert p == {"dataset_version": "v9", "config_hash": "h9"}
+--
+notebooks/_nb_common.py-209-    if not mp.is_absolute():
+notebooks/_nb_common.py-210-        mp = ROOT / mp
+notebooks/_nb_common.py-211-    m = json.loads(mp.read_text())
+notebooks/_nb_common.py-212-    return {
+notebooks/_nb_common.py:213:        "dataset_version": m.get("dataset_version"),
+notebooks/_nb_common.py:214:        "config_hash": m.get("config_hash"),
+notebooks/_nb_common.py-215-    }
+notebooks/_nb_common.py-216-
+notebooks/_nb_common.py-217-
+notebooks/_nb_common.py:218:def load_artifact(path, manifest_path: Optional[Path] = None) -> dict:
+notebooks/_nb_common.py-219-    """Load a JSON artifact and reject it if dataset provenance does not match."""
+notebooks/_nb_common.py-220-    p = Path(path)
+notebooks/_nb_common.py-221-    if not p.is_absolute():
+notebooks/_nb_common.py-222-        p = ROOT / p
+--
+notebooks/_nb_common.py-226-        mp = ROOT / mp
+notebooks/_nb_common.py-227-    if not mp.exists():
+notebooks/_nb_common.py-228-        raise FileNotFoundError(f"Dataset manifest missing: {mp}")
+notebooks/_nb_common.py-229-    m = json.loads(mp.read_text())
+notebooks/_nb_common.py:230:    for k in ("dataset_version", "config_hash"):
+notebooks/_nb_common.py-231-        if d.get(k) != m.get(k):
+notebooks/_nb_common.py-232-            raise StaleArtifactError(
+notebooks/_nb_common.py-233-                f"{p}: {k}={d.get(k)!r} but dataset has {m.get(k)!r}"
+notebooks/_nb_common.py-234-            )

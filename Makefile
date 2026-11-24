@@ -16,10 +16,11 @@ PYTEST ?= $(PYTHON) -m pytest
 PIP ?= $(PYTHON) -m pip
 FLWR := $(shell $(PYTHON) -c "import os,shutil,sys; p=shutil.which('flwr', path=os.path.dirname(sys.executable) or None); print(p or '')")
 GUARD_DATA ?= $(or $(FLWR_GUARD_DATA),data/processed/european_insurance_federated)
+N_CLIENTS ?= $(shell PYTHONPATH=src $(PYTHON) -c "from insurance_fl.fl.task import CLIENT_IDS; print(len(CLIENT_IDS))" 2>/dev/null || echo 4)
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-guard notebooks kernel \
+.PHONY: help install install-dev install-causal lint format typecheck test test-unit flwr-sim flwr-guard notebooks kernel \
 	test-integration test-slow coverage data train fl-all evaluate serve \
 	docker-build docker-run docker-test compose-up compose-down ci clean \
 	_check_causal_deps
@@ -75,11 +76,16 @@ notebooks: ## Execute all notebooks in notebooks/
 kernel: ## Register the repo venv as the 'insurance-fl' Jupyter kernel for notebook validation
 	$(PYTHON) -m ipykernel install --user --name insurance-fl --display-name "insurance-fl (venv)"
 
+flwr-sim: ## Run Flower simulation (canonical entry point: 4 supernodes via --federation-config, isolated FLWR_HOME)
+	@bash scripts/flwr_sim.sh $(FLWR_SIM_ARGS)
+
 flwr-guard: ## Run 1-round Flower smoke and fail if dp backend unavailable
-	@test -n "$(FLWR)" || { echo "ERROR: flwr CLI not found next to $(PYTHON)" >&2; exit 1; }
 	@if [ -n "$(FLWR_GUARD_DATA)" ]; then echo "flwr-guard: using FLWR_GUARD_DATA=$(FLWR_GUARD_DATA)"; fi
 	@test -d "$(GUARD_DATA)" || { echo "ERROR: canonical data dir missing: $(GUARD_DATA)" >&2; exit 1; }
-	@PATH="$(dir $(FLWR)):$$PATH" KMP_DUPLICATE_LIB_OK=True OMP_NUM_THREADS=1 FLWR_TELEMETRY_ENABLED=0 "$(FLWR)" run . --stream --federation-config 'num-supernodes=4' --run-config 'num-server-rounds=1 data-dir="$(GUARD_DATA)" strategy-type="hybrid" fraction-evaluate=1.0 min-fit-clients=4 min-evaluate-clients=4 min-available-clients=4 require-all-clients=true' 2>&1 | tee flwr-guard.log
+	@set -euo pipefail; \
+	PYTHON="$(PYTHON)" bash scripts/flwr_sim.sh \
+	--run-config 'num-server-rounds=1 data-dir="$(GUARD_DATA)" strategy-type="hybrid" fraction-evaluate=1.0 min-fit-clients=4 min-evaluate-clients=4 min-available-clients=4 require-all-clients=true' \
+	2>&1 | tee flwr-guard.log
 	@echo "--- flwr-guard: last 20 lines ---"
 	@tail -20 flwr-guard.log
 	@if grep -qi "backend not available" flwr-guard.log; then echo "ERROR: dp-accounting backend not available in flwr run" >&2; exit 1; fi

@@ -1,60 +1,86 @@
 {
-  "dataset": "european_insurance_federated",
-  "dataset_version": "v2",
-  "generator_git_sha_recorded_in_metadata": "22694a565f9c9711fa9e2b04f5b8e532e89b5985",
-  "generator_git_sha": "91470a5",
-  "generator_git_sha_note": "Regenerated from committed code at 91470a5 (working tree clean at generation except pre-existing untracked reports/*). Data/parquet files SHA-256-identical to prior v2 pregen (a43c757-recorded metadata); metadata json differs only in recorded git SHA/config metadata fields as expected. Repro check: scratch regen matched prior canonical parquet bytes.",
-  "seed": 42,
-  "samples_per_client": 5000,
-  "quality_issues_injected": true,
-  "include_centralized": true,
-  "config_hash": "e93bcefe91a0b25a",
-  "generation_timestamp_utc": "2026-11-19T13:46:19.748780",
-  "client_sizes": {
-    "germany_allianz": 5000,
-    "france_axa": 5000,
-    "belgium_ageas": 5000,
-    "switzerland_helvetia": 5000
-  },
-  "layout_per_client": {
-    "train": 3000,
-    "val": 1000,
-    "test": 750,
-    "site": 250,
-    "total": 5000
-  },
-  "centralized_samples": 3000,
-  "provenance": {
-    "regenerated_from_committed_code": true,
-    "commit": "91470a5",
-    "determinism_check": "pass (parquet SHA-256 identical to prior v2 canonical/pregen across all 17 parquet files; metadata JSON differs only in generator_git_sha/config_hash as expected for different recording commit context)"
-  },
-  "files_sha256": {
-    "centralized/all_clients.parquet": "adbccbfae6405dfa6369f9b3a836700040ffeb3f13ff076ea70d6b79ed49be12",
-    "dataset_info.json": "7b5906c7c4346d2435b1be051fd8e03b81bc2288bd05df53240c95ceffa0149a",
-    "federated/belgium_ageas/site.parquet": "140c200c73a59f20b0b7f30f84ee88b65ccfaf0769093d06e5b422457c96de0a",
-    "federated/belgium_ageas/test.parquet": "6c774609b2cd6b4c8cab3cab875372416075bb57f2cb01de434624cea4a89b15",
-    "federated/belgium_ageas/train.parquet": "c42748eb069b15c42c95c863b2443d28e8b5f9ffe5c03df990b1179f5deba0c8",
-    "federated/belgium_ageas/val.parquet": "64b8c84230a18f50b44451a7b7ffe424215877b0e651807604c3e44dd743f9a5",
-    "federated/france_axa/site.parquet": "176600a9916657ce5a42218f2a13bed230fa8e5a44320038d1addeb463741458",
-    "federated/france_axa/test.parquet": "dee4e91eb44888bc7cd5fe5674eb4b965ddf98290ef519a70b53a8247d3a6a89",
-    "federated/france_axa/train.parquet": "4f7a67ac6ecbb8d494c1cabc197eb881ad5ebd76dfe415a9e51e275ecac89c47",
-    "federated/france_axa/val.parquet": "c54f2a77eb5aa2a0634fe47474744e15f02bc76b757efc963f74b318bd479c01",
-    "federated/germany_allianz/site.parquet": "5cfb934ba376d05a863fbf97b9144e67cfe9895ffbd47ccde01471b33259704e",
-    "federated/germany_allianz/test.parquet": "fc60b533921beef134affb583f9bd52a92b6b384362eed3cc7f906e92278a081",
-    "federated/germany_allianz/train.parquet": "16387fd1a8722626b9d0bb20965e41211d85eccbf2c0436c1a2308ad19909816",
-    "federated/germany_allianz/val.parquet": "eb8a5cb884ec51f1697a2951a9eee8b0f1b61a89fbbf66cd2d7683eb2db7df3d",
-    "federated/switzerland_helvetia/site.parquet": "6e4b4adb51e6347c9020ae4ffb0bffbc533c9d82ec21effd29da344da7c2cc50",
-    "federated/switzerland_helvetia/test.parquet": "6e247156c1ff558d1e8ec0433dd14f2b5f8426f29e1f0f78ae501840179b7dfd",
-    "federated/switzerland_helvetia/train.parquet": "5f7c4b21ce280e4cf43bb9b9e33fa4dfdac401abe2864424ff45804c85379fbf",
-    "federated/switzerland_helvetia/val.parquet": "80438b3a203c504db8d6ab5066379ba4b3431d6886af3edfc345bc1bac40b4b0",
-    "metadata.json": "2b78c985719644fb5333dd9a43511a227b4a15560632bae4ce3c417c86fc3ba9"
-  },
-  "file_count": 19,
-  "label_logic_sha": "03051d931c560108",
-  "staleness_guard": {
+    "dataset": "european_insurance_federated",
+    "dataset_version": "v2",
+    "generator_git_sha_recorded_in_metadata": "22694a565f9c9711fa9e2b04f5b8e532e89b5985",
+    "generator_git_sha": "91470a5",
+    "generator_git_sha_note": "Regenerated from committed code at 91470a5 (working tree clean at generation except pre-existing untracked reports/*). Data/parquet files SHA-256-identical to prior v2 pregen (a43c757-recorded metadata); metadata json differs only in recorded git SHA/config metadata fields as expected. Repro check: scratch regen matched prior canonical parquet bytes.",
+    "seed": 42,
+    "samples_per_client": 5000,
+    "quality_issues_injected": true,
+    "include_centralized": true,
+    "config_hash": "e93bcefe91a0b25a",
+    "generation_timestamp_utc": "2026-11-19T13:46:19.748780",
+    "client_sizes": {
+        "germany_allianz": 5000,
+        "france_axa": 5000,
+        "belgium_ageas": 5000,
+        "switzerland_helvetia": 5000
+    },
+    "layout_per_client": {
+        "train": 3000,
+        "val": 1000,
+        "test": 750,
+        "site": 250,
+        "total": 5000
+    },
+    "centralized_samples": 3000,
+    "provenance": {
+        "regenerated_from_committed_code": true,
+        "commit": "91470a5",
+        "determinism_check": "pass (parquet SHA-256 identical to prior v2 canonical/pregen across all 17 parquet files; metadata JSON differs only in generator_git_sha/config_hash as expected for different recording commit context)"
+    },
+    "files_sha256": {
+        "centralized/all_clients.parquet": "adbccbfae6405dfa6369f9b3a836700040ffeb3f13ff076ea70d6b79ed49be12",
+        "dataset_info.json": "7b5906c7c4346d2435b1be051fd8e03b81bc2288bd05df53240c95ceffa0149a",
+        "federated/belgium_ageas/site.parquet": "140c200c73a59f20b0b7f30f84ee88b65ccfaf0769093d06e5b422457c96de0a",
+        "federated/belgium_ageas/test.parquet": "6c774609b2cd6b4c8cab3cab875372416075bb57f2cb01de434624cea4a89b15",
+        "federated/belgium_ageas/train.parquet": "c42748eb069b15c42c95c863b2443d28e8b5f9ffe5c03df990b1179f5deba0c8",
+        "federated/belgium_ageas/val.parquet": "64b8c84230a18f50b44451a7b7ffe424215877b0e651807604c3e44dd743f9a5",
+        "federated/france_axa/site.parquet": "176600a9916657ce5a42218f2a13bed230fa8e5a44320038d1addeb463741458",
+        "federated/france_axa/test.parquet": "dee4e91eb44888bc7cd5fe5674eb4b965ddf98290ef519a70b53a8247d3a6a89",
+        "federated/france_axa/train.parquet": "4f7a67ac6ecbb8d494c1cabc197eb881ad5ebd76dfe415a9e51e275ecac89c47",
+        "federated/france_axa/val.parquet": "c54f2a77eb5aa2a0634fe47474744e15f02bc76b757efc963f74b318bd479c01",
+        "federated/germany_allianz/site.parquet": "5cfb934ba376d05a863fbf97b9144e67cfe9895ffbd47ccde01471b33259704e",
+        "federated/germany_allianz/test.parquet": "fc60b533921beef134affb583f9bd52a92b6b384362eed3cc7f906e92278a081",
+        "federated/germany_allianz/train.parquet": "16387fd1a8722626b9d0bb20965e41211d85eccbf2c0436c1a2308ad19909816",
+        "federated/germany_allianz/val.parquet": "eb8a5cb884ec51f1697a2951a9eee8b0f1b61a89fbbf66cd2d7683eb2db7df3d",
+        "federated/switzerland_helvetia/site.parquet": "6e4b4adb51e6347c9020ae4ffb0bffbc533c9d82ec21effd29da344da7c2cc50",
+        "federated/switzerland_helvetia/test.parquet": "6e247156c1ff558d1e8ec0433dd14f2b5f8426f29e1f0f78ae501840179b7dfd",
+        "federated/switzerland_helvetia/train.parquet": "5f7c4b21ce280e4cf43bb9b9e33fa4dfdac401abe2864424ff45804c85379fbf",
+        "federated/switzerland_helvetia/val.parquet": "80438b3a203c504db8d6ab5066379ba4b3431d6886af3edfc345bc1bac40b4b0",
+        "metadata.json": "2b78c985719644fb5333dd9a43511a227b4a15560632bae4ce3c417c86fc3ba9"
+    },
+    "file_count": 19,
     "label_logic_sha": "03051d931c560108",
-    "check": "scripts/check_dataset_signal.py and make data-check fail on label_logic_sha mismatch with \"Regenerate with: make data\"",
-    "regen_for_label_logic_sha": "v2 regenerated once from committed code state including label_logic_sha; all parquet files byte-identical to prior v2 canonical (verified)."
-  }
+    "staleness_guard": {
+        "label_logic_sha": "03051d931c560108",
+        "check": "scripts/check_dataset_signal.py and make data-check fail on label_logic_sha mismatch with \"Regenerate with: make data\"",
+        "regen_for_label_logic_sha": "v2 regenerated once from committed code state including label_logic_sha; all parquet files byte-identical to prior v2 canonical (verified)."
+    },
+    "files_content_sha256": {
+        "algorithm": "sha256(column_names_and_dtypes + pandas.util.hash_pandas_object(index=True).to_numpy().tobytes) per parquet; sha256(canonical_sorted_json) per json; overall sha256 over sorted(rel\\0hash)",
+        "overall": "0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0",
+        "files": {
+            "centralized/all_clients.parquet": "ad5a76f1d59fa925be146b3016fe060c31684bca2d70e01028a2187ea447ab3a",
+            "dataset_info.json": "36b0a80006a889dd4ce868fea5cd491819c377fd2e6ec6aa180a300b4fdaa384",
+            "federated/belgium_ageas/site.parquet": "4ed9a40740b2e780f03368ced0ede8f100087e615ddedc0ca4dcb4657aa591cb",
+            "federated/belgium_ageas/test.parquet": "38fb651e7eecb4b17616f3a766b57d7cbc59e1afbcfa77f8f7638c5fd877181a",
+            "federated/belgium_ageas/train.parquet": "c1a84a7da64c58c64635b57d739ec219d43a1258a50b968708aa168736a02ae3",
+            "federated/belgium_ageas/val.parquet": "13ad194778231ac977393e30d48e79159751bbe105bfe4c818a96efb670cfa66",
+            "federated/france_axa/site.parquet": "6b4a8f7453375f491ac7a78a0ef1af6f3a68e2dc0fc3f4c5045a748a67d4f23b",
+            "federated/france_axa/test.parquet": "1a1d0fa287b68c058d1ce0e14b8ec6184b45fc2b4f3e233c91455965c1f8040e",
+            "federated/france_axa/train.parquet": "7ecce9fe30a7fd4d372e730b6a2303c80cc59e01768deda45a1f9403b31990f4",
+            "federated/france_axa/val.parquet": "a0e1b945f86f3f401fa0bf9465ac2530c6139395daf313adfc8b9257065e968d",
+            "federated/germany_allianz/site.parquet": "f99e1308ca363b46cf1829a2a966e28d59be2534c567b726819eb96f6bfafa5d",
+            "federated/germany_allianz/test.parquet": "5e447c43d7f382155cce9f4d1e9e03eff5456869511dfa81c1b57ef0a96bbab2",
+            "federated/germany_allianz/train.parquet": "a6b398033aeb62bb04a4693aa6aad8825120bc8e6104c55cb71a8fc932f14fb1",
+            "federated/germany_allianz/val.parquet": "a38ac58343a6aef25ab51e6924232fd4a8ee74d148120b4fe3e3e40186f1b692",
+            "federated/switzerland_helvetia/site.parquet": "4b249add78573fa1546381c2cf0f004d8c5307c87c09889a6e93aab1dcc66f3d",
+            "federated/switzerland_helvetia/test.parquet": "64ef68ae9c32bb7a0b8dce4637d352f696cbe3afade5ecd3d0ecebdb99ccbd7f",
+            "federated/switzerland_helvetia/train.parquet": "6a81168ae75e5094edb6ad89ba59563eff0058c7272bf365a1cf0dcbfe6ef77e",
+            "federated/switzerland_helvetia/val.parquet": "238259ec20098f12b638fc0cf92bfead7b3b201febf453e30645babdc0fd2670",
+            "metadata.json": "9a3a419abaff756dd7f252c8bfebadc85d6760569eed7bbc2c8d3737b843f953"
+        }
+    },
+    "files_sha256_note": "files_sha256 contains raw file bytes hashes (informational/writer-dependent; parquet bytes may vary by writer/library version). files_content_sha256 is the platform-independent logical integrity gate verified by scripts/check_dataset_signal.py (make data-check)."
 }

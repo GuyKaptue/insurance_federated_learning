@@ -9,8 +9,9 @@ import pytest
 pytest.importorskip("torch")
 pytest.importorskip("flwr")
 
+from insurance_fl.fl.privacy import RdpAccountantWrapper, account_round
 from insurance_fl.fl.server_app import app as server_app
-from insurance_fl.fl.server_app import server_fn
+from insurance_fl.fl.server_app import privacy_config_from_run_config, server_fn
 
 
 def test_server_app_is_flower_serverapp() -> None:
@@ -34,8 +35,44 @@ def test_server_fn_builds_fedavg() -> None:
     components = server_fn(ctx)
     from flwr.server.strategy import FedAvg
 
-    assert isinstance(components.strategy, FedAvg)
+    assert isinstance(components.strategy.inner, FedAvg)
     assert components.config.num_rounds == 2
+
+
+def test_server_fn_resumes_privacy_accounting_state(tmp_path) -> None:
+    state_path = tmp_path / "privacy-state.json"
+    audit_path = tmp_path / "audit.jsonl"
+    run_config = {
+        "strategy-type": "fedavg",
+        "fraction-fit": 1.0,
+        "fraction-evaluate": 0.5,
+        "min-fit-clients": 2,
+        "min-evaluate-clients": 2,
+        "min-available-clients": 4,
+        "num-server-rounds": 5,
+        "privacy-enabled": "true",
+        "privacy-local-dp-clip-norm": 1.0,
+        "privacy-local-dp-noise-std": 1.0,
+        "privacy-delta": 1e-5,
+        "privacy-max-epsilon": 8.0,
+        "privacy-state-path": str(state_path),
+        "privacy-resume": "false",
+        "audit-path": str(audit_path),
+    }
+    accountant = RdpAccountantWrapper(privacy_config_from_run_config(run_config))
+    account_round(accountant, state_path, server_round=1)
+    run_config["privacy-resume"] = "true"
+
+    components = server_fn(SimpleNamespace(run_config=run_config))
+
+    assert components.strategy.accountant.rounds == 1
+    assert components.strategy.accountant.resumed_from_round == 1
+    assert '"accounting_status": "resumed"' in audit_path.read_text()
+
+
+def test_privacy_resume_requires_state_path() -> None:
+    with pytest.raises(ValueError, match="privacy-state-path"):
+        server_fn(SimpleNamespace(run_config={"privacy-resume": "true"}))
 
 
 def test_server_app_main_secagg_enabled_fails_closed(monkeypatch):

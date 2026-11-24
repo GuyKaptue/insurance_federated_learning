@@ -31,7 +31,7 @@
 - `insurance_fl.fl.boosters`: `train_boosters_for_client(client_id, x_train, y_train, x_val, y_val, output_dir, tasks, n_folds, seed)`.
 - `insurance_fl.fl.stacking`: `fit_stacking_meta(oof_predictions, y_true, fallback=True)`, `predict_stacked`, `save/load_stacking_meta`, `validate_alpha`.
 - `insurance_fl.fl.hybrid`: `optimize_beta(nn_preds, booster_preds, y_true, task_type, task_name) -> (beta_claim|None, diagnostics)` with informative/uninformative status.
-- Flower: `flwr.server.workflow.SecAggPlusWorkflow(num_shares, reconstruction_threshold, max_weight, clipping_range, quantization_range, modulus_range, timeout)` available in installed 1.43.0.
+- Flower: the latest validator used 1.31.0; `SecAggPlusWorkflow` parameter construction is exercised, while end-to-end app orchestration remains unverified and fails closed.
 
 ## Before/after (approximate, by modernization pass)
 
@@ -51,21 +51,29 @@
 
 ## Validation matrix
 
-| Notebook | Structure | Execution (NB_MODE=light) | Scientific review | Status |
+| Notebook | Structure | Execution (NB_MODE=light) | Kernel | Result |
 |---|---|---|---|---|
-| `synthetic_data_generation.ipynb` | ok (nbformat valid, uses `_nb_common`, no TODO/hardcoded paths) | Passed (ad hoc run during fixes) | Real-data diagnostics computed; synthetic-only context stated | **Pass (light, ad hoc)** |
-| `dp_accounting_rdp.ipynb` | ok | Passed (ad hoc) | Uses real privacy API; cross-check differences reported | **Pass (light, ad hoc)** |
-| `local_dp.ipynb` | ok | Passed (ad hoc) | Mechanism experiments computed; classical Gaussian caveat stated | **Pass (light, ad hoc)** |
-| `membership_inference.ipynb` | ok | Passed (ad hoc) | Empirical attack metrics; not a privacy guarantee | **Pass (light, ad hoc)** |
-| `security_secagg.ipynb` | ok | Passed (ad hoc) | Educational simulation clearly labeled non-secure | **Pass (light, ad hoc)** |
-| `fairness_evaluation.ipynb` | ok | Passed (ad hoc) | Metrics computed from predictions; bootstrap CI included | **Pass (light, ad hoc)** |
-| `flower_federated_learning.ipynb` | ok | Passed (ad hoc) | Evidence parsed; reference sim labeled (not Flower runtime) | **Pass (light, ad hoc)** |
-| `tls_credentials.ipynb` | ok | Passed (ad hoc) | Temp certs verified with positive/negative tests | **Pass (light, ad hoc)** |
-| `hybrid_boosters_stacking.ipynb` | ok | Passed in light mode after refactor/light fallback (sklearn-only in light, reduced recomputation) | Leakage-free design and project API usage implemented; β/stacking diagnostics computed | **Pass (light, ad hoc)** |
-| `causal_inference_quickstart.ipynb` | ok | Passed (ad hoc) | Project estimators may fall back when pgmpy unavailable; truth validation included | **Pass (light, ad hoc)** |
-| `transportability_quickstart.ipynb` | ok | Passed (ad hoc) | LOCO transport with weights/ESS and clipping sensitivity | **Pass (light, ad hoc)** |
+| `calibration_comparison.ipynb` | ok | passed (3s) | insurance-fl | **passed** |
+| `causal_inference_quickstart.ipynb` | ok | passed (5s) | insurance-fl | **passed** |
+| `client_identity_and_isolation.ipynb` | ok | passed (3s) | insurance-fl | **passed** |
+| `dp_accounting_rdp.ipynb` | ok | passed (5s) | insurance-fl | **passed** |
+| `dp_utility_tradeoff.ipynb` | ok | passed (3s) | insurance-fl | **passed** |
+| `fairness_evaluation.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `feature_surface_and_leakage.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `flower_federated_learning.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `hybrid_boosters_stacking.ipynb` | ok | passed (13s) | insurance-fl | **passed** |
+| `local_dp.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `membership_inference.ipynb` | ok | passed (5s) | insurance-fl | **passed** |
+| `mia_power_analysis.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `privacy_budget_gate.ipynb` | ok | passed (3s) | insurance-fl | **passed** |
+| `round1_loss_diagnosis.ipynb` | ok | passed (3s) | insurance-fl | **passed** |
+| `security_secagg.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `synthetic_data_generation.ipynb` | ok | passed (7s) | insurance-fl | **passed** |
+| `test_split_bayes_sanity.ipynb` | ok | passed (3s) | insurance-fl | **passed** |
+| `tls_credentials.ipynb` | ok | passed (4s) | insurance-fl | **passed** |
+| `transportability_quickstart.ipynb` | ok | passed (8s) | insurance-fl | **passed** |
 
-> **Important:** A complete, clean `scripts/validate_notebooks.py` run producing authoritative `reports/notebook_validation.json` was not completed within this session because `hybrid_boosters_stacking.ipynb` caused kernel death/long runtimes in the current environment. Do not treat unvalidated notebooks as passed.
+Validator report: `reports/notebook_validation.json`; Python 3.11.16, Flower 1.31.0, mode `light`. Measured total: 19/19 passed, 0 failed.
 
 ## Dependency report
 - **Reused (project/env):** numpy, pandas, scipy, scikit-learn, matplotlib, seaborn/plotly (available), torch/xgboost/lightgbm/catboost (available), dp-accounting, statsmodels, networkx, cryptography, flwr, nbformat/nbclient/ipykernel.
@@ -77,7 +85,7 @@
 - `insurance_fl.transport.transport` imports `require_causal_deps()` at module import time (requires `pgmpy`), which makes transport utilities unavailable without causal deps; notebooks implemented transport diagnostics without importing this module.
 - Causal estimator/DAG utilities that depend on `pgmpy` are unavailable in this environment (`pgmpy` missing); notebooks use fallbacks where possible.
 - Pre-existing privacy/fairness integration concerns noted in prompt context (e.g. state persistence wiring in strategy/server, fairness artifact guard semantics) were not modified in `src/` (no notebook-blocking bug required a `src/` edit for this pass).
-- `reports/notebook_validation.json` must be regenerated from a full successful validation run before claiming all notebooks passed.
+- The latest light-mode run is recorded in `reports/notebook_validation.json`; light mode is not evidence that full mode was executed.
 - Committed notebook outputs policy: notebooks were modernized and some executed ad hoc; outputs may be inconsistent/stale across files. Recommended: clear outputs or re-execute all via validation and commit consistently.
 
 ## Acceptance criteria status
@@ -86,5 +94,5 @@
 - No fabricated numbers intended; computed or artifact-labeled: **met by design in rewrites** (review recommended).
 - No hardcoded machine paths: **met in rewritten notebooks/helper**.
 - ≥4 distinct interpreted figures per notebook (by `save_fig` count): **met** (all >=5 in current files).
-- README matches what exists and validation JSON is authoritative: **partially met** (README updated; validation JSON pending full clean run).
+- README catalog and validation JSON reflect the latest measured light-mode run: **met for light mode**; full mode is not claimed.
 - One-commit-per-notebook and final `git log --oneline`: **not performed in this session** (working tree contains broad uncommitted/modified changes).

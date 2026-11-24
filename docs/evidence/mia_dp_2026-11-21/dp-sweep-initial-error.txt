@@ -1,0 +1,23 @@
+
+Local DP Utility Sweep
+==================================================================
+  delta=1e-05, clipping_norm=1.0, sensitivity=1.0, accountant_noise_multiplier=1.0
+  seed=42, client=germany_allianz, data_dir=data/processed/european_insurance_federated
+
+     sigma |   train_loss |     val_loss | will_renew_acc
+  ---------+--------------+--------------+---------------
+  baseline | 10348841.000000 | 9734958.000000 |         0.7720
+      0.50 | FAILED: unsupported operand type(s) for /: 'float' and 'NoneType'
+      1.00 | FAILED: unsupported operand type(s) for /: 'float' and 'NoneType'
+      2.00 | FAILED: unsupported operand type(s) for /: 'float' and 'NoneType'
+
+Results written to /private/tmp/task5-dp-germany.json
+  git_dirty: True
+
+## Local DP Utility Summary
+
+| noise multiplier | delta | val_loss | will_renew_acc | claim_risk_score_rmse |
+|------------------|-------|----------|----------------|-----------------------|
+| 0.5 | 1e-05 | ERROR | ERROR | ERROR |
+| 1.0 | 1e-05 | ERROR | ERROR | ERROR |
+| 2.0 | 1e-05 | ERROR | ERROR | ERROR |

@@ -1,0 +1,8 @@
+Dataset signal check: data/processed/european_insurance_federated (threshold AUC >= 0.7)
+LABEL_LOGIC: ok (sha=03051d931c560108)
+CONTENT_HASH: ok (files=19 overall=0f0f5df8143c7b5c297c4565583f64f236fe63d2c9eea22d45a998a2cbe628c0)
+  - germany_allianz: bayes_auc=0.8370 pos=0.5226 n=5000 [pass]
+  - france_axa: bayes_auc=0.8365 pos=0.5254 n=5000 [pass]
+  - belgium_ageas: bayes_auc=0.8508 pos=0.5216 n=5000 [pass]
+  - switzerland_helvetia: bayes_auc=0.8517 pos=0.5282 n=5000 [pass]
+RESULT: PASS
